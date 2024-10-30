@@ -1,0 +1,816 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #c0c0c0, #ffffff);
+    display: flex;
+    overflow: hidden;
+}
+
+/* 背景容器样式 */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    opacity: 1;
+    transition: opacity 1s ease-in-out; /* 添加淡入淡出效果 */
+}
+
+/* 按钮样式 */
+#toggle-btn {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    position: fixed;
+    top: 10px; /* 向下调整 */
+    left: 10px; /* 向右调整 */
+    z-index: 15;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+/* 鼠标悬停时的发光效果 */
+#toggle-btn:hover {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+/* 侧边栏样�?*/
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 150px;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px) saturate(180%);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 10;
+    overflow: hidden;
+    transition: width 0.4s ease, padding 0.4s ease;
+}
+
+/* 侧边栏折叠的样式 */
+#sidebar.collapsed {
+    width: 0;
+    padding: 0;
+}
+
+/* 侧边栏导航链接样�?*/
+#sidebar nav {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+
+/* 导航链接样式 */
+#sidebar a {
+    padding: 10px 0;
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 0.3s, opacity 0.3s;
+    width: 100%;
+    text-align: center;
+}
+
+/* 鼠标悬停时导航链接的效果 */
+#sidebar a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* 折叠后的链接样式 */
+#sidebar.collapsed nav {
+    opacity: 0;
+}
+
+/* 页面内容部分 */
+.content {
+    flex: 1;
+    margin-left: 150px; /* 确保与侧边栏对齐 */
+    transition: margin-left 0.4s ease; /* 动画效果 */
+    overflow-y: auto; /* 启用垂直滚动�?*/
+    height: 100vh; /* 设置高度为视口高�?*/
+    padding: 20px; /* 内边�?*/
+    background-color: rgba(255, 255, 255, 0.2); /* 背景颜色，带透明�?*/
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+    position: relative; /* 添加相对定位 */
+	backdrop-filter: blur(5px) saturate(180%); /* 毛玻璃模糊效�?*/
+    -webkit-backdrop-filter: blur(5px) saturate(180%); /* 兼容性处�?*/
+}
+/* 侧边栏折叠后的内容样�?*/
+#sidebar.collapsed ~ .content {
+    margin-left: 50px; /* 当侧边栏折叠时，调整内容的左边距 */
+}
+
+
+
+#posts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* 每篇文章之间的间�?*/
+    padding: 20px;
+}
+
+.frosted-container {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2); /* 更轻的毛玻璃效果 */
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+}
+
+.post-image {
+    width: 120px;
+    height: auto;
+    border-radius: 8px;
+    margin-right: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.post-content h2 {
+    font-size: 1.5em;
+    color: #007bff;
+    margin: 0;
+}
+
+.post-content p {
+    color: #666;
+}
+.post-content {
+    flex: 1;
+    padding-right: 20px;
+}
+
+.post-content h2 {
+    margin: 0 0 10px;
+    font-size: 1.5em;
+    color: #333;
+    transition: color 0.3s, text-shadow 0.3s; /* 添加过渡效果 */
+}
+
+/* 移除下划线，悬停时发光效�?*/
+.post-content a {
+    text-decoration: none; /* 移除下划�?*/
+    color: inherit; /* 继承父元素的颜色 */
+}
+
+.post-content a:hover {
+    color: #007acc; /* 鼠标悬停时的颜色 */
+    text-shadow: 0 0 10px rgba(0, 122, 204, 0.8); /* 发光效果 */
+}
+
+.post-image {
+    max-width: 200px;
+    border-radius: 8px;
+    transition: box-shadow 0.3s;
+}
+
+.post-image:hover {
+    box-shadow: 0 0 15px 5px rgba(0, 122, 204, 0.6); /* 封面图的发光效果 */
+}
+
+.search-container {
+    margin: 20px auto; /* 上下外边距为 20px，左右居�?*/
+    max-width: 600px; /* 设置搜索框的最大宽�?*/
+    position: relative; /* 让按钮可以绝对定�?*/
+}
+
+.search-container input {
+    width: 100%; /* 让输入框占满父容器的宽度 */
+    padding: 10px 40px 10px 10px; /* 右侧增加内边距以留出清除按钮空间 */
+    border: none; /* 去掉边框 */
+    border-radius: 8px; /* 圆角 */
+    background: rgba(255, 255, 255, 0.3); /* 背景透明 */
+    backdrop-filter: blur(10px); /* 毛玻璃效�?*/
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+    outline: none; /* 去掉聚焦时的轮廓 */
+    transition: background 0.3s, box-shadow 0.3s; /* 添加过渡效果 */
+}
+
+.search-container input:focus {
+    background: rgba(255, 255, 255, 0.5); /* 聚焦时的背景变化 */
+    box-shadow: 0 0 10px rgba(0, 122, 204, 0.8); /* 添加光晕效果 */
+}
+
+#clear-btn {
+    position: absolute; /* 使用绝对定位 */
+    right: 10px; /* 距离右边的距�?*/
+    top: 40%; /* 垂直居中 */
+    transform: translateY(-50%); /* 确保按钮垂直居中 */
+    background: none; /* 去掉背景 */
+    border: none; /* 去掉边框 */
+    cursor: pointer; /* 鼠标变为指针 */
+    font-size: 16px; /* 根据需要调整大�?*/
+    color: #888; /* 默认颜色 */
+    line-height: 1; /* 确保文本行高正常 */
+}
+#clear-btn:hover {
+    color: #333; /* 鼠标悬停时改变颜�?*/
+}
+
+
+/* 分页样式 */
+.pagination {
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    margin: 20px 0;
+}
+
+.page-buttons {
+    display: flex; /* 使按钮在一行中显示 */
+    align-items: center; /* 垂直居中 */
+}
+
+.page-buttons button {
+    margin: 0 5px; /* 按钮之间的间�?*/
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff; /* 普通按钮背�?*/
+    color: black; /* 设置文本颜色为黑�?*/
+    cursor: pointer;
+}
+
+.page-buttons button.active {
+    background: rgba(255, 255, 255, 0.3); /* 毛玻璃背�?*/
+    backdrop-filter: blur(10px); /* 毛玻璃效�?*/
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.6); /* 发光效果 */
+    color: black; /* 当前页码的文本颜�?*/
+}
+
+.page-buttons button:hover {
+    background-color: #0056b3; /* 悬停效果 */
+    color: white; /* 悬停时将文本颜色改为白色 */
+}
+
+.pagination button {
+    padding: 10px 15px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    color: black; /* 所有按钮的文本颜色 */
+}
+
+.pagination button:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.5);
+    color: black; /* 悬停时将文本颜色保持为黑�?*/
+}
+span {
+    margin: 0 5px; /* 省略号的左右间距 */
+    font-weight: bold; /* 使省略号加粗 */
+    color: #007BFF; /* 省略号的颜色 */
+    cursor: default; /* 鼠标悬停时显示为箭头 */
+    font-size: 16px; /* 省略号的字体大小 */
+}
+/* 毛玻璃效�?*/
+.scroll-container {
+    backdrop-filter: blur(5px) saturate(180%); /* 毛玻璃模糊效�?*/
+    -webkit-backdrop-filter: blur(5px) saturate(180%); /* 兼容性处�?*/
+	background: rgba(255, 255, 255, 0.2); /* �޸�͸���� */
+}
+
+/* 自定义滚动条样式 */
+.scroll-container::-webkit-scrollbar {
+    width: 12px; /* 滚动条宽�?*/
+}
+
+.scroll-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.3); /* 更透明的白色背景，增强水晶效果 */
+    border-radius: 10px; /* 圆角 */
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(173, 216, 230, 0.8); /* 水晶蓝色滑块，增加透明度以获得透亮效果 */
+    border-radius: 10px; /* 圆角 */
+    box-shadow: 0 0 5px rgba(0, 122, 204, 0.5); /* 添加光晕效果 */
+    transition: background 0.3s; /* 平滑过渡 */
+}
+
+.scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(135, 206, 250, 1); /* 悬停时加深滑块颜�?*/
+}
+/* 联系我页面样�?*/
+.contact-container {
+    max-width: 600px; /* 设置最大宽�?*/
+    margin: 20px auto; /* 上下外边距为 20px，左右居�?*/
+    padding: 20px; /* 内边�?*/
+    background: rgba(255, 255, 255, 0.8); /* 背景颜色 */
+    border-radius: 10px; /* 圆角 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+}
+
+.contact-container h2 {
+    text-align: center; /* 标题居中 */
+}
+
+form {
+    display: flex;
+    flex-direction: column; /* 纵向排列 */
+}
+
+label {
+    margin-bottom: 5px; /* 标签与输入框之间的间�?*/
+}
+
+input, textarea {
+    padding: 10px;
+    border: none; /* 去掉边框 */
+    border-radius: 5px; /* 圆角 */
+    background: rgba(230, 230, 230, 0.7); /* 输入框背�?*/
+    margin-bottom: 15px; /* 输入框之间的间隔 */
+    outline: none; /* 去掉聚焦时的轮廓 */
+    transition: background 0.3s; /* 添加过渡效果 */
+    width: 100%; /* 确保输入框和文本区域占满父容器的宽度 */
+    box-sizing: border-box; /* �?padding �?border 不影响宽�?*/
+}
+
+textarea {
+    resize: vertical; /* 允许用户垂直调整大小 */
+    min-height: 100px; /* 设置最小高�?*/
+}
+
+input:focus, textarea:focus {
+    background: rgba(255, 255, 255, 1); /* 聚焦时的背景变化 */
+}
+
+button {
+    padding: 10px;
+    border: none; /* 去掉边框 */
+    border-radius: 5px; /* 圆角 */
+    background: #007BFF; /* 按钮背景颜色 */
+    color: white; /* 字体颜色 */
+    font-size: 16px;
+    cursor: pointer; /* 鼠标指针 */
+    transition: background 0.3s; /* 添加过渡效果 */
+}
+
+button:hover {
+    background: #0056b3; /* 悬停时的背景颜色 */
+}
+/* 关于我页面样�?*/
+.about-container {
+    max-width: 800px; /* 设置最大宽�?*/
+    margin: 20px auto; /* 上下外边距为 20px，左右居�?*/
+    padding: 20px; /* 内边�?*/
+    background: rgba(255, 255, 255, 0.8); /* 背景颜色 */
+    border-radius: 10px; /* 圆角 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+}
+
+.profile-image {
+    width: 150px; /* 设置头像宽度 */
+    height: 150px; /* 设置头像高度 */
+    border-radius: 50%; /* 圆形头像 */
+    display: block; /* 让头像居中显�?*/
+    margin: 0 auto 20px; /* 顶部外边距为 0，底部外边距�?20px，左右居�?*/
+}
+
+.about-container h2 {
+    text-align: center; /* 标题居中 */
+}
+
+.about-container h3 {
+    margin-top: 20px; /* 设置章节标题的上边距 */
+}
+
+.about-container ul {
+    list-style-type: disc; /* 列表样式 */
+    padding-left: 20px; /* 列表左边�?*/
+}
+.profile-image {
+    width: 150px; /* 设置头像宽度 */
+    height: 150px; /* 设置头像高度 */
+    border-radius: 50%; /* 圆形头像 */
+    display: block; /* 让头像居中显�?*/
+    margin: 0 auto 20px; /* 顶部外边距为 0，底部外边距�?20px，左右居�?*/
+}
+.post-content {
+    margin: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8); /* 背景色稍微透明 */
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.post-content h2, .post-content h3 {
+    color: #333; /* 标题颜色 */
+}
+
+.post-content p {
+    line-height: 1.6; /* 行高 */
+}
+.back-link {
+    text-decoration: none; /* 取消下划�?*/
+    color: #007BFF; /* 设置链接的颜色（可以根据需要调整） */
+    transition: text-shadow 0.3s; /* 添加过渡效果 */
+}
+
+.back-link:hover {
+    text-shadow: 0 0 10px rgba(0, 123, 255, 0.8), 0 0 20px rgba(0, 123, 255, 0.6); /* 鼠标悬停时发光效�?*/
+}
+.links-container {
+    margin: 20px 0; /* 上下外边�?*/
+    text-align: center; /* 内容居中 */
+}
+
+.links-header {
+    display: flex; /* 使用 flexbox 布局 */
+    align-items: center; /* 垂直居中对齐 */
+    justify-content: center; /* 水平居中对齐 */
+}
+
+.links-header h2 {
+    font-size: 20px; /* 标题字体大小 */
+    margin-right: 15px; /* 标题右侧外边�?*/
+}
+
+.links-list {
+    display: flex; /* 使用 flexbox 布局 */
+    padding: 0; /* 去掉内边�?*/
+    list-style: none; /* 去掉列表样式 */
+}
+
+.links-list li {
+    margin: 0 10px; /* 左右外边�?*/
+}
+
+/* 最新文章标题链接的样式 */
+.links-list a {
+    text-decoration: none; /* 去掉下划�?*/
+    color: #007bff; /* 设置标题颜色 */
+}
+
+/* 当鼠标悬停时的样�?*/
+.links-list a:hover {
+    color: #0056b3; /* 悬停时标题颜�?*/
+    text-decoration: none; /* 悬停时仍然去掉下划线 */
+}
+
+.download-section {
+    margin: 20px auto; /* 上下外边�?*/
+    max-width: 600px; /* 设置最大宽�?*/
+    text-align: center; /* 内容居中 */
+}
+
+.download-list {
+    list-style: none; /* 去掉列表样式 */
+    padding: 0; /* 去掉内边�?*/
+}
+
+.download-list li {
+    margin: 10px 0; /* 上下外边�?*/
+}
+
+.download-list a {
+    text-decoration: none; /* 去掉下划�?*/
+    color: #007BFF; /* 设置链接颜色 */
+    font-size: 18px; /* 链接字体大小 */
+    transition: color 0.3s; /* 添加过渡效果 */
+}
+
+.download-list a:hover {
+    color: #0056b3; /* 悬停时颜色变�?*/
+}
+.download-button {
+    display: inline-block; /* 使链接呈现为�?*/
+    padding: 10px 20px; /* 内边�?*/
+    margin: 10px 0; /* 外边�?*/
+    background-color: rgba(255, 255, 255, 0.7); /* 白色毛玻璃背�?*/
+    color: black; /* 字体颜色 */
+    text-decoration: none; /* 去掉下划�?*/
+    border-radius: 5px; /* 圆角 */
+    transition: background-color 0.3s, box-shadow 0.3s; /* 背景色和阴影变化过渡 */
+    backdrop-filter: blur(10px); /* 毛玻璃效�?*/
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+}
+
+.download-button:hover {
+    background-color: rgba(255, 255, 255, 0.9); /* 悬停时颜色变�?*/
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* 悬停时阴影效果变�?*/
+}
+.download-btn {
+    display: inline-block;
+    background-color: rgba(0, 122, 255, 0.7); /* 增加不透明�?*/
+    color: #fff;
+    padding: 10px 20px;
+    margin: 5px 0;
+    text-decoration: none;
+    border-radius: 8px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s;
+}
+
+.download-btn:hover {
+    background-color: rgba(0, 122, 255, 0.9); /* 鼠标悬停时更加不透明 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.download-frosted-container {
+    background: rgba(255, 255, 255, 0.1); /* 更透明的毛玻璃背景 */
+    backdrop-filter: blur(1px); /* 模糊效果 */
+    border-radius: 10px; /* 圆角 */
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2); /* 阴影 */
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+    color: #333;
+    text-align: center;
+}
+
+.download-frosted-container ul {
+    list-style: none; /* 去掉列表项前的点 */
+    padding: 0;
+}
+
+.download-frosted-container li {
+    margin: 10px 0;
+}
+#latest-posts {
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+}
+
+#latest-posts h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.post-preview {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.post-cover {
+    width: 150px;       /* �޸�Ϊ����Ŀ��� */
+    height: auto;       /* ����Ӧ�߶� */
+    border-radius: 8px;
+    margin-right: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+
+.post-content {
+    max-width: 800px; /* 增加容器宽度 */
+    margin: 0 auto; /* 水平居中 */
+    padding: 20px; /* 添加左右内边�?*/
+    line-height: 1.7;
+}
+.post-content h3 a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.post-content h3 a:hover {
+    text-decoration: none;
+}
+
+.post-content p {
+    color: #666;
+}
+/* 大容�?*/
+.large-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px) saturate(180%);
+    border-radius: 10px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+/* 每篇文章的样�?*/
+.post-item {
+    display: flex;
+    align-items: center;
+    padding: 20px 0;
+}
+
+/* 文章封面�?*/
+.post-image {
+    width: 120px;
+    height: auto;
+    border-radius: 8px;
+    margin-right: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* 文章标题和内�?*/
+.post-content h2 {
+    font-size: 1.5em;
+    color: #007bff;
+    margin: 0;
+}
+
+.post-content p {
+    color: #666;
+}
+
+/* 分割线样�?*/
+.divider {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+}
+/* 最新文章标题链接的样式 */
+.post-content a {
+    text-decoration: none; /* 去掉下划�?*/
+    color: #007bff; /* 设置标题颜色 */
+}
+
+/* 当鼠标悬停时的样�?*/
+.post-content a:hover {
+    color: #0056b3; /* 悬停时标题颜�?*/
+    text-decoration: none; /* 悬停时仍然去掉下划线 */
+}
+/* 时间戳的基本样式 */
+.post-date {
+    font-size: 0.9rem;
+    color: #666666; /* 使用较深的灰色字体颜�?*/
+    margin-bottom: 10px;
+    display: inline-block;
+    font-style: italic; /* 使用斜体使其更显美观 */
+}
+
+/* 添加一个图�?*/
+.post-date::before {
+    content: "📅"; /* 使用日历图标 */
+    margin-right: 6px;
+    font-style: normal; /* 图标不使用斜�?*/
+}
+
+/* 悬停效果 */
+.post-date:hover {
+    color: #333333; /* 悬停时字体颜色变�?*/
+}
+.post-media {
+    border-radius: 15px;  /* 设置圆角大小 */
+    max-width: 100%;      /* 确保图片自适应容器宽度 */
+    height: auto;         /* 保持图片的纵横比 */
+    display: block;       /* 将图片设置为块级元素 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* 添加阴影效果 */
+}
+
+.post-video {
+    max-width: 100%;
+    height: auto;
+    margin: 20px 0;
+    display: block;
+}
+.video-container {
+    max-width: 100%; /* 确保视频容器宽度不超过其父容�?*/
+    height: auto;    /* 高度自适应 */
+    overflow: hidden; /* 隐藏超出部分 */
+}
+
+.video-container iframe,
+.video-container video {
+    width: 100%;    /* 视频宽度 100% */
+    height: auto;   /* 高度自动调整，保持纵横比 */
+    border-radius: 15px; /* 可选：添加圆角效果 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 可选：添加阴影效果 */
+}
+
+.post-audio {
+    width: 100%;
+    margin: 20px 0;
+}
+/* �Ľ�������������ʽ */
+.post-code {
+    margin: 1.5em 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* �ϱ߿���ʽ */
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #393939;
+    color: #e1e4e8;
+    padding: 6px 12px;
+    font-size: 0.9em;
+    font-family: Arial, sans-serif;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+/* �ļ�������ʽ */
+.file-type {
+    font-weight: bold;
+    color: #b0b5ba;
+}
+
+/* ���ư�ť��ʽ */
+.copy-button {
+    background: #393939;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.8em;
+    transition: background-color 0.3s;
+}
+
+.copy-button:hover {
+    background: #242424;
+}
+
+/* ������ڲ���ʽ */
+pre {
+    overflow-x: auto; /* ֧�ֺ������ */
+    margin: 0;
+}
+
+pre code {
+    display: block;
+    padding: 1.2em;
+    font-size: 0.95em;
+    line-height: 1.6;
+    background-color: #1F1F1F;
+    color: #FFFFFF;
+    font-family: 'Fira Code', 'Source Code Pro', monospace; /* ʹ�ø�Բ������� */
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    white-space: pre; /* ���ִ���ԭ�и�ʽ */
+}
+
+/* �Զ����﷨���� */
+.hljs {
+    background: #1F1F1F;
+}
+
+.hljs-keyword { color: #d73a49; font-weight: 600; }
+.hljs-string { color: #032f62; }
+.hljs-comment { color: #6a737d; font-style: italic; }
+.hljs-function { color: #005cc5; }
+.hljs-number { color: #005cc5; }
+
+
+
+.copied-message {
+    display: none; /* 默认不显示提�?*/
+    font-size: 0.9rem; /* 提示文字大小 */
+    color: white; /* 提示文字颜色 */
+}
+
+pre {
+    margin: 0;
+    white-space: pre-wrap; /* 允许换行 */
+    overflow: auto; /* 支持滚动 */
+}
+
+code {
+    font-family: "Courier New", Courier, monospace; /* 使用等宽字体 */
+}
+ iframe {
+        width: 100%; /* 让iframe宽度填满容器 */
+        height: auto; /* 让高度自适应 */
+        aspect-ratio: 16 / 9; /* 保持16:9的宽高比 */
+    }
+
+

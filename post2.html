@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基于内网穿透实现gradio平台项目从colab到kaggle上的迁移</title>
+    <link rel="stylesheet" href="css/style.css">
+	<!-- 在 head 标签内引入 highlight.js 的 CSS 样式 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+
+</head>
+<body>
+    <div class="background"></div>
+    <div id="sidebar">
+        <nav id="sidebar-nav">
+            <a href="index.html">主页</a>
+            <a href="about.html">关于我</a>
+            <a href="blog_page1.html">博客</a>
+            <a href="contact.html">联系我</a>
+            <a href="download.html">文件下载</a>
+        </nav>
+    </div>
+    <button class="toggle-btn" id="toggle-btn">☰</button>
+    <div class="content scroll-container">
+        <header>
+            <h1>基于内网穿透实现gradio平台项目从colab到kaggle上的迁移</h1>
+        </header>
+        <main>
+            <article class="post-content">
+                <h2>以rvc-mygo和BangDream-Bert-VITS2作为实例</h2>
+                <div class="post-date">October 27, 2024</div>
+
+                <h3>起因</h3>
+                <p>很多huggingface的space的作者都把他们的项目放到了colab上，然而Google对免费用户做出了限制，导致某些notebook不能运行（如stable diffusion webui），并且，免费用户能够使用的GPU性能也不太行。</p>
+                <p>于是我就把目光投向了kaggle，它能够每星期提供30小时的两张T4或一张P100的免费时长。然而，在我把notebook从colab复制到kaggle并修改文件地址后，运行时发现，只要gradio的公网链接一产生，notebook就会自动终止运行。经过查找发现，原来kaggle也对gradio进行了限制。只要你试图创建kaggle的公网链接，kaggle就会向程序输入终止值。那该如何是好？</p>
+
+                <h3>探索</h3>
+                <p>在网络论坛上，我得知了利用内网穿透技术可以绕开kaggle的检测。其原理是让kaggle只创建本地地址（当然是kaggle给你提供的电脑的本地），再用内网穿透工具将本地地址投射到外网能够访问的地址上。我选择了ngrok这一可以免费使用的内网穿透工具（但免费版有每月流量限制）。</p>
+                
+<div class="post-code">
+    <div class="code-header">
+        <span class="file-type">Python</span>
+  <button class="copy-button" onclick="copyCode(event)" aria-label="复制代码">复制代码</button>
+    </div>
+    <pre><code class="language-python">
+# - Option 2: Running with Ngrok - #
+Ngrok_token = "" #@param {type:"string"}
+Ngrok_domain = "" # optional, leave empty if you don't have a domain
+!pip install pyngrok
+
+from pyngrok import ngrok, conf
+import fileinput
+import sys
+
+if Ngrok_token!="":
+  ngrok.kill()
+  srv=ngrok.connect(7860 , pyngrok_config=conf.PyngrokConfig(auth_token=Ngrok_token),bind_tls=True, domain=Ngrok_domain).public_url
+  print(srv)
+  get_ipython().system("python app.py")
+else:
+  print('An ngrok token is required. You can get one on https://ngrok.com and paste it into the ngrok_token')
+                    </code></pre>
+                </div>
+
+                <h3>大功似乎告成</h3>
+                <p>然而，当我想对BangDream-Bert-VITS2故技重施时，发现kaggle又把我进程掐了。这是为什么呢？</p>
+
+                <h3>解决</h3>
+                <p>经过观察kaggle的输出后，我发现，notebook确实产生了一个ngrok地址，但紧接着又产生了一个公网地址。比较两个notebook的app.py文件后，我发现，rvc-mygo的app.py文件的最后一行是：</p>
+                
+<div class="post-code">
+    <div class="code-header">
+        <span class="file-type">Python</span>
+  <button class="copy-button" onclick="copyCode(event)" aria-label="复制代码">复制代码</button>
+    </div>
+    <pre><code class="language-python">
+app.queue(concurrency_count=1,max_size=20,api_open=config.api).launch(share=config.colab)
+                    </code></pre>
+                </div>
+                
+                <p>而BangDream-Bert-VITS2的最后一行是：</p>
+                
+<div class="post-code">
+    <div class="code-header">
+        <span class="file-type">Python</span>
+  <button class="copy-button" onclick="copyCode(event)" aria-label="复制代码">复制代码</button>
+    </div>
+    <pre><code class="language-python">
+app.launch(share=True)
+                    </code></pre>
+                </div>
+                
+                <p>正是share的值决定了公网链接是否产生。我是在kaggle上运行的，哪里有config.colab文件，其值当然为false。而BangDream-Bert-VITS2的share值默认为真，正是这个原因导致公网链接被创建。于是我把share的值改为False，果然成功运行。</p>
+
+                <h3>总结</h3>
+                <p>按照这个套路，我们能把大多数的colab项目移植到kaggle上使用。</p>
+                
+                <p>下面是我的 notebook 链接。</p>
+<ul style="list-style-type: none; padding-left: 0;">
+    <li><a href="https://www.kaggle.com/code/molifulan/notebook4f772fc30f" target="_blank" rel="noopener noreferrer">BangDream-Bert-VITS2</a></li>
+    <li><a href="https://www.kaggle.com/code/molifulan/notebook4f76e5a485" target="_blank" rel="noopener noreferrer">rvc-mygo</a></li>
+</ul>
+
+                <p>最后一首羊版的雑踏、僕らの街送给大家（调的不好，有鬼叫）</p>
+                
+                <div class="post-audio">
+                    <audio controls>
+                        <source src="audio/Gradio.mp3" type="audio/mpeg">
+                        Your browser does not support the audio tag.
+                    </audio>
+                </div>
+            </article>
+        </main>
+        <footer>
+            <p>© 2024 我的博客 | <a href="blog_page1.html" class="back-link">返回博客</a></p>
+        </footer>
+    </div>
+    <script src="js/script.js"></script>
+	<!-- 在 body 底部引入 highlight.js 脚本 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        hljs.highlightAll();
+    });
+</script>
+</body>
+</html>
+

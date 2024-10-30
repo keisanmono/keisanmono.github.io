@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件下载</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 毛玻璃容器样式 */
+        .glass-container {
+            background-color: rgba(255, 255, 255, 0.3); /* 毛玻璃背景色 */
+            backdrop-filter: blur(15px); /* 毛玻璃效果 */
+            border-radius: 10px; /* 圆角 */
+            padding: 20px; /* 内边距 */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+            margin: 20px auto; /* 上下外边距和居中 */
+            max-width: 600px; /* 最大宽度 */
+        }
+
+        /* 添加毛玻璃效果的按钮样式 */
+        .download-button {
+            display: inline-block; /* 使链接呈现为块 */
+            padding: 10px 20px; /* 内边距 */
+            margin: 10px 0; /* 外边距 */
+            background-color: rgba(255, 255, 255, 0.7); /* 白色毛玻璃背景 */
+            color: black; /* 字体颜色 */
+            text-decoration: none; /* 去掉下划线 */
+            border-radius: 5px; /* 圆角 */
+            transition: background-color 0.3s, box-shadow 0.3s; /* 背景色和阴影变化过渡 */
+            backdrop-filter: blur(10px); /* 毛玻璃效果 */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+        }
+
+        .download-button:hover {
+            background-color: rgba(255, 255, 255, 0.9); /* 悬停时颜色变化 */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* 悬停时阴影效果变化 */
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+
+    <div id="sidebar">
+        <nav id="sidebar-nav">
+            <a href="index.html">主页</a>
+            <a href="about.html">关于我</a>
+            <a href="blog_page1.html">博客</a>
+            <a href="contact.html">联系我</a>
+            <a href="download.html">文件下载</a>
+        </nav>
+    </div>
+
+    <button class="toggle-btn" id="toggle-btn">☰</button>
+
+    <div class="content scroll-container">
+        <header>
+            <h1>文件下载</h1>
+        </header>
+        
+        <main>
+            <section class="download-section">
+                <h2>选择文件类型下载</h2>
+                <div class="glass-container"> <!-- 毛玻璃容器 -->
+                    <ul class="download-list">
+                        <li><a href="download_doc.html" class="download-button">下载 文档</a></li>
+                        <li><a href="download_pdf.html" class="download-button">下载 PDF</a></li>
+                        <li><a href="download_ppt.html" class="download-button">下载 PPT</a></li>
+                        <li><a href="download_excel.html" class="download-button">下载 excel</a></li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 我的博客</p>
+        </footer>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
+

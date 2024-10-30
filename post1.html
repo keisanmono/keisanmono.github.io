@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大学生活：探索与成长</title>
+    <link rel="stylesheet" href="css/style.css">
+		<!-- 在 head 标签内引入 highlight.js 的 CSS 样式 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+</head>
+<body>
+    <div class="background"></div>
+    <div id="sidebar">
+        <nav id="sidebar-nav">
+            <a href="index.html">主页</a>
+            <a href="about.html">关于我</a>
+            <a href="blog_page1.html">博客</a>
+            <a href="contact.html">联系我</a>
+            <a href="download.html">文件下载</a>
+        </nav>
+    </div>
+    <button class="toggle-btn" id="toggle-btn">☰</button>
+    <div class="content scroll-container">
+        <header>
+            <h1>大学生活：探索与成长</h1>
+        </header>
+        <main>
+            <article class="post-content">
+                <h2>走进大学校园，开启人生新篇章</h2>
+                <div class="post-date">October 27, 2024</div>
+
+                <p>大学生活是一段让人充满期待的旅程，它不仅仅是学业的进步，还是人生视野的拓展和自我意识的觉醒。从新生报到的兴奋，到第一堂课的紧张，再到社团活动的参与，每一步都充满了挑战和成长的契机。</p>
+			<div class="post-media">
+    			<img src="images/background1.jpg" alt="描述图片内容" class="post-media">
+			</div>
+
+                <h3>初入校园：适应与融入</h3>
+                <p>初入大学的我们，往往会经历一段适应期。陌生的校园、全新的学习方式、来自全国各地的同学，都会让我们感到新鲜与不安。结识新朋友、参加迎新活动、熟悉校园设施等，都是我们逐渐融入这个新环境的过程。在这个阶段，不妨多参加社团活动，结识志同道合的朋友，让自己更快地找到归属感。</p>
+<div class="video-container">
+    <video controls>
+        <source src="video/北京交通大学校歌MV-p01-80.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+
+
+                <h3>自由与自律：学习的挑战</h3>
+                <p>大学学习与高中有很大不同，它赋予了我们更多的自由选择，然而，自由之下也要求更多的自律。我们可以选择自己喜欢的课程，安排学习时间，然而，缺乏自律也可能导致懈怠。尝试制定合理的学习计划，按时完成作业和复习，掌握时间管理的技巧，将帮助我们更好地应对学习的挑战，真正享受学习的乐趣。</p>
+<div class="post-audio">
+    <audio  controls>
+        <source src="audio/th06_17.mp3" type="audio/mpeg">
+        Your browser does not support the audio tag.
+    </audio>
+</div>
+                <h3>社团与活动：多元化的体验</h3>
+                <p>大学生活中，社团活动是一个丰富的组成部分。无论是兴趣社团、志愿者组织，还是学术竞赛和职业发展讲座，这些活动都为我们提供了展示自我、拓展视野的机会。通过参与社团，不仅可以结交朋友、锻炼自己的领导和沟通能力，还能在实践中找到自己的兴趣和潜能。</p>
+
+
+<div class="post-code">
+    <div class="code-header">
+        <span class="file-type">Js</span>
+  <button class="copy-button" onclick="copyCode(event)" aria-label="复制代码">复制代码</button>
+    </div>
+    <pre><code class="language-Javascript">
+/* 零钱兑换：贪心 */
+function coinChangeGreedy(coins, amt) {
+    // 假设 coins 数组有序
+    let i = coins.length - 1;
+    let count = 0;
+    // 循环进行贪心选择，直到无剩余金额
+    while (amt > 0) {
+        // 找到小于且最接近剩余金额的硬币
+        while (i > 0 && coins[i] > amt) {
+            i--;
+        }
+        // 选择 coins[i]
+        amt -= coins[i];
+        count++;
+    }
+    // 若未找到可行方案，则返回 -1
+    return amt === 0 ? count : -1;
+}
+                    </code></pre>
+                </div>
+                <h3>思考与成长：关于未来的探索</h3>
+                <p>大学四年是我们规划未来、探索自我的宝贵时光。许多人会在这段时间开始思考自己的职业方向、兴趣爱好和人生目标。我们可以尝试不同的实践项目、实习机会，在探索中逐渐明确自己的方向。同时，保持积极的心态，勇敢尝试新事物，将使我们在大学生活中获得更多成长。</p>
+<div class="video-container">
+    <iframe 
+        width="560" 
+        height="315" 
+        src="https://player.bilibili.com/player.html?bvid=BV1phC2YnE4D&autoplay=0" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div>
+
+
+                <h3>结论</h3>
+                <p>大学生活是短暂而珍贵的，它不仅塑造了我们的知识和技能，更影响了我们的性格与人生观。珍惜大学的每一天，不断挑战自我、提升自己，将为我们未来的人生奠定坚实的基础。愿每位大学生都能在大学生活中找到自己的方向，走向更光明的未来。</p>
+
+                <p>感谢您的阅读！如果您有任何问题或反馈，请随时联系我。</p>
+            </article>
+        </main>
+        <footer>
+            <p>© 2024 我的博客 | <a href="blog_page1.html" class="back-link">返回博客</a></p>
+        </footer>
+    </div>
+    <script src="js/script.js"></script>
+		<!-- 在 body 底部引入 highlight.js 脚本 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        hljs.highlightAll();
+    });
+</script>
+</body>
+</html>
+

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博客主页</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="background"></div>
+
+    <div id="sidebar">
+        <nav id="sidebar-nav">
+            <a href="index.html">主页</a>
+            <a href="about.html">关于我</a>
+            <a href="blog_page1.html">博客</a>
+            <a href="contact.html">联系我</a>
+            <a href="download.html">文件下载</a>
+        </nav>
+    </div>
+
+    <button class="toggle-btn" id="toggle-btn">☰</button>
+
+    <div class="content scroll-container">
+        <header>
+            <h1>欢迎来到我的博客</h1>
+        </header>
+        
+        <main>
+            <section class="intro">
+                <p>这是我的个人博客，分享我的想法和经验。</p>
+            </section>
+
+            <section id="latest-posts">
+                <h2>最新文章</h2>
+
+                <div class="post-preview">
+                    <a href="post1.html">
+                        <img src="images/cover1.jpg" alt="封面图" class="post-cover">
+                    </a>
+                    <div class="post-content">
+                        <h3><a href="post1.html">大学生活</a></h3>
+                        <p>大学生活是一段让人充满期待的旅程，它不仅仅是学业的进步，还是人生视野的拓展和自我意识的觉醒。从新生报到的兴奋，到第一堂课的紧张，再到社团活动的参与，每一步都充满了挑战和成长的契机。</p>
+                    </div>
+                </div>
+
+                <div class="post-preview">
+                    <a href="post2.html">
+                        <img src="images/cover2.jpg" alt="封面图" class="post-cover">
+                    </a>
+                    <div class="post-content">
+                        <h3><a href="post2.html">基于内网穿透实现gradio平台项目从colab到kaggle上的迁移</a></h3>
+                        <p>零成本深度学习项目运行方案</p>
+                    </div>
+                </div>
+
+                <div class="post-preview">
+                    <a href="post1.html">
+                        <img src="images/cover1.jpg" alt="封面图" class="post-cover">
+                    </a>
+                    <div class="post-content">
+                        <h3><a href="post3.html">   </a></h3>
+                        <p>    </p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <div class="links-container">
+                <div class="links-header">
+                    <h2>友情链接</h2>
+                    <ul class="links-list">
+                        <li><a href="http://www.bjtu.edu.cn" target="_blank" rel="noopener noreferrer">北京交通大学</a></li>
+                        <li><a href="http://cs.bjtu.edu.cn" target="_blank" rel="noopener noreferrer">计算机学院</a></li>
+                        <li><a href="http://www.lab.bjtu.edu.cn" target="_blank" rel="noopener noreferrer">综合实验室</a></li>
+                    </ul>
+                </div>
+            </div>
+            <p>© 2024 我的博客</p>
+        </footer>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
+
