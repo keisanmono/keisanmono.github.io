@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博客页面 5</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 背景容器 -->
+    <div class="background"></div>
+
+    <!-- 侧边栏 -->
+    <div id="sidebar">
+        <nav id="sidebar-nav">
+            <a href="index.html">主页</a>
+            <a href="about.html">关于我</a>
+            <a href="blog_page1.html">博客</a>
+            <a href="contact.html">联系我</a>
+			<a href="download.html">文件下载</a>
+        </nav>
+    </div>
+
+    <!-- 切换按钮 -->
+    <button class="toggle-btn" id="toggle-btn">☰</button>
+		<div class="content scroll-container">
+        <header>
+            <h1>我的博客文章 - 第 5 页</h1>
+        </header>
+        
+        <main>
+<div class="search-container">
+    <input type="text" id="search" placeholder="搜索文章..." oninput="searchPosts()">
+    <button id="clear-btn" aria-label="清空搜索框" onclick="clearSearch()">✖</button>
+</div>
+
+
+ <section id="posts-container" class="large-container">
+                <article class="post-item">
+                    <a href="post1.html">
+                        <img class="post-image" src="images/cover1.jpg" alt="封面图">
+                    </a>
+                    <div class="post-content">
+                        <a href="post1.html">
+                            <h2>文章标题 1</h2>
+                        </a>
+                        <p>这是文章 1 的简要内容。</p>
+                    </div>
+                </article>
+                <hr class="divider">
+                
+                <article class="post-item">
+                    <a href="post2.html">
+                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
+                    </a>
+                    <div class="post-content">
+                        <a href="post2.html">
+                            <h2>文章标题 2</h2>
+                        </a>
+                        <p>这是文章 2 的简要内容。</p>
+                    </div>
+                </article>
+                <hr class="divider">
+ 
+	 <article class="post-item">
+                    <a href="post2.html">
+                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
+                    </a>
+                    <div class="post-content">
+                        <a href="post2.html">
+                            <h2>文章标题 2</h2>
+                        </a>
+                        <p>这是文章 2 的简要内容。</p>
+                    </div>
+                </article>
+                <hr class="divider">
+	  
+	 <article class="post-item">
+                    <a href="post2.html">
+                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
+                    </a>
+                    <div class="post-content">
+                        <a href="post2.html">
+                            <h2>文章标题 2</h2>
+                        </a>
+                        <p>这是文章 2 的简要内容。</p>
+                    </div>
+                </article>
+                <hr class="divider">
+	 
+	  <article class="post-item">
+                    <a href="post2.html">
+                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
+                    </a>
+                    <div class="post-content">
+                        <a href="post2.html">
+                            <h2>文章标题 2</h2>
+                        </a>
+                        <p>这是文章 2 的简要内容。</p>
+                    </div>
+                </article>
+                <hr class="divider">
+	 
+	  <article class="post-item">
+                    <a href="post2.html">
+                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
+                    </a>
+                    <div class="post-content">
+                        <a href="post2.html">
+                            <h2>文章标题 2</h2>
+                        </a>
+                        <p>这是文章 2 的简要内容。</p>
+                    </div>
+                </article>
+                <hr class="divider">
+	 
+	  <article class="post-item">
+                    <a href="post2.html">
+                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
+                    </a>
+                    <div class="post-content">
+                        <a href="post2.html">
+                            <h2>文章标题 2</h2>
+                        </a>
+                        <p>这是文章 2 的简要内容。</p>
+                    </div>
+                </article>
+                <hr class="divider">
+	 
+	  <article class="post-item">
+                    <a href="post2.html">
+                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
+                    </a>
+                    <div class="post-content">
+                        <a href="post2.html">
+                            <h2>文章标题 2</h2>
+                        </a>
+                        <p>这是文章 2 的简要内容。</p>
+                    </div>
+                </article>
+                <hr class="divider">
+                <!-- 可以继续添加更多文章 -->
+            </section>
+
+<div class="pagination">
+    <button id="prevBtn" class="page-button" onclick="prevPage()">上一页</button>
+    
+    <div id="pageButtons" class="page-buttons">
+        <!-- 页码按钮将被动态生成 -->
+    </div>
+
+    <button id="nextBtn" class="page-button" onclick="nextPage()">下一页</button>
+</div>
+
+        </main>
+        
+        <footer>
+            <p>© 2024 我的博客</p>
+        </footer>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
