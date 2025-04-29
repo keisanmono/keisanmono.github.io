@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TNO 超级事件生成器 | 🌸 我的二次元小窝 🌸</title>
+    <link rel="stylesheet" href="css/style.css"> <!-- Link to your main stylesheet -->
+    <!-- Import TNO Specific Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@400;700&family=Roboto+Condensed:wght@400;700&family=Playfair+Display:wght@700&family=Share+Tech+Mono&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Gothic Font Definition --- */
+        @font-face {
+            font-family: 'TNO_Gothic';
+            src: url('https://fonts.gstatic.com/s/unifrakturmaguntia/v15/7Auشنبه0q-82o54xu71_wnZjLw.woff2') format('woff2');
+            font-weight: normal; font-style: normal; font-display: swap;
+        }
+
+        /* --- Generator Page Styles --- */
+        .generator-container {
+            max-width: 1280px; margin: 20px auto; padding: 30px 40px;
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px) saturate(160%);
+            border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+        }
+        .generator-container h2 {
+            text-align: center; color: #ffc107; margin-bottom: 30px;
+            font-family: 'Roboto Condensed', sans-serif; font-size: 2em;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 25px; }
+        .form-group { margin-bottom: 0; }
+        .form-group label {
+             display: block; margin-bottom: 8px; font-weight: 500;
+             color: #445; font-size: 0.95em; text-shadow: 0 1px 1px rgba(255,255,255,0.1);
+        }
+        .form-group input[type="text"],
+        .form-group input[type="url"],
+        .form-group input[type="password"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%; padding: 12px 15px; border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px; background: rgba(0, 0, 0, 0.15); backdrop-filter: blur(3px);
+            outline: none; transition: all 0.3s ease; box-sizing: border-box; font-size: 1em;
+            color: #333; font-family: inherit;
+        }
+         .form-group input::placeholder,
+         .form-group textarea::placeholder { color: #777; }
+         .form-group textarea { min-height: 70px; resize: vertical; }
+         .form-group select {
+             appearance: none;
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23555555' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+             background-repeat: no-repeat; background-position: right 10px center; background-size: 16px 12px; padding-right: 35px;
+         }
+         .form-group select:disabled { opacity: 0.6; background-color: rgba(0,0,0,0.2); cursor: not-allowed; color: #777; }
+         .form-group input:focus,
+         .form-group textarea:focus,
+         .form-group select:focus {
+            background: rgba(0, 0, 0, 0.2); border-color: rgba(135, 206, 250, 0.7);
+            box-shadow: 0 0 8px rgba(135, 206, 250, 0.4);
+         }
+
+        /* API Key Input */
+        .api-key-wrapper { position: relative; display: flex; align-items: center; }
+        .api-key-wrapper input { padding-right: 45px; flex-grow: 1; }
+        #toggle-api-key-visibility {
+             position: absolute; right: 1px; top: 50%; transform: translateY(-50%);
+             background: none; border: none; cursor: pointer; padding: 10px;
+             color: #777; font-size: 1.2em; line-height: 1; opacity: 0.7; transition: opacity 0.2s;
+        }
+        #toggle-api-key-visibility:hover { opacity: 1; color: #333; }
+        #toggle-api-key-visibility:focus { outline: none; }
+
+        /* API URL + Fetch Button */
+        .api-url-wrapper { display: flex; gap: 0; align-items: stretch; }
+        .api-url-wrapper input[type="url"] { flex-grow: 1; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; }
+        #fetch-models-btn {
+             flex-shrink: 0; padding: 10px 18px; border: 1px solid rgba(0, 0, 0, 0.1);
+             border-left: none; border-top-left-radius: 0; border-bottom-left-radius: 0;
+             background: linear-gradient(to bottom, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.2));
+             backdrop-filter: blur(3px); color: #cc8400; cursor: pointer;
+             font-weight: 500; font-size: 0.95em; transition: all 0.3s ease; height: auto;
+        }
+         #fetch-models-btn:hover {
+             background: linear-gradient(to bottom, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.3));
+             color: #e69500; box-shadow: -2px 0 5px rgba(255, 152, 0, 0.2);
+         }
+         #fetch-models-btn:disabled { opacity: 0.5; cursor: not-allowed; background: rgba(0,0,0,0.1); color: #888; box-shadow: none; }
+         #model-loading-indicator { margin-left: 8px; color: #555; font-size: 1.2em; vertical-align: middle; }
+         .form-group .input-hint { font-size: 0.85em; color: #666; display:block; margin-top: 5px; }
+
+        .api-warning { background-color: rgba(255, 243, 205, 0.6); color: #856404; border: 1px solid rgba(255, 238, 186, 0.7); border-radius: 5px; padding: 10px 15px; font-size: 0.9em; margin-bottom: 20px; text-align: center; }
+
+        /* Generate Button */
+        #generate-tno-btn {
+             padding: 12px 25px; border: none; border-radius: 8px;
+             background: linear-gradient(to bottom, rgba(135, 206, 250, 0.6), rgba(100, 181, 246, 0.6));
+             backdrop-filter: blur(3px); color: #fff; font-size: 1.1em; font-weight: 600;
+             cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+             border: 1px solid rgba(255, 255, 255, 0.2); margin-top: 20px; display: block; width: 100%;
+        }
+         #generate-tno-btn:hover { background: linear-gradient(to bottom, rgba(135, 206, 250, 0.7), rgba(100, 181, 246, 0.7)); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); transform: translateY(-2px); }
+         #generate-tno-btn:disabled { background: rgba(0,0,0,0.2); color: #888; cursor: not-allowed; box-shadow: none; transform: none; border-color: rgba(0,0,0,0.1); }
+
+        /* Output Area */
+        #tno-output-area { margin-top: 30px; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; background: rgba(0,0,0,0.05); padding: 15px; min-height: 100px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        #tno-loading-indicator, #tno-error-message { display: none; text-align: center; padding: 20px; }
+        #tno-loading-indicator { color: #555; font-size: 1.1em; animation: pulse 1.5s infinite ease-in-out; }
+        #tno-error-message { color: #f8d7da; background-color: rgba(248, 215, 218, 0.1); border: 1px solid rgba(245, 198, 203, 0.3); padding: 10px; border-radius: 5px; }
+
+
+        /* --- TNO Screenshot Styles --- */
+        body.tno-preview-active { background-color: #2d2d2d; }
+        .tno-screen-container { display: none; width: 100%; max-width: 1280px; background-color: #31373f; border: 1px solid #1a1f25; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); overflow: hidden; margin: 0 auto; display: flex; }
+        .left-column { width: 350px; flex-shrink: 0; display: flex; flex-direction: column; background-color: #2a2e34; border-right: 2px solid #1a1f25; }
+        .left-section { border-bottom: 1px solid #1a1f25; padding: 8px; background-color: #31373f; }
+        .left-section-darker { background-color: #2a2e34; }
+        .left-section-darkest { background-color: #24292e; }
+        .leader-info { display: flex; align-items: center; padding-bottom: 10px; }
+        .leader-portrait { flex-shrink: 0; }
+        #tno-leader-portrait { width: 90px; height: 115px; object-fit: cover; border: 1px solid #4a5562; margin-right: 10px; filter: grayscale(10%) brightness(1.0); background-color: #222; display: block; }
+        .leader-details { flex-grow: 1; }
+        .leader-name { font-family: 'Noto Sans SC', sans-serif; font-weight: 700; color: #e0e0e0; font-size: 1.2em; margin-bottom: 5px; }
+        .leader-trait { display: flex; align-items: center; font-size: 0.9em; color: #a0a0a0; margin-top: 8px;}
+        .trait-icon { width: 20px; height: 20px; border: 1px solid #ccc; background-color: #eee; color: #333; margin-right: 5px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;}
+        .trait-text { font-family: 'Roboto Condensed', sans-serif; color:#c0d0e0; }
+        .national-focus-panel { padding: 0; }
+        .nf-title-bar { background: linear-gradient(to bottom, #5a7a9a, #4a6a8a); padding: 5px 10px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #e0f0ff; font-size: 1.1em; text-align: center; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #2a4a6a; }
+        .nf-content { padding: 10px; background-color: #31373f; }
+        .nf-main-focus { display: flex; align-items: center; margin-bottom: 10px; padding-bottom: 10px; }
+        .nf-main-icon { width: 50px; height: 50px; border: 1px solid #B0E0E6; margin-right: 10px; flex-shrink: 0; background-color: #222; display: flex; justify-content: center; align-items: center; }
+        #tno-focus-icon-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .nf-main-details .title { font-family: 'Noto Serif SC', serif; font-weight: 700; color: #f0f8ff; font-size: 1.1em; margin-bottom: 3px; }
+        .nf-main-details .description { font-size: 0.85em; color: #b0c4de; line-height: 1.3; }
+        .national-spirits { display: flex; flex-direction: column; gap: 6px; padding: 10px; min-height: 100px; }
+        .spirit-entry { display: flex; align-items: center; gap: 8px; background-color: rgba(74, 85, 98, 0.2); padding: 4px 6px; border-radius: 3px; border: 1px solid #3a4552; }
+        .spirit-icon { width: 28px; height: 28px; border: 1px solid #777; background-color: #555; color: #eee; display: flex; align-items: center; justify-content: center; font-size: 13px; border-radius: 2px; flex-shrink: 0; box-shadow: inset 0 0 2px rgba(0,0,0,0.3); text-align: center; line-height: 1; }
+        .spirit-description { font-family: 'Noto Sans SC', 'Roboto Condensed', sans-serif; font-size: 0.85em; color: #b0b0b0; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
+        .political-info { font-size: 0.9em; color: #b0b0b0; padding: 10px; }
+        .political-info .party-info { display: flex; align-items: center; margin-bottom: 5px; }
+        .party-icon { width: 22px; height: 22px; border: 1px solid #ccc; background-color: #eee; color: #333; margin-right: 8px; flex-shrink: 0; text-align: center; line-height: 20px;}
+        .party-name { font-weight: 700; color: #E0FFFF; }
+        .party-ideology, .next-election { padding-left: 30px; margin-bottom: 3px; }
+        .next-election span { color: #AFEEEE; font-weight: normal;}
+        .political-pie { padding: 10px; }
+        #tno-pie-chart-img { display: block; margin: 5px auto; max-width: 130px; height: auto; border-radius: 50%; border: 1px solid #444; background-color: #222; }
+        .flag-stats { display: flex; align-items: center; padding: 10px; }
+        #tno-flag-img { width: 70px; height: auto; margin-right: 10px; border: 1px solid #555; background-color: #222; display: block; }
+        .stats-text { font-family: 'Roboto Condensed', sans-serif; font-size: 1.1em; color: #c0c0c0; line-height: 1.3; font-weight: 700; }
+        .stats-text span { display: inline-block; margin-left: 5px; font-weight: normal; color: #eee; }
+        .newspaper-snippet { flex-grow: 1; padding: 8px; background-color: #e8e4d9; color: #333; font-family: 'Times New Roman', Times, serif; font-size: 0.8em; line-height: 1.35; overflow-y: auto; max-height: 150px; border-top: 1px solid #aaa; }
+        .newspaper-snippet .snippet-header { font-family: 'TNO_Gothic', 'Playfair Display', serif; font-weight: normal; font-size: 1.4em; margin-bottom: 4px; border-bottom: 1px solid #bbb; padding-bottom: 2px; color: #000; text-align: center; letter-spacing: 1px; }
+        .snippet-subhead { display: flex; justify-content: space-between; font-size: 0.8em; font-family: 'Roboto Condensed', sans-serif; color: #555; margin-bottom: 5px; text-transform: uppercase; }
+        #tno-newspaper-content p { margin: 0 0 5px 0; text-align: justify;}
+        /* Right Column & Event Panel */
+        .right-column { width: calc(100% - 350px); display: flex; background-color: #242c34; }
+        .event-panel-container { width: 100%; background-color: inherit; border: none; box-shadow: none; border-radius: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 600px; }
+        .event-image-section { position: relative; width: 100%; line-height: 0; background-color: #111; min-height: 150px; }
+        #tno-event-image { display: block; width: 100%; height: auto; max-height: 320px; object-fit: cover; opacity: 0.85; filter: grayscale(50%) contrast(1.15) brightness(0.95); background-color: #222; }
+        .image-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: linear-gradient(rgba(10, 80, 100, 0.15), rgba(10, 80, 100, 0.15)); background-image: linear-gradient(rgba(10, 80, 100, 0.15), rgba(10, 80, 100, 0.15)), repeating-linear-gradient(0deg, rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 1px, rgba(255, 255, 255, 0.05) 2px, rgba(255, 255, 255, 0.03) 3px); z-index: 1; mix-blend-mode: screen; opacity: 0.7;}
+        .quote-overlay { position: absolute; bottom: 12px; right: 20px; width: auto; max-width: 65%; background-color: rgba(0, 0, 0, 0.7); padding: 7px 10px; box-sizing: border-box; z-index: 2; color: #e8e8e8; font-family: 'Noto Serif SC', Georgia, serif; font-style: italic; border-radius: 2px; border: 1px solid rgba(100, 150, 200, 0.3); text-shadow: 1px 1px 1px rgba(0,0,0,0.6); }
+        .quote-overlay p { margin: 0 0 3px 0; line-height: 1.35; font-size: 0.9em; }
+        .quote-overlay .attribution { text-align: right; font-style: normal; font-size: 0.8em; color: #b0e0e6; margin: 0; text-shadow: none; }
+        .event-title-section { padding: 12px 20px 8px 20px; text-align: center; background: linear-gradient(to bottom, #567a9a, #466a8a); border-bottom: 1px solid #2a4a6a; border-top: 1px solid #668aa0; }
+        /* Apply Gothic Font to Super Event Title */
+        .event-title-section h1 {
+            font-family: 'TNO_Gothic', 'UnifrakturMaguntia', 'Roboto Condensed', sans-serif; /* Gothic first */
+            font-size: 2.6em; font-weight: normal; color: #E0FFFF; margin: 0;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.7); line-height: 1.2; letter-spacing: 1px;
+         }
+        .event-main-content { padding: 18px 22px; background-color: transparent; font-family: 'Noto Sans SC', Arial, sans-serif; font-size: 0.95em; line-height: 1.75; text-align: justify; color: #c8d8e8; flex-grow: 1; overflow-y: auto; min-height: 150px; }
+        .event-main-content p { margin-top: 0; margin-bottom: 0.9em; } .event-main-content p:last-child { margin-bottom: 0; }
+        .event-options-area { border-top: 1px solid #1a1f25; padding: 15px 20px; background: linear-gradient(to bottom, #28313a, #242c34); display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+        .event-option-button { display: flex; align-items: center; padding: 8px 12px; background: linear-gradient(to bottom, #4a5562, #3a4552); border: 1px solid #5a6572; border-top-color: #6a7582; border-left-color: #6a7582; border-radius: 3px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1); }
+        .event-option-button .icon-placeholder { width: 24px; height: 24px; border: 1px solid #777; background-color: #555; margin-right: 10px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 16px; color: #fff; font-weight: bold; text-align: center; line-height: 1;}
+        .event-option-button .option-text { font-family: 'Noto Sans SC', 'Roboto Condensed', sans-serif; font-size: 1em; color: #e0e0e0; text-shadow: 1px 1px 1px rgba(0,0,0,0.3); }
+
+        /* --- Responsive Styles --- */
+        @media (max-width: 1100px) { .tno-screen-container { flex-direction: column; max-width: 650px; } .left-column { width: 100%; border-right: none; border-bottom: 2px solid #1a1f25; } .right-column { width: 100%; } .newspaper-snippet { max-height: 120px; } }
+        @media (max-width: 768px) { .generator-container { padding: 20px 15px; } .generator-container h2 { font-size: 1.6em; } .api-url-wrapper { flex-direction: column; gap: 10px; align-items: stretch; } .api-url-wrapper input[type="url"] { border-radius: 8px; border-right: 1px solid rgba(0, 0, 0, 0.1); } #fetch-models-btn { border-radius: 8px; border-left: 1px solid rgba(0, 0, 0, 0.1); } .form-grid { gap: 15px; } .form-group input[type="text"], .form-group input[type="url"], .form-group input[type="password"], .form-group textarea, .form-group select { padding: 10px 12px; font-size: 0.95em; } #generate-tno-btn { padding: 10px 20px; font-size: 1em; } }
+        @media (max-width: 600px) { .tno-screen-container { border-radius: 0; border-left: none; border-right: none; } .event-title-section h1 { font-size: 1.5em; } .newspaper-snippet .snippet-header { font-size: 1.3em; } .quote-overlay { max-width: 90%; font-size: 0.85em; bottom: 8px; right: 8px; padding: 5px 8px;} .quote-overlay p { font-size: 0.8em;} .quote-overlay .attribution { font-size: 0.7em; } .event-main-content { padding: 12px; font-size: 0.85em; line-height: 1.6;} .event-option-button .option-text { font-size: 0.9em; } .event-panel-container { min-height: auto; } .event-image-section img { max-height: 180px;} .left-column { width: 100%; } .leader-portrait img { width: 70px; height: 90px; } .leader-name { font-size: 1.1em; } .nf-main-icon img { width: 40px; height: 40px; } .nf-main-details .title { font-size: 1em; } .nf-main-details .description { font-size: 0.8em; } .spirit-icon { width: 24px; height: 24px; font-size: 12px; } .spirit-description { font-size: 0.8em; } #tno-pie-chart-img { max-width: 100px; } #tno-flag-img { width: 60px; } .stats-text { font-size: 1em; } .newspaper-snippet { font-size: 0.75em; max-height: 100px; } }
+
+    </style>
+</head>
+<body>
+    <!-- Background, Sidebar, Toggle Button -->
+    <div class="background"></div>
+    <div id="sidebar">
+        <nav id="sidebar-nav">
+            <a href="index.html">🏠 主页</a>
+            <a href="about.html">✨ 关于我</a>
+            <a href="blog_page1.html">📝 博客</a>
+            <a href="contact.html">💌 联系我</a>
+            <a href="download.html">📁 文件下载</a>
+            <a href="ai_draw.html">🎨 AI 作画</a>
+            <a href="tno_generator.html">📜 TNO事件生成</a> <!-- Added Link -->
+        </nav>
+    </div>
+    <button id="toggle-btn">☰</button>
+
+    <!-- Page Content -->
+    <div class="content scroll-container">
+        <header>
+            <h1>TNO 超级事件生成器</h1>
+        </header>
+
+        <main>
+            <div class="generator-container">
+                <h2>构想你的历史转折点</h2>
+
+                <div class="api-warning">
+                    <strong>⚠️ 安全警告:</strong> 请仅在您信任的环境下使用，并使用您自己的 API 密钥。密钥将在浏览器中处理。
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="tno-theme">事件主题/核心概念:</label>
+                        <textarea id="tno-theme" rows="3" placeholder="例如：德国的第二次内战结束，戈林获胜..."></textarea>
+                    </div>
+                    <!-- Beautified API Key Input -->
+                    <div class="form-group">
+                        <label for="llm-api-key">LLM API 密钥:</label>
+                        <div class="api-key-wrapper">
+                            <input type="password" id="llm-api-key" placeholder="输入您的 API 密钥">
+                            <button id="toggle-api-key-visibility" title="切换可见性">👁️</button>
+                        </div>
+                    </div>
+                    <!-- Beautified API URL + Fetch Button -->
+                    <div class="form-group">
+                        <label for="llm-api-url">LLM API 基础地址:</label>
+                        <div class="api-url-wrapper">
+                            <input type="url" id="llm-api-url" placeholder="例如: https://.../v1beta/models/ 或 https://.../v1/" value="https://generativelanguage.googleapis.com/v1beta/models/">
+                            <button id="fetch-models-btn" title="获取可用模型列表">获取列表</button>
+                        </div>
+                         <small class="input-hint">(Google: 填到 /models/ 结尾; OpenAI兼容: 填到 /v1/ 结尾)</small>
+                    </div>
+
+                    <!-- Model Selection Dropdown -->
+                    <div class="form-group">
+                        <label for="llm-model-select">选择 LLM 模型:</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <select id="llm-model-select" disabled>
+                                <option value="" disabled selected>-- 请先获取模型列表 --</option>
+                            </select>
+                            <span id="model-loading-indicator" style="display: none;" title="正在加载模型...">🔄</span>
+                        </div>
+                    </div>
+                    <!-- Image Prompt Override -->
+                    <div class="form-group">
+                        <label for="image-prompt-override">事件图片提示词 (可选，留空则由LLM生成):</label>
+                        <textarea id="image-prompt-override" rows="2" placeholder="输入英文提示词覆盖LLM生成的事件图片描述"></textarea>
+                    </div>
+                </div>
+
+                <button id="generate-tno-btn">生成事件截图</button>
+
+                <!-- Output Area -->
+                <div id="tno-output-area">
+                    <div id="tno-loading-indicator">⏳ 正在与深层意识沟通并渲染历史...</div>
+                    <div id="tno-error-message"></div>
+
+                    <!-- === TNO Screenshot Structure (Initially Hidden) === -->
+                    <div class="tno-screen-container" id="tno-result-container">
+
+                        <!-- === Left Column === -->
+                        <div class="left-column">
+                            <div class="leader-info left-section left-section-darkest"> <div class="leader-portrait"> <img id="tno-leader-portrait" src="#" alt="Leader"> </div> <div class="leader-details"> <div id="tno-leader-name" class="leader-name">...</div> <div class="leader-trait"> <div class="trait-icon">?</div> <span id="tno-leader-trait-text" class="trait-text">...</span> </div> </div> </div>
+                            <div class="national-focus-panel left-section"> <div id="tno-focus-category" class="nf-title-bar">...</div> <div class="nf-content"> <div class="nf-main-focus"> <div class="nf-main-icon"> <img id="tno-focus-icon-img" src="#" alt="Focus"> </div> <div class="nf-main-details"> <div id="tno-focus-title" class="title">...</div> <div id="tno-focus-description" class="description">...</div> </div> </div> </div> </div>
+                            <div id="tno-national-spirits" class="national-spirits left-section-darker"> </div>
+                            <div class="political-info left-section-darker"> <div class="party-info"> <div class="party-icon">?</div> <span id="tno-party-name" class="party-name">...</span> </div> <div id="tno-party-ideology" class="party-ideology">...</div> <div class="next-election">下一次抉择：<span id="tno-next-election">...</span></div> </div>
+                            <div class="political-pie left-section"> <img id="tno-pie-chart-img" src="#" alt="Chart"> </div>
+                            <div class="flag-stats left-section-darkest"> <img id="tno-flag-img" src="#" alt="Flag" class="flag"> <div id="tno-stats-text" class="stats-text"> </div> </div>
+                            <div class="newspaper-snippet"> <div id="tno-newspaper-header" class="snippet-header">...</div> <div class="snippet-subhead"> <span id="tno-newspaper-category">...</span> <span id="tno-newspaper-date">...</span> </div> <div id="tno-newspaper-content"> </div> </div>
+                        </div>
+                        <!-- === End Left Column === -->
+
+                        <!-- === Right Column (Super Event Panel) === -->
+                        <div class="right-column">
+                             <div class="event-panel-container">
+                                 <div class="event-image-section"> <img id="tno-event-image" src="#" alt="Event"> <div class="image-overlay"></div> <div class="quote-overlay"> <p id="tno-event-quote">...</p> <p class="attribution" id="tno-quote-attribution">- ...</p> </div> </div>
+                                 <div class="event-title-section"> <h1 id="tno-event-title">...</h1> </div>
+                                 <div class="event-main-content" id="tno-event-description"> </div>
+                                 <div class="event-options-area"> <div class="event-option-button"> <div class="icon-placeholder">!</div> <span class="option-text" id="tno-event-option">...</span> </div> </div>
+                             </div>
+                        </div>
+                        <!-- === End Right Column === -->
+                    </div>
+                     <!-- === End TNO Screenshot Structure === -->
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2024 MOLIFULAN's Blog | TNO Event Generator</p>
+        </footer>
+    </div>
+
+    <!-- JS Files -->
+    <script src="js/script.js"></script> <!-- Your main site script -->
+    <script>
+        // --- TNO Generator Specific JS ---
+
+        // --- DOM Element References ---
+        const themeInput = document.getElementById('tno-theme');
+        const apiKeyInput = document.getElementById('llm-api-key');
+        const apiUrlInput = document.getElementById('llm-api-url');
+        const fetchModelsBtn = document.getElementById('fetch-models-btn');
+        const modelSelect = document.getElementById('llm-model-select');
+        const modelLoadingIndicator = document.getElementById('model-loading-indicator');
+        const imgPromptOverrideInput = document.getElementById('image-prompt-override');
+        const generateBtn = document.getElementById('generate-tno-btn');
+        const outputArea = document.getElementById('tno-output-area');
+        const loadingIndicator = document.getElementById('tno-loading-indicator');
+        const errorMessage = document.getElementById('tno-error-message');
+        const resultContainer = document.getElementById('tno-result-container');
+        const toggleApiKeyVisibilityBtn = document.getElementById('toggle-api-key-visibility');
+        const leaderPortraitEl = document.getElementById('tno-leader-portrait');
+        const leaderNameEl = document.getElementById('tno-leader-name');
+        const leaderTraitTextEl = document.getElementById('tno-leader-trait-text');
+        const focusCategoryEl = document.getElementById('tno-focus-category');
+        const focusIconImgEl = document.getElementById('tno-focus-icon-img');
+        const focusTitleEl = document.getElementById('tno-focus-title');
+        const focusDescriptionEl = document.getElementById('tno-focus-description');
+        const nationalSpiritsContainerEl = document.getElementById('tno-national-spirits');
+        const partyNameEl = document.getElementById('tno-party-name');
+        const partyIdeologyEl = document.getElementById('tno-party-ideology');
+        const nextElectionEl = document.getElementById('tno-next-election');
+        const pieChartImgEl = document.getElementById('tno-pie-chart-img');
+        const flagImgEl = document.getElementById('tno-flag-img');
+        const statsTextEl = document.getElementById('tno-stats-text');
+        const newspaperHeaderEl = document.getElementById('tno-newspaper-header');
+        const newspaperCategoryEl = document.getElementById('tno-newspaper-category');
+        const newspaperDateEl = document.getElementById('tno-newspaper-date');
+        const newspaperContentEl = document.getElementById('tno-newspaper-content');
+        const eventImageEl = document.getElementById('tno-event-image');
+        const eventQuoteEl = document.getElementById('tno-event-quote');
+        const quoteAttributionEl = document.getElementById('tno-quote-attribution');
+        const eventTitleEl = document.getElementById('tno-event-title');
+        const eventDescriptionEl = document.getElementById('tno-event-description');
+        const eventOptionEl = document.getElementById('tno-event-option');
+
+        // --- Utility Functions ---
+        function displayError(message, isModelFetchError = false) {
+            errorMessage.textContent = `错误: ${message}`;
+            errorMessage.style.display = 'block';
+            loadingIndicator.style.display = 'none';
+            resultContainer.style.display = 'none';
+            if (isModelFetchError) {
+                 modelLoadingIndicator.style.display = 'none'; fetchModelsBtn.disabled = false;
+                 modelSelect.disabled = true; modelSelect.innerHTML = '<option value="" disabled selected>-- 获取失败 --</option>';
+            } else { generateBtn.disabled = false; generateBtn.textContent = '生成事件截图'; }
+        }
+        function hideMessages() {
+            errorMessage.style.display = 'none'; errorMessage.textContent = '';
+            loadingIndicator.style.display = 'none'; modelLoadingIndicator.style.display = 'none';
+        }
+
+        // --- Initial Setup ---
+         document.addEventListener('DOMContentLoaded', () => { hideMessages(); });
+
+        // --- API Key Visibility Toggle ---
+        if (toggleApiKeyVisibilityBtn && apiKeyInput) {
+            toggleApiKeyVisibilityBtn.addEventListener('click', () => {
+                const isPassword = apiKeyInput.type === 'password';
+                apiKeyInput.type = isPassword ? 'text' : 'password';
+                toggleApiKeyVisibilityBtn.textContent = isPassword ? '👁️‍🗨️' : '👁️';
+                toggleApiKeyVisibilityBtn.title = isPassword ? '隐藏密钥' : '显示密钥';
+            });
+        }
+
+        // --- Fetch Models Button Logic ---
+        fetchModelsBtn.addEventListener('click', async () => {
+             const apiKey = apiKeyInput.value.trim(); const baseApiUrl = apiUrlInput.value.trim();
+             if (!apiKey || !baseApiUrl) { displayError('请先填写 API 密钥和 API 基础地址。', true); return; }
+             hideMessages(); modelLoadingIndicator.style.display = 'inline-block';
+             fetchModelsBtn.disabled = true; modelSelect.disabled = true;
+             modelSelect.innerHTML = '<option value="" disabled selected>-- 正在获取... --</option>';
+             let modelListUrl = ''; let headers = { 'Content-Type': 'application/json' }; let method = 'GET';
+             try {
+                 if (baseApiUrl.includes('generativelanguage.googleapis.com') && baseApiUrl.includes('/models')) {
+                     modelListUrl = baseApiUrl.replace(/\/$/, '') + `?key=${apiKey}&pageSize=1000`;
+                 } else if (baseApiUrl.includes('/v1')) {
+                     headers['Authorization'] = `Bearer ${apiKey}`;
+                     if (baseApiUrl.endsWith('/v1')) modelListUrl = baseApiUrl + '/models';
+                     else if (baseApiUrl.endsWith('/v1/')) modelListUrl = baseApiUrl + 'models';
+                     else modelListUrl = baseApiUrl.replace(/\/$/, '') + '/v1/models';
+                 } else {
+                     console.warn("未知地址格式，尝试 /v1/models"); headers['Authorization'] = `Bearer ${apiKey}`;
+                     modelListUrl = baseApiUrl.replace(/\/$/, '') + '/v1/models';
+                 }
+                 console.log("Fetching models from:", modelListUrl);
+                 const response = await fetch(modelListUrl, { method, headers });
+                 if (!response.ok) { const e = await response.text(); throw new Error(`获取失败: ${response.status} ${response.statusText}. ${e.substring(0,100)}`); }
+                 const data = await response.json(); console.log("Model List Raw:", data);
+                 let modelNames = [];
+                 if (data.models?.length) modelNames = data.models.map(m => m.name?.replace(/^models\//, '')).filter(Boolean).filter(name => !/embed|vision|instruct/i.test(name)).sort();
+                 else if (data.data?.length) modelNames = data.data.map(m => m.id).filter(Boolean).sort();
+                 else throw new Error("无法识别的模型列表格式。");
+                 if (modelNames.length === 0) throw new Error("未找到可用聊天模型。");
+                 modelSelect.innerHTML = '<option value="" disabled selected>-- 请选择一个模型 --</option>';
+                 modelNames.forEach(name => { const o=document.createElement('option'); o.value=name; o.textContent=name; modelSelect.appendChild(o); });
+                 modelSelect.disabled = false; hideMessages();
+             } catch (error) { console.error("获取模型出错:", error); displayError(error.message || "获取模型时出错。", true);
+             } finally { modelLoadingIndicator.style.display = 'none'; fetchModelsBtn.disabled = false; }
+        });
+
+        // --- Load Image Helper ---
+        async function loadImage(imgElement, prompt, entityName) {
+             if (!prompt || !imgElement) { console.warn(`Skip Img: ${entityName}`); imgElement.style.display='none'; imgElement.src='#'; return; }
+             loadingIndicator.textContent = `🖼️ 生成 ${entityName} ...`; // Update loading text per image
+             imgElement.style.display = 'none'; imgElement.src='#';
+             // Determine dimensions based on element ID more reliably
+             let w=100, h=100; // Default fallback
+             if (imgElement.id === 'tno-event-image') { w=896; h=504; }
+             else if (imgElement.id === 'tno-leader-portrait') { w=90; h=115; }
+             else if (imgElement.id === 'tno-pie-chart-img') { w=130; h=130; }
+             else if (imgElement.id === 'tno-flag-img') { w=70; h=Math.round(70*2/3); } // Keep flag ratio
+             else if (imgElement.id === 'tno-focus-icon-img') { w=50; h=50; }
+
+             const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${w}&height=${h}&seed=${Math.floor(Math.random()*1e7)}&model=flux&nologo=true`;
+             console.log(`Img URL (${entityName}):`, url);
+             return new Promise((resolve) => {
+                 imgElement.onload = () => { console.log(`${entityName} loaded.`); imgElement.style.display = 'block'; resolve(); };
+                 imgElement.onerror = (e) => { console.error(`Error ${entityName} img:`, e); imgElement.alt = `${entityName} 加载失败`; imgElement.style.display = 'none'; resolve(); };
+                 imgElement.src = url;
+             });
+        }
+
+        // --- LLM API Call Function ---
+        async function fetchLLMData(theme, apiKey, baseApiUrl, selectedModelName) {
+             hideMessages(); loadingIndicator.style.display = 'block';
+             loadingIndicator.textContent = '⏳ 构思场景... (LLM)';
+             resultContainer.style.display = 'none';
+
+             // --- === REVISED System Prompt === ---
+             const systemPrompt = `你是一个了解策略游戏《The New Order: Last Days of Europe》(TNO) 风格的AI助手。你的任务是根据用户提供的主题，生成一个TNO风格的**完整**界面截图所需的所有文本内容和图片描述。输出必须严格遵循下面的JSON格式。
+
+**语言要求:**
+*   **超事件标题 (event_title) 和 报纸标题 (newspaper_header):** 必须是德语或具有强烈德语风格的短语。
+*   **所有图片提示词 (结尾为 _prompt 的字段):** 必须是英文。
+*   **所有其他文本字段 (领袖名称, 特质, 焦点描述, 国家精神描述, 政党名称, 意识形态, 选举状态, 统计文本, 新闻分类, 日期, 新闻内容, 引言, 出处, 事件描述, 选项文本):** 必须使用**中文**，并保持TNO特有的严肃、沉重或具有转折意义的叙事风格。
+
+**内容要求:**
+*   **事件描述 (event_description):** 需要详细、丰富，**至少包含3-4个段落**，充分营造TNO的氛围。
+*   **引言 (event_quote):** **请优先查找并使用与主题相关的、真实存在的名言警句**。如果确实找不到合适的真实名言，可以使用符合主题和人物的虚构引言。
+*   **出处 (quote_attribution):** 如果使用的是真实名言，请提供**真实的作者或出处**；如果是虚构引言，请注明“(虚构)”或人物名称。
+
+输出JSON格式:
+{
+  "leader_name": "领袖名称 (中文)", "leader_trait_text": "领袖特质 (中文)", "leader_portrait_prompt": "英文领袖肖像提示词 (TNO风格, 90x115px 感觉)",
+  "focus_category": "焦点类别 (中文)", "focus_title": "焦点名称 (中文)", "focus_description": "焦点描述 (中文)", "focus_icon_prompt": "英文焦点图标提示词(方形, 50x50 TNO风格)",
+  "national_spirits": [ { "icon": "💡", "description": "精神1描述 (中文)" }, { "icon": "💰", "description": "精神2描述 (中文)" }, { "icon": "😟", "description": "精神3描述 (中文)" }, { "icon": "❓", "description": "精神4描述 (中文)" } ],
+  "party_name": "政党名称 (中文)", "party_ideology": "意识形态 (中文)", "next_election": "下次选举状态 (中文)",
+  "pie_chart_prompt": "英文饼图提示词 (简单圆形图)", "flag_prompt": "英文旗帜提示词 (简单, 符合时代)",
+  "stats_text": [ "指标1名称(中文): 值/状态(中文)", "指标2名称(中文): 值/状态(中文)" ],
+  "newspaper_header": "报纸标题 (德语风格)", "newspaper_category": "新闻分类 (中文)", "newspaper_date": "日期 (中文格式)", "newspaper_content": "报纸内容 (中文, 用\\n分段)",
+  "event_title": "超级事件标题 (德语风格)",
+  "event_quote": "引言 (中文, 优先使用真实名言)", "quote_attribution": "出处 (中文, 真实或注明虚构)",
+  "event_description": "事件描述 (中文, **至少3-4段长文本**, 用\\n分段)", "event_option_text": "选项文本 (中文)",
+  "event_image_prompt": "英文事件图片提示词 (宽屏 TNO美学)"
+}`;
+            const userPrompt = `事件主题: "${theme}"`;
+            let finalApiUrl = baseApiUrl.trim(); let requestBody; let headers = {'Content-Type': 'application/json'};
+            try {
+                 // Determine finalApiUrl and requestBody based on API type
+                 if (finalApiUrl.includes('generativelanguage.googleapis.com') && finalApiUrl.includes('/models')) {
+                    if (!finalApiUrl.endsWith('/')) finalApiUrl += '/';
+                    finalApiUrl = `${finalApiUrl}${selectedModelName}:generateContent?key=${apiKey}`;
+                    requestBody = JSON.stringify({ contents: [{ parts: [{ text: systemPrompt + "\n\n" + userPrompt }] }], });
+                 } else if (finalApiUrl.includes('/v1')) {
+                    headers['Authorization'] = `Bearer ${apiKey}`;
+                    if (!finalApiUrl.endsWith('/chat/completions')) finalApiUrl = finalApiUrl.replace(/\/v1\/?$/, '') + '/v1/chat/completions';
+                    requestBody = JSON.stringify({ model: selectedModelName, messages: [ { "role": "system", "content": systemPrompt }, { "role": "user", "content": userPrompt } ], });
+                 } else {
+                    console.warn("未知地址格式，尝试OpenAI兼容模式"); headers['Authorization'] = `Bearer ${apiKey}`;
+                    requestBody = JSON.stringify({ model: selectedModelName, messages: [ { "role": "system", "content": systemPrompt }, { "role": "user", "content": userPrompt } ], });
+                 }
+                 console.log("URL:", finalApiUrl); console.log("Body:", requestBody);
+                 const response = await fetch(finalApiUrl, { method: 'POST', headers, body: requestBody });
+                 if (!response.ok) { const e = await response.text(); throw new Error(`LLM API Error: ${response.status}. ${e.substring(0,200)}`); }
+                 const data = await response.json(); console.log("LLM Raw:", data);
+                 let generatedText;
+                 if (data.candidates?.[0]?.content?.parts?.[0]?.text) generatedText = data.candidates[0].content.parts[0].text;
+                 else if (data.choices?.[0]?.message?.content) generatedText = data.choices[0].message.content;
+                 else throw new Error("无法解析LLM响应");
+                 console.log("Extracted:", generatedText);
+                 const cleanedText = generatedText.replace(/^```json\s*|```$/gs, '').trim();
+                 let jsonData = null;
+                 try { jsonData = JSON.parse(cleanedText); }
+                 catch (e) {
+                     console.log("Initial JSON parse failed, trying extraction...");
+                     const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+                     if (jsonMatch?.[0]) { try { jsonData = JSON.parse(jsonMatch[0]); console.log("Extracted JSON."); } catch (e2) { console.error("Failed extracting JSON:", e2); throw new Error(`无法解析JSON: ${e.message}. Raw: ${cleanedText.substring(0,100)}...`); } }
+                     else { throw new Error(`LLM未返回JSON块. Raw: ${cleanedText.substring(0,100)}...`); }
+                 }
+                 // Validation
+                 const required = ["leader_name","leader_trait_text","leader_portrait_prompt","focus_category","focus_title","focus_description","focus_icon_prompt","national_spirits","party_name","party_ideology","next_election","pie_chart_prompt","flag_prompt","stats_text","newspaper_header","newspaper_category","newspaper_date","newspaper_content","event_title","event_quote","quote_attribution","event_description","event_option_text","event_image_prompt"];
+                 for(const f of required) if(!jsonData[f]) throw new Error(`JSON缺少字段: ${f}`);
+                 if(!Array.isArray(jsonData.national_spirits) || !jsonData.national_spirits[0]?.description) throw new Error("national_spirits格式错误");
+                 if(!Array.isArray(jsonData.stats_text) || !jsonData.stats_text[0]) throw new Error("stats_text格式错误");
+                 return jsonData;
+            } catch (error) { console.error('LLM API Call Failed:', error); throw error; }
+        }
+
+        // --- Generate Button Logic ---
+        generateBtn.addEventListener('click', async () => {
+            const theme = themeInput.value.trim(); const apiKey = apiKeyInput.value.trim();
+            const baseApiUrlValue = apiUrlInput.value.trim(); const selectedModelName = modelSelect.value;
+            const imgPromptOverride = imgPromptOverrideInput.value.trim();
+            if (!theme || !apiKey || !baseApiUrlValue || !selectedModelName) { displayError('请填写所有必填项并选择模型。'); return; }
+            generateBtn.disabled = true; generateBtn.textContent = '生成中...';
+            hideMessages(); loadingIndicator.style.display = 'block';
+            loadingIndicator.textContent = '⏳ 生成文本... (LLM)'; resultContainer.style.display = 'none';
+
+            try {
+                const eventData = await fetchLLMData(theme, apiKey, baseApiUrlValue, selectedModelName);
+
+                // Populate Text
+                leaderNameEl.textContent = eventData.leader_name;
+                leaderTraitTextEl.textContent = eventData.leader_trait_text;
+                focusCategoryEl.textContent = eventData.focus_category;
+                focusTitleEl.textContent = eventData.focus_title;
+                focusDescriptionEl.textContent = eventData.focus_description;
+                partyNameEl.textContent = eventData.party_name;
+                partyIdeologyEl.textContent = eventData.party_ideology;
+                nextElectionEl.textContent = eventData.next_election;
+                statsTextEl.innerHTML = eventData.stats_text.map(s => { const p=s.split(':'); return `${p[0]}: <span>${p.slice(1).join(':').trim()}</span>`; }).join('<br>');
+                newspaperHeaderEl.textContent = eventData.newspaper_header;
+                newspaperCategoryEl.textContent = eventData.newspaper_category;
+                newspaperDateEl.textContent = eventData.newspaper_date;
+                newspaperContentEl.innerHTML = eventData.newspaper_content.split('\\n').map(p => `<p>${p.trim()}</p>`).join('');
+                eventTitleEl.textContent = eventData.event_title;
+                eventQuoteEl.textContent = eventData.event_quote;
+                quoteAttributionEl.textContent = `- ${eventData.quote_attribution || '未知'}`;
+                eventDescriptionEl.innerHTML = eventData.event_description.split('\\n').map(p => `<p>${p.trim()}</p>`).join('');
+                eventOptionEl.textContent = eventData.event_option_text;
+                nationalSpiritsContainerEl.innerHTML = '';
+                eventData.national_spirits.forEach(s => {
+                    const entry = document.createElement('div'); entry.className = 'spirit-entry';
+                    const icon = document.createElement('div'); icon.className = 'spirit-icon'; icon.textContent = s.icon || '?';
+                    const desc = document.createElement('span'); desc.className = 'spirit-description'; desc.textContent = s.description; desc.title = s.description;
+                    entry.append(icon, desc); nationalSpiritsContainerEl.appendChild(entry);
+                });
+
+                // Load Images Concurrently
+                loadingIndicator.textContent = '🖼️ 生成图像... (Pollinations)';
+                const imagePromises = [
+                    loadImage(leaderPortraitEl, eventData.leader_portrait_prompt, '领袖'),
+                    loadImage(focusIconImgEl, eventData.focus_icon_prompt, '焦点图标'),
+                    loadImage(pieChartImgEl, eventData.pie_chart_prompt, '饼图'),
+                    loadImage(flagImgEl, eventData.flag_prompt, '旗帜'),
+                    loadImage(eventImageEl, imgPromptOverride || eventData.event_image_prompt, '事件主图')
+                ];
+                await Promise.all(imagePromises);
+
+                // Show Result
+                loadingIndicator.style.display = 'none';
+                resultContainer.style.display = 'flex';
+                generateBtn.disabled = false; generateBtn.textContent = '生成事件截图';
+
+            } catch (error) { console.error("Generation Error:", error); displayError(error.message || "未知错误。"); }
+        });
+
+    </script>
+</body>
+</html>
