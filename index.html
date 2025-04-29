@@ -3,85 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>博客主页</title>
+    <title>首页</title>
     <link rel="stylesheet" href="css/style.css">
+    <!-- 可以考虑引入一个可爱的 favicon -->
+    <!-- <link rel="icon" href="images/favicon.ico" type="image/x-icon"> -->
 </head>
 <body>
+    <!-- 粒子效果容器 -->
+    <!-- <div class="particles"></div> --> <!-- JS会自动创建 -->
+    <!-- 背景容器 -->
     <div class="background"></div>
 
+    <!-- 侧边栏 -->
     <div id="sidebar">
         <nav id="sidebar-nav">
-            <a href="index.html">主页</a>
-            <a href="about.html">关于我</a>
-            <a href="blog_page1.html">博客</a>
-            <a href="contact.html">联系我</a>
-            <a href="download.html">文件下载</a>
+            <a href="index.html">🏠 主页</a>
+            <a href="about.html">✨ 关于我</a>
+            <a href="blog_page1.html">📝 博客</a>
+            <a href="contact.html">💌 联系我</a>
+            <a href="download.html">📁 文件下载</a>
+            <a href="ai_draw.html">🎨 AI 作画</a> <!-- 新增链接 -->
         </nav>
     </div>
 
-    <button class="toggle-btn" id="toggle-btn">☰</button>
+    <!-- 切换按钮 -->
+    <button id="toggle-btn">☰</button>
 
+    <!-- 页面内容 -->
     <div class="content scroll-container">
         <header>
-            <h1>欢迎来到我的博客</h1>
+            <h1>欢迎来到 MOLIFULAN 的博客!</h1>
         </header>
-        
+
         <main>
             <section class="intro">
-                <p>这是我的个人博客，分享我的想法和经验。</p>
+                <p>这里是分享想法、技术、还有一些碎碎念的地方~ (ﾉ´ヮ´)ﾉ*:･ﾟ✧</p>
             </section>
 
             <section id="latest-posts">
-                <h2>最新文章</h2>
+                <h2>🌟 最新文章 🌟</h2>
 
+                <!-- 计算封面图尺寸 (e.g., 4:3) -->
+                <!-- width=240, height=184 -->
                 <div class="post-preview">
                     <a href="post1.html">
-                        <img src="images/cover1.jpg" alt="封面图" class="post-cover">
+                        <img src="https://image.pollinations.ai/prompt/anime%20girl%20sitting%20at%20desk%20in%20a%20cozy%20room,%20window%20view%20of%20university%20campus,%20afternoon%20light,%20detailed%20illustration?width=240&height=184&seed=12145&model=flux&nologo=true" alt="大学生活封面" class="post-cover">
                     </a>
                     <div class="post-content">
-                        <h3><a href="post1.html">大学生活</a></h3>
-                        <p>大学生活是一段让人充满期待的旅程，它不仅仅是学业的进步，还是人生视野的拓展和自我意识的觉醒。从新生报到的兴奋，到第一堂课的紧张，再到社团活动的参与，每一步都充满了挑战和成长的契机。</p>
+                         <h3><a href="post1.html">大学生活：探索与成长 🌱</a></h3>
+                        <p>大学生活是一段充满挑战和机遇的旅程，从懵懂新生到逐渐找到自己的方向...</p>
                     </div>
                 </div>
 
                 <div class="post-preview">
-                    <a href="post2.html">
-                        <img src="images/cover2.jpg" alt="封面图" class="post-cover">
+                     <a href="post2.html">
+                        <img src="https://image.pollinations.ai/prompt/anime%20style,%20glowing%20data%20streams,%20server%20racks%20background,%20futuristic%20technology%20concept,%20cyberpunk%20aesthetic?width=240&height=184&seed=67890&model=flux&nologo=true" alt="内网穿透封面" class="post-cover">
                     </a>
                     <div class="post-content">
-                        <h3><a href="post2.html">基于内网穿透实现gradio平台项目从colab到kaggle上的迁移</a></h3>
-                        <p>零成本深度学习项目运行方案</p>
+                        <h3><a href="post2.html">Gradio项目迁移：Colab 到 Kaggle (内网穿透大法好) 🚀</a></h3>
+                        <p>记一次把深度学习项目从 Colab 搬到 Kaggle，并用 Ngrok 绕开限制的经历。</p>
                     </div>
                 </div>
 
                 <div class="post-preview">
-                    <a href="post1.html">
-                        <img src="images/cover1.jpg" alt="封面图" class="post-cover">
+                    <a href="post3.html"> <!-- 假设有 post3.html -->
+                        <img src="https://image.pollinations.ai/prompt/cute%20anime%20cat%20wearing%20headphones,%20sitting%20on%20a%20stack%20of%20books,%20soft%20pastel%20colors,%20kawaii%20illustration?width=240&height=184&seed=11223&model=flux&nologo=true" alt="Placeholder Post Cover" class="post-cover">
                     </a>
                     <div class="post-content">
-                        <h3><a href="post3.html">   </a></h3>
-                        <p>    </p>
+                        <h3><a href="post3.html">Placeholder: 第三篇文章标题 🎶</a></h3>
+                        <p>这里是第三篇文章的简短描述或摘要内容...</p>
                     </div>
                 </div>
             </section>
         </main>
-        
+
         <footer>
             <div class="links-container">
                 <div class="links-header">
-                    <h2>友情链接</h2>
+                    <h2>小伙伴们 ✨</h2>
+                    <!-- 友情链接列表 -->
                     <ul class="links-list">
                         <li><a href="http://www.bjtu.edu.cn" target="_blank" rel="noopener noreferrer">北京交通大学</a></li>
                         <li><a href="http://cs.bjtu.edu.cn" target="_blank" rel="noopener noreferrer">计算机学院</a></li>
                         <li><a href="http://www.lab.bjtu.edu.cn" target="_blank" rel="noopener noreferrer">综合实验室</a></li>
+                        <li><a href="https://www.pollinations.ai" target="_blank" rel="noopener noreferrer">Pollinations AI</a></li> <!-- 加一个 :) -->
                     </ul>
                 </div>
             </div>
-            <p>© 2024 我的博客</p>
+            <p>© 2024 MOLIFULAN's Blog | Powered by Enthusiasm & Coffee ☕</p>
         </footer>
     </div>
 
+    <!-- JS 文件 -->
     <script src="js/script.js"></script>
 </body>
 </html>
-

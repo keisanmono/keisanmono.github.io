@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💖 AI Galgame | 🌸 我的二次元小窝 🌸</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- DOMPurify for security (optional but recommended) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.10/purify.min.js"></script>
+
+    <style>
+        /* --- Galgame Specific Styles --- */
+        #galgame-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 120px); /* Example: Full height minus header/footer approx */
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-top: 20px; /* Spacing from header */
+        }
+
+        #game-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #add8e6; /* Default background color */
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+            transition: background-image 0.5s ease-in-out;
+            background-image: url('https://image.pollinations.ai/prompt/beautiful%20anime%20classroom%20background,%20large%20windows,%20sunlight%20streaming%20in,%20empty,%20detailed,%20peaceful%20atmosphere?width=1024&height=576&seed=101');
+        }
+
+        #character-area {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 70%;
+            width: auto;
+            z-index: 3;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+
+        #character-sprite {
+            max-height: 100%;
+            max-width: 100%;
+            height: auto;
+            content: url('https://image.pollinations.ai/prompt/1girl,%20anime%20style,%20school%20uniform,%20standing,%20full%20body,%20simple%20white%20background,%20transparent%20background%20png,%20no%20shadows%20on%20background?width=512&height=768&seed=203&nofeed=true&nologo=true&negative_prompt=background,text,signature,scenery,objects');
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4)); /* Keep shadow for definition */
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+
+        #dialogue-box {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85%;
+            max-width: 900px;
+            min-height: 150px;
+            max-height: 35%;
+            /* Make background more transparent */
+            background: rgba(0, 0, 0, 0.6); /* Adjusted alpha from 0.7 to 0.6 */
+            backdrop-filter: blur(6px); /* Slightly increase blur */
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Slightly less visible border */
+            padding: 20px 25px;
+            color: #fff;
+            z-index: 4;
+            overflow-y: auto;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.4); /* Adjusted scrollbar */
+        }
+         #dialogue-box::-webkit-scrollbar { width: 8px; }
+         #dialogue-box::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 4px;} /* Lighter track */
+         #dialogue-box::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.4); border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.3); }
+         #dialogue-box::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.6); }
+
+        #speaker-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffc0cb;
+            font-size: 1.1em;
+        }
+
+        #dialogue-text {
+            line-height: 1.6;
+            font-size: 1em;
+        }
+         /* Markdown Styles (Keep as is) */
+         #dialogue-text p { margin-bottom: 0.8em;}
+         #dialogue-text h1, #dialogue-text h2, #dialogue-text h3 { margin-top: 0.5em; margin-bottom: 0.3em; color: #add8e6; }
+         #dialogue-text strong { color: #ffd700; }
+         #dialogue-text em { color: #90ee90; }
+         #dialogue-text ul, #dialogue-text ol { padding-left: 25px; margin-bottom: 0.8em;}
+         #dialogue-text li { margin-bottom: 0.3em;}
+         #dialogue-text code { background-color: rgba(255,255,255,0.1); padding: 2px 5px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; color: #f0f0f0; }
+         #dialogue-text pre { background-color: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; overflow-x: auto; margin-bottom: 0.8em; }
+         #dialogue-text pre code { background: none; padding: 0; }
+         #dialogue-text blockquote { border-left: 3px solid #87cefa; padding-left: 10px; margin: 0.8em 0; color: #ccc; font-style: italic; }
+         #dialogue-text a { color: #ff8aae; text-decoration: underline; }
+         #dialogue-text a:hover { color: #ffaddd; }
+
+        #game-controls {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            z-index: 5;
+            display: flex;
+            gap: 10px;
+            align-items: center; /* Align items vertically */
+        }
+
+        .control-button {
+             padding: 10px 20px;
+             border: none;
+             border-radius: 20px;
+             background: linear-gradient(135deg, #87cefa, #add8e6);
+             color: white;
+             cursor: pointer;
+             transition: all 0.3s ease;
+             font-size: 1em;
+             font-weight: 500;
+             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+             border: 1px solid rgba(255, 255, 255, 0.2);
+             backdrop-filter: blur(3px);
+         }
+         .control-button:hover:not(:disabled) {
+             background: linear-gradient(135deg, #add8e6, #87cefa);
+             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+             transform: translateY(-2px);
+         }
+         .control-button:disabled {
+             background: #aaa;
+             cursor: not-allowed;
+             box-shadow: none;
+             opacity: 0.7;
+         }
+         /* Style for history toggle button */
+         #toggle-history-btn {
+             background: linear-gradient(135deg, #f0e68c, #ffd700); /* Yellow gradient */
+             color: #555; /* Dark text */
+         }
+         #toggle-history-btn:hover:not(:disabled) {
+             background: linear-gradient(135deg, #ffd700, #f0e68c);
+         }
+
+
+        #choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .choice-button {
+             display: block;
+             width: 100%;
+             text-align: left;
+             padding: 10px 15px;
+             border: 1px solid rgba(255, 255, 255, 0.4);
+             border-radius: 8px;
+             background: rgba(255, 255, 255, 0.15);
+             color: #eee;
+             cursor: pointer;
+             transition: background-color 0.3s ease;
+             font-size: 0.95em;
+         }
+         .choice-button:hover {
+             background: rgba(255, 255, 255, 0.3);
+         }
+
+        /* --- Config Panel Styles (Keep as is) --- */
+        #config-panel {
+            position: absolute; top: 10px; right: 10px; width: 300px;
+            background: rgba(50, 50, 50, 0.85); backdrop-filter: blur(10px);
+            border-radius: 8px; padding: 20px; z-index: 10; color: #eee;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none; font-size: 0.9em;
+        }
+        #config-panel.visible { display: block; }
+        #config-panel h3 { margin-top: 0; margin-bottom: 15px; text-align: center; color: #87cefa; }
+        #config-panel .form-group { margin-bottom: 15px; }
+        #config-panel label { color: #ccc; margin-bottom: 5px; font-size: 0.95em;}
+        #config-panel input[type="text"], #config-panel input[type="password"],
+        #config-panel input[type="url"], #config-panel input[type="text"]#api-model /* Target text input */ {
+            width: 100%; padding: 8px 10px; border: 1px solid #555;
+            border-radius: 5px; background: #444; color: #eee;
+            font-size: 1em; box-sizing: border-box;
+         }
+        #config-panel .config-buttons { display: flex; justify-content: space-between; margin-top: 20px; }
+        #config-panel button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; font-size: 0.9em; }
+        #save-config-btn { background-color: #4CAF50; color: white;} #save-config-btn:hover { background-color: #45a049;}
+        #close-config-btn { background-color: #f44336; color: white;} #close-config-btn:hover { background-color: #da190b;}
+        #key-status { font-size: 0.85em; margin-top: 5px; display: inline-block; height: 1.2em; }
+        #key-status.testing { color: #ffc107; } #key-status.valid { color: #28a745; }
+        #key-status.invalid { color: #dc3545; } #key-status.error { color: #ff8aae; }
+
+
+        #toggle-config-btn { /* Keep as is */
+            position: absolute; top: 20px; right: 20px; z-index: 15;
+             background: rgba(100, 100, 100, 0.7); color: white; border: 1px solid rgba(255, 255, 255, 0.3);
+             border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer;
+             backdrop-filter: blur(5px); transition: all 0.3s ease; display: flex; justify-content: center; align-items: center;
+         }
+        #toggle-config-btn:hover { background: rgba(120, 120, 120, 0.9); transform: scale(1.1) rotate(45deg); }
+
+        #game-loading-overlay { /* Keep as is */
+             position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6);
+             z-index: 9; display: none; justify-content: center; align-items: center; color: white;
+             font-size: 1.5em; text-align: center; border-radius: 15px;
+         }
+        #game-loading-overlay.visible { display: flex; }
+         #game-loading-overlay span { animation: pulse 1.5s infinite ease-in-out; }
+         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+
+        #game-error-message { /* Keep as is */
+             position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+             background: rgba(220, 53, 69, 0.85); color: white; padding: 10px 20px;
+             border-radius: 8px; z-index: 11; display: none; font-size: 0.95em;
+             box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+         }
+
+         /* --- History Panel Styles --- */
+         #history-panel {
+             position: absolute;
+             top: 10%;
+             left: 50%;
+             transform: translateX(-50%);
+             width: 70%;
+             max-width: 700px;
+             height: 70%;
+             max-height: 600px;
+             background: rgba(40, 40, 40, 0.9); /* Darker history panel */
+             backdrop-filter: blur(8px);
+             border-radius: 10px;
+             border: 1px solid rgba(255, 255, 255, 0.2);
+             padding: 25px;
+             color: #eee;
+             z-index: 12; /* Above game elements, below config maybe */
+             box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+             display: none; /* Initially hidden */
+             flex-direction: column; /* Stack title, content, button */
+             font-size: 0.95em;
+         }
+         #history-panel.visible {
+             display: flex;
+         }
+
+         #history-panel h3 {
+             margin-top: 0;
+             margin-bottom: 15px;
+             text-align: center;
+             color: #add8e6; /* Light blue title */
+             flex-shrink: 0; /* Prevent title from shrinking */
+         }
+
+         #history-content {
+             flex-grow: 1; /* Take available space */
+             overflow-y: auto; /* Enable scrolling for history */
+             padding-right: 10px; /* Space for scrollbar */
+             margin-bottom: 15px; /* Space before close button */
+             line-height: 1.6;
+             /* Custom scrollbar for history */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.5);
+         }
+        #history-content::-webkit-scrollbar { width: 8px; }
+        #history-content::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); border-radius: 4px;}
+        #history-content::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.4); border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.5); }
+        #history-content::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.6); }
+
+         #history-content .history-entry {
+             margin-bottom: 15px;
+             padding-bottom: 10px;
+             border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+         }
+         #history-content .history-entry:last-child {
+             border-bottom: none;
+         }
+         #history-content .history-role-user {
+             font-weight: bold;
+             color: #90ee90; /* Light green for user */
+             margin-bottom: 5px;
+         }
+         #history-content .history-role-model {
+             font-weight: bold;
+             color: #87cefa; /* Light blue for model */
+             margin-bottom: 5px;
+         }
+         #history-content .history-text {
+             /* Use similar Markdown styling as dialogue box */
+             font-size: 0.95em;
+         }
+         /* Reuse markdown styles within history */
+         #history-content .history-text p { margin-bottom: 0.5em;}
+         #history-content .history-text strong { color: #ffd700; }
+         #history-content .history-text em { color: #90ee90; }
+         #history-content .history-text code { background-color: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 3px; font-family: 'Courier New', Courier, monospace; color: #ddd; }
+         #history-content .history-text pre { background-color: rgba(0,0,0,0.4); padding: 8px; border-radius: 4px; overflow-x: auto; margin-bottom: 0.5em; }
+         #history-content .history-text pre code { background: none; padding: 0; }
+         #history-content .history-text blockquote { border-left: 3px solid #87cefa; padding-left: 8px; margin: 0.5em 0; color: #bbb; font-style: italic; }
+         #history-content .history-text a { color: #ff8aae; text-decoration: underline; }
+         #history-content .history-text a:hover { color: #ffaddd; }
+
+
+         #close-history-btn {
+             /* Reuse control button style, maybe different color */
+             padding: 8px 15px;
+             border: none;
+             border-radius: 5px;
+             background-color: #6c757d; /* Gray */
+             color: white;
+             cursor: pointer;
+             transition: background-color 0.3s;
+             font-size: 0.9em;
+             align-self: center; /* Center button horizontally */
+             flex-shrink: 0; /* Prevent button shrinking */
+         }
+         #close-history-btn:hover {
+             background-color: #5a6268;
+         }
+
+    </style>
+</head>
+<body>
+    <!-- Background, Sidebar -->
+    <div class="background"></div>
+    <div id="sidebar">
+        <nav id="sidebar-nav">
+            <a href="index.html">🏠 主页</a>
+            <a href="about.html">✨ 关于我</a>
+            <a href="blog_page1.html">📝 博客</a>
+            <a href="contact.html">💌 联系我</a>
+            <a href="download.html">📁 文件下载</a>
+            <a href="ai_draw.html">🎨 AI 作画</a>
+            <a href="ai_galgame.html">💖 AI Galgame</a>
+        </nav>
+    </div>
+    <button id="toggle-btn">☰</button>
+
+    <!-- Main Content Area -->
+    <div class="content scroll-container">
+        <header>
+            <h1>AI Galgame 互动故事</h1>
+             <button id="toggle-config-btn" title="设置">⚙</button>
+        </header>
+
+        <main>
+            <!-- Configuration Panel (Structure remains the same) -->
+            <div id="config-panel">
+                <h3>API 设置</h3>
+                <div class="form-group">
+                    <label for="api-key">Gemini API Key:</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="password" id="api-key" placeholder="粘贴你的 API Key" style="flex-grow: 1;">
+                        <button id="test-key-btn" class="control-button" style="padding: 8px 12px; font-size: 0.85em; flex-shrink: 0;">测试 Key</button>
+                    </div>
+                    <span id="key-status" style="font-size: 0.85em; margin-top: 5px; display: inline-block; height: 1.2em;"></span>
+                    <small>从 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#87cefa;">Google AI Studio</a> 获取</small>
+                </div>
+                <div class="form-group">
+                    <label for="api-url">API URL (可选):</label>
+                    <input type="url" id="api-url" placeholder="默认: generativelanguage.googleapis.com">
+                     <small>用于代理或 Vertex AI</small>
+                </div>
+                <div class="form-group">
+                    <label for="api-model">模型名称 (Model Name):</label>
+                    <input type="text" id="api-model" placeholder="e.g., gemini-1.5-flash-latest">
+                     <small>输入你想使用的 Gemini 模型名称。</small>
+                </div>
+                <div class="config-buttons">
+                    <button id="save-config-btn">保存设置</button>
+                    <button id="close-config-btn">关闭</button>
+                </div>
+            </div>
+
+            <!-- Galgame UI Container -->
+            <div id="galgame-container">
+                <div id="game-background"></div>
+                <div id="character-area">
+                    <img id="character-sprite" src="#" alt="角色">
+                </div>
+                <div id="dialogue-box">
+                    <div id="speaker-name">旁白</div>
+                    <div id="dialogue-text">
+                        欢迎来到 AI Galgame 互动故事！<br>
+                        请先点击右上角 ⚙ 设置你的 Gemini API Key。<br>
+                        你可以点击 '测试 Key' 按钮来验证它是否有效。<br>
+                        准备好后，点击“开始”按钮。
+                    </div>
+                     <div id="choices-container"></div>
+                </div>
+                <div id="game-controls">
+                    <!-- Add History Button -->
+                    <button id="toggle-history-btn" class="control-button" title="查看对话历史">历史</button>
+                    <button id="next-button" class="control-button">开始</button>
+                </div>
+                 <div id="game-loading-overlay"><span>少女祈祷中...</span></div>
+                 <div id="game-error-message"></div>
+            </div>
+
+             <!-- History Panel -->
+             <div id="history-panel">
+                 <h3>对话历史记录</h3>
+                 <div id="history-content">
+                     <!-- History entries will be added here by JS -->
+                 </div>
+                 <button id="close-history-btn">关闭</button>
+             </div>
+
+        </main>
+
+        <footer>
+            <p>© 2024 MOLIFULAN's Blog | Galgame powered by Gemini & You</p>
+        </footer>
+    </div>
+
+    <!-- JS Files -->
+    <script src="js/script.js"></script>
+    <!-- Galgame Specific JS -->
+    <script>
+        // --- Galgame Specific JS ---
+
+        // DOM Elements (Add History Elements)
+        const configPanel = document.getElementById('config-panel');
+        const toggleConfigBtn = document.getElementById('toggle-config-btn');
+        const saveConfigBtn = document.getElementById('save-config-btn');
+        const closeConfigBtn = document.getElementById('close-config-btn');
+        const apiKeyInput = document.getElementById('api-key');
+        const apiUrlInput = document.getElementById('api-url');
+        const apiModelInput = document.getElementById('api-model'); // Changed from select
+        const testKeyBtn = document.getElementById('test-key-btn');
+        const keyStatusSpan = document.getElementById('key-status');
+
+        const dialogueBox = document.getElementById('dialogue-box');
+        const speakerName = document.getElementById('speaker-name');
+        const dialogueText = document.getElementById('dialogue-text');
+        const choicesContainer = document.getElementById('choices-container');
+        const nextButton = document.getElementById('next-button');
+        const loadingOverlay = document.getElementById('game-loading-overlay');
+        const gameErrorMessage = document.getElementById('game-error-message');
+        const historyPanel = document.getElementById('history-panel'); // New
+        const historyContent = document.getElementById('history-content'); // New
+        const toggleHistoryBtn = document.getElementById('toggle-history-btn'); // New
+        const closeHistoryBtn = document.getElementById('close-history-btn'); // New
+        // const gameBackground = document.getElementById('game-background');
+        // const characterSprite = document.getElementById('character-sprite');
+
+        // Game State
+        let currentApiKey = '';
+        let currentApiUrl = '';
+        let currentModel = '';
+        let conversationHistory = []; // Stores {role: 'user'/'model', parts: [{text: '...'}]}
+        let isGameStarted = false;
+        let isLoading = false;
+
+        const DEFAULT_API_URL = 'https://generativelanguage.googleapis.com';
+
+        // --- Configuration Handling (Mostly unchanged) ---
+        function saveConfig() {
+            const apiKey = apiKeyInput.value.trim();
+            const apiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL;
+            const model = apiModelInput.value.trim();
+
+            if (!apiKey) { showGameError("API Key 不能为空！"); apiKeyInput.focus(); return; }
+            if (!model) { showGameError("模型名称不能为空！"); apiModelInput.focus(); return; }
+
+            localStorage.setItem('galgame_apiKey', apiKey);
+            localStorage.setItem('galgame_apiUrl', apiUrl);
+            localStorage.setItem('galgame_model', model);
+
+            currentApiKey = apiKey;
+            currentApiUrl = apiUrl;
+            currentModel = model;
+
+            console.log("Config saved:", { currentApiKey, currentApiUrl, currentModel });
+            alert("设置已保存！");
+            configPanel.classList.remove('visible');
+            nextButton.disabled = !currentApiKey;
+        }
+
+        function loadConfig() {
+            currentApiKey = localStorage.getItem('galgame_apiKey') || '';
+            currentApiUrl = localStorage.getItem('galgame_apiUrl') || DEFAULT_API_URL;
+            currentModel = localStorage.getItem('galgame_model') || 'gemini-1.5-flash-latest';
+
+            apiKeyInput.value = currentApiKey;
+            apiUrlInput.value = currentApiUrl === DEFAULT_API_URL ? '' : currentApiUrl;
+            apiModelInput.value = currentModel;
+            keyStatusSpan.textContent = ''; // Clear key status on load
+            keyStatusSpan.className = '';
+             console.log("Config loaded:", { currentApiKey, currentApiUrl, currentModel });
+
+             if (!currentApiKey && !isGameStarted) {
+                  dialogueText.innerHTML = marked.parse("请点击右上角的 **⚙** 设置你的 Gemini API Key，并可以点击 '测试 Key' 来验证。");
+                 nextButton.disabled = true;
+                 toggleHistoryBtn.disabled = true; // Disable history if no key
+             } else {
+                 nextButton.disabled = false;
+                 toggleHistoryBtn.disabled = false; // Enable history if key exists
+             }
+        }
+
+        function toggleConfigPanel() { configPanel.classList.toggle('visible'); }
+
+        async function testApiKey() {
+            // --- API Key Test Logic (Unchanged) ---
+            const apiKey = apiKeyInput.value.trim();
+            const apiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL;
+            if (!apiKey) { keyStatusSpan.textContent = '请输入 API Key'; keyStatusSpan.className = 'invalid'; return; }
+            keyStatusSpan.textContent = '正在测试...'; keyStatusSpan.className = 'testing'; testKeyBtn.disabled = true;
+            const testUrl = `${apiUrl}/v1beta/models?key=${apiKey}`;
+            try {
+                const response = await fetch(testUrl);
+                if (response.ok) { keyStatusSpan.textContent = '✅ Key 有效'; keyStatusSpan.className = 'valid'; }
+                else {
+                    let errorMsg = `❌ Key 无效 (${response.status})`;
+                    if (response.status === 401 || response.status === 403) errorMsg = '❌ Key 无效或权限不足';
+                    else if (response.status === 400) errorMsg = '❓ 请求错误 (检查API URL?)';
+                    keyStatusSpan.textContent = errorMsg; keyStatusSpan.className = 'invalid';
+                }
+            } catch (error) { keyStatusSpan.textContent = '⚠️ 测试出错 (网络?)'; keyStatusSpan.className = 'error'; }
+            finally { testKeyBtn.disabled = false; }
+        }
+
+        // --- Error Handling (Unchanged) ---
+        function showGameError(message) {
+            gameErrorMessage.textContent = message;
+            gameErrorMessage.style.display = 'block';
+            setTimeout(() => { gameErrorMessage.style.display = 'none'; }, 5000);
+        }
+         function clearGameError() {
+            gameErrorMessage.style.display = 'none';
+            gameErrorMessage.textContent = '';
+         }
+
+        // --- UI Update ---
+         function setLoading(loading) {
+             isLoading = loading;
+             loadingOverlay.classList.toggle('visible', loading); // Use toggle with boolean
+             nextButton.disabled = loading;
+             toggleHistoryBtn.disabled = loading; // Also disable history button while loading
+             document.querySelectorAll('.choice-button').forEach(btn => btn.disabled = loading);
+         }
+
+        // Modified updateDialogue to only show the *current* message
+        function updateDialogue(text, speaker = "旁白", choices = []) {
+             clearGameError();
+            speakerName.textContent = speaker;
+             const cleanHtml = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(marked.parse(text)) : marked.parse(text);
+             dialogueText.innerHTML = cleanHtml;
+
+            choicesContainer.innerHTML = '';
+            if (choices && choices.length > 0) {
+                nextButton.style.display = 'none';
+                choices.forEach((choiceText, index) => {
+                    const button = document.createElement('button');
+                    button.classList.add('choice-button');
+                    button.textContent = choiceText;
+                    button.onclick = () => handleChoice(choiceText); // Pass the text directly
+                    choicesContainer.appendChild(button);
+                });
+            } else {
+                nextButton.style.display = 'block';
+            }
+             dialogueBox.scrollTop = dialogueBox.scrollHeight;
+        }
+
+        // --- History Panel Logic ---
+        function toggleHistoryPanel() {
+            if (historyPanel.classList.contains('visible')) {
+                historyPanel.classList.remove('visible');
+            } else {
+                displayHistory(); // Populate content before showing
+                historyPanel.classList.add('visible');
+            }
+        }
+
+        function displayHistory() {
+            historyContent.innerHTML = ''; // Clear previous history
+            if (conversationHistory.length === 0) {
+                historyContent.innerHTML = '<p><i>还没有对话记录呢...</i></p>';
+                return;
+            }
+
+            conversationHistory.forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.classList.add('history-entry');
+
+                const roleSpan = document.createElement('div');
+                roleSpan.classList.add(entry.role === 'user' ? 'history-role-user' : 'history-role-model');
+                roleSpan.textContent = entry.role === 'user' ? '你:' : `${currentModel}:`; // Or use parsed speaker name if available
+
+                const textDiv = document.createElement('div');
+                textDiv.classList.add('history-text');
+                // Render markdown for model, plain text for user for simplicity
+                const textContent = entry.parts[0]?.text || '(空消息)';
+                if (entry.role === 'model') {
+                     textDiv.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(marked.parse(textContent)) : marked.parse(textContent);
+                 } else {
+                     textDiv.textContent = textContent; // Display user input as plain text
+                 }
+
+
+                entryDiv.appendChild(roleSpan);
+                entryDiv.appendChild(textDiv);
+                historyContent.appendChild(entryDiv);
+            });
+
+            // Scroll history to bottom
+            historyContent.scrollTop = historyContent.scrollHeight;
+        }
+
+        // --- Gemini API Call (Add prompt to history BEFORE call) ---
+        async function callGeminiApi(promptText) {
+            if (!currentApiKey) throw new Error("API Key 未设置！");
+            if (!currentModel) throw new Error("模型名称未设置！");
+
+            const fullApiUrl = `${currentApiUrl}/v1beta/models/${currentModel}:generateContent?key=${currentApiKey}`;
+
+            // Add user prompt to history *before* sending the request
+            // Avoid adding default "继续故事" prompts to history for clarity, unless needed
+            if (promptText && promptText !== "继续故事。") { // Only add meaningful user input
+                 conversationHistory.push({ role: 'user', parts: [{ text: promptText }] });
+            }
+
+
+            // **Important**: Prepare history for API
+            // For Gemini, it's usually best to send the whole history
+            const apiHistoryPayload = conversationHistory;
+            // Trim history if it gets too long (example: keep last 10 turns = 20 messages)
+            const maxHistoryTurns = 10;
+             if(apiHistoryPayload.length > maxHistoryTurns * 2) {
+                 console.warn(`History too long (${apiHistoryPayload.length}), trimming to last ${maxHistoryTurns} turns.`);
+                 // Keep the first message (system prompt if any) and the last N messages
+                 // This needs careful implementation based on your prompting strategy
+                 // Simple trim for now:
+                 // conversationHistory = conversationHistory.slice(-maxHistoryTurns * 2);
+                 // apiHistoryPayload = conversationHistory; // Use the trimmed history
+             }
+
+             console.log("Sending API request to:", fullApiUrl);
+             console.log("Request History Payload:", JSON.stringify({ contents: apiHistoryPayload }));
+
+
+            try {
+                const response = await fetch(fullApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: apiHistoryPayload }) // Send prepared history
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("API Error Response:", errorData);
+                     // If user prompt was added, remove it on error
+                     // if (promptText && promptText !== "继续故事。") { conversationHistory.pop(); }
+                    throw new Error(`API 请求失败: ${response.status} ${response.statusText} - ${errorData?.error?.message || '未知错误'}`);
+                }
+
+                const data = await response.json();
+                console.log("API Success Response:", data);
+
+                let generatedText = '';
+                 if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
+                    generatedText = data.candidates[0].content.parts[0].text;
+                } else {
+                     console.warn("Could not extract text from response structure:", data);
+                     // If user prompt was added, remove it on error
+                     // if (promptText && promptText !== "继续故事。") { conversationHistory.pop(); }
+                     throw new Error("无法从 API 响应中提取有效文本。");
+                 }
+
+                // Add model response to history
+                conversationHistory.push({ role: 'model', parts: [{ text: generatedText }] });
+
+                return generatedText;
+
+            } catch (error) {
+                console.error("Fetch error:", error);
+                // If user prompt was added, remove it on error
+                // if (promptText && promptText !== "继续故事。") { conversationHistory.pop(); }
+                throw error;
+            }
+        }
+
+
+        // --- Game Logic (Adjustments) ---
+        function startGame() {
+             if (!currentApiKey) {
+                 showGameError("请先设置 API Key！");
+                 toggleConfigPanel();
+                 return;
+             }
+            isGameStarted = true;
+            nextButton.textContent = '继续';
+            toggleHistoryBtn.disabled = false; // Ensure history button is enabled
+            conversationHistory = []; // Reset history ON START
+             // Initial prompt - more specific about output format
+             const initialPrompt = `你是一个 Galgame AI 引擎。请为我生成一个浪漫校园恋爱故事的开端。
+规则：
+1.  用旁白的形式描述场景和内心想法，使用 Markdown 斜体 (*) 强调想法或细节。
+2.  如果有人物说话，使用格式 "[角色名]: 对话内容"。例如 "[小光]: 早上好！"。
+3.  如果需要玩家做出选择，在文本末尾另起一行，使用格式 "Choices:\n1. [选项一]\n2. [选项二]"。不要在其他地方使用 "Choices:" 这个词。
+4.  保持故事的连贯性和趣味性。
+
+开始吧！`;
+            proceedStory(initialPrompt); // Pass the specific initial prompt
+        }
+
+         // Modified proceedStory to handle the prompt being added before the call
+        async function proceedStory(userPrompt) {
+            setLoading(true);
+            clearGameError();
+
+            try {
+                 // User prompt is now added to history *before* callGeminiApi is invoked
+
+                const aiResponse = await callGeminiApi(userPrompt); // Pass the actual user input/choice
+
+                // --- Parsing Logic ---
+                let speaker = "旁白";
+                let dialogue = aiResponse;
+                let choices = [];
+
+                // Remove potential "Choices:" section before parsing speaker
+                 let choiceSectionMatch = aiResponse.match(/Choices:\s*\n((?:.|\n)*)/);
+                 let dialogueWithoutChoices = aiResponse;
+                 if (choiceSectionMatch) {
+                     dialogueWithoutChoices = aiResponse.substring(0, choiceSectionMatch.index).trim(); // Get text before "Choices:"
+                     // Parse choices from the section after "Choices:"
+                     const choiceLines = choiceSectionMatch[1].trim().split('\n');
+                     choiceLines.forEach(line => {
+                        // Match formats like "1. [Choice text]" or "- [Choice text]" or "* [Choice text]"
+                         const choiceMatch = line.match(/^(?:\d+\.|-|\*)\s*\[(.*?)\]/);
+                         if (choiceMatch) {
+                             choices.push(choiceMatch[1].trim());
+                         }
+                     });
+                 }
+
+
+                // Try to parse speaker from the remaining dialogue
+                const speakerMatch = dialogueWithoutChoices.match(/^\[(.*?)]:\s*/);
+                if (speakerMatch) {
+                    speaker = speakerMatch[1];
+                    dialogue = dialogueWithoutChoices.substring(speakerMatch[0].length);
+                } else {
+                     dialogue = dialogueWithoutChoices; // Use the text before choices as dialogue
+                 }
+                // --- End Parsing ---
+
+
+                // Only update the main dialogue box with the *latest* response
+                updateDialogue(dialogue, speaker, choices);
+
+            } catch (error) {
+                console.error("Error proceeding story:", error);
+                showGameError(`发生错误: ${error.message}`);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function handleNext() {
+             if (isLoading) return;
+            if (!isGameStarted) { startGame(); }
+            else {
+                 // Send a generic prompt to continue if no choices are available
+                proceedStory("继续故事。");
+            }
+        }
+
+        function handleChoice(choiceText) {
+             if (isLoading) return;
+             console.log("User chose:", choiceText);
+             // Add choice to history explicitly here if needed, or rely on it being added in proceedStory
+             // conversationHistory.push({ role: 'user', parts: [{ text: `我选择了 "${choiceText}"` }] }); // Optional explicit add
+             proceedStory(choiceText); // Send the choice as the next prompt
+         }
+
+        // --- Event Listeners (Add History Listeners) ---
+        toggleConfigBtn.addEventListener('click', toggleConfigPanel);
+        saveConfigBtn.addEventListener('click', saveConfig);
+        closeConfigBtn.addEventListener('click', toggleConfigPanel);
+        testKeyBtn.addEventListener('click', testApiKey);
+        nextButton.addEventListener('click', handleNext);
+        toggleHistoryBtn.addEventListener('click', toggleHistoryPanel); // New
+        closeHistoryBtn.addEventListener('click', toggleHistoryPanel); // New (Close button also toggles)
+
+
+        // --- Initial Load ---
+        loadConfig();
+
+
+    </script>
+
+</body>
+</html>

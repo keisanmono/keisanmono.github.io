@@ -3,117 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大学生活：探索与成长</title>
+    <title>大学生活：探索与成长 🌱</title>
     <link rel="stylesheet" href="css/style.css">
-		<!-- 在 head 标签内引入 highlight.js 的 CSS 样式 -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+    <!-- 引入 highlight.js 的 CSS (选择一个你喜欢的风格, e.g., vs2015, atom-one-dark) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/vs2015.min.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css"> -->
+
 </head>
 <body>
+    <!-- 背景容器 -->
     <div class="background"></div>
+    <!-- 侧边栏 -->
     <div id="sidebar">
         <nav id="sidebar-nav">
-            <a href="index.html">主页</a>
-            <a href="about.html">关于我</a>
-            <a href="blog_page1.html">博客</a>
-            <a href="contact.html">联系我</a>
-            <a href="download.html">文件下载</a>
+            <a href="index.html">🏠 主页</a>
+            <a href="about.html">✨ 关于我</a>
+            <a href="blog_page1.html">📝 博客</a>
+            <a href="contact.html">💌 联系我</a>
+            <a href="download.html">📁 文件下载</a>
+            <a href="ai_draw.html">🎨 AI 作画</a> <!-- 新增链接 -->
         </nav>
     </div>
-    <button class="toggle-btn" id="toggle-btn">☰</button>
+    <!-- 切换按钮 -->
+    <button id="toggle-btn">☰</button>
+
+    <!-- 页面内容 -->
     <div class="content scroll-container">
-        <header>
-            <h1>大学生活：探索与成长</h1>
-        </header>
+        <!-- 页眉在这里可能不需要重复标题 -->
+        <!-- <header> -->
+            <!-- <h1>大学生活：探索与成长</h1> -->
+        <!-- </header> -->
         <main>
-            <article class="post-content">
-                <h2>走进大学校园，开启人生新篇章</h2>
+            <article class="post-content"> <!-- 使用 article 标签更语义化 -->
+                 <h1>大学生活：探索与成长 🌱</h1> <!-- 将主标题移到文章内部 -->
                 <div class="post-date">October 27, 2024</div>
 
+                <h2>走进大学校园，开启人生新篇章 ✨</h2>
                 <p>大学生活是一段让人充满期待的旅程，它不仅仅是学业的进步，还是人生视野的拓展和自我意识的觉醒。从新生报到的兴奋，到第一堂课的紧张，再到社团活动的参与，每一步都充满了挑战和成长的契机。</p>
-			<div class="post-media">
-    			<img src="images/background1.jpg" alt="描述图片内容" class="post-media">
-			</div>
 
-                <h3>初入校园：适应与融入</h3>
+                <!-- 计算文章内图片尺寸 (e.g., 16:9, 稍大) -->
+                <!-- width=800, height=456 -->
+                <div class="post-media">
+                    <img src="https://image.pollinations.ai/prompt/anime%20university%20campus,%20students%20walking%20under%20cherry%20blossom%20trees,%20sunny%20day,%20detailed%20background,%20slice%20of%20life%20style?width=800&height=456&seed=9876&model=flux&nologo=true" alt="大学校园场景" class="post-media"> <!-- class也叫post-media? OK -->
+                </div>
+
+                <h3>初入校园：适应与融入 🤝</h3>
                 <p>初入大学的我们，往往会经历一段适应期。陌生的校园、全新的学习方式、来自全国各地的同学，都会让我们感到新鲜与不安。结识新朋友、参加迎新活动、熟悉校园设施等，都是我们逐渐融入这个新环境的过程。在这个阶段，不妨多参加社团活动，结识志同道合的朋友，让自己更快地找到归属感。</p>
-<div class="video-container">
-    <video controls>
-        <source src="video/北京交通大学校歌MV-p01-80.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-</div>
+
+                <!-- 视频 -->
+                <div class="video-container">
+                    <video controls poster="https://image.pollinations.ai/prompt/anime%20style%20illustration%20of%20Beijing%20Jiaotong%20University%20main%20gate,%20nostalgic%20feel?width=640&height=360&seed=54321&model=flux&nologo=true"> <!-- 加个封面图 -->
+                        <source src="video/北京交通大学校歌MV-p01-80.mp4" type="video/mp4">
+                        呜呜，你的浏览器好像不支持 Video 标签欸...
+                    </video>
+                </div>
 
 
-                <h3>自由与自律：学习的挑战</h3>
+                <h3>自由与自律：学习的挑战 📚</h3>
                 <p>大学学习与高中有很大不同，它赋予了我们更多的自由选择，然而，自由之下也要求更多的自律。我们可以选择自己喜欢的课程，安排学习时间，然而，缺乏自律也可能导致懈怠。尝试制定合理的学习计划，按时完成作业和复习，掌握时间管理的技巧，将帮助我们更好地应对学习的挑战，真正享受学习的乐趣。</p>
-<div class="post-audio">
-    <audio  controls>
-        <source src="audio/th06_17.mp3" type="audio/mpeg">
-        Your browser does not support the audio tag.
-    </audio>
-</div>
-                <h3>社团与活动：多元化的体验</h3>
+
+                <!-- 音频 -->
+                <div class="post-audio">
+                    <audio controls>
+                        <source src="audio/th06_17.mp3" type="audio/mpeg">
+                        你的浏览器不支持 Audio 元素。
+                    </audio>
+                </div>
+
+                <h3>社团与活动：多元化的体验 🎉</h3>
                 <p>大学生活中，社团活动是一个丰富的组成部分。无论是兴趣社团、志愿者组织，还是学术竞赛和职业发展讲座，这些活动都为我们提供了展示自我、拓展视野的机会。通过参与社团，不仅可以结交朋友、锻炼自己的领导和沟通能力，还能在实践中找到自己的兴趣和潜能。</p>
 
+                <!-- 代码块 -->
+                <div class="post-code">
+                    <div class="code-header">
+                        <span class="file-type">JavaScript</span>
+                        <button class="copy-button" aria-label="复制代码">复制代码</button>
+                    </div>
+                    <pre><code class="language-javascript">
+/* 零钱兑换：贪心算法 (可能不是最优解) */
+function coinChangeGreedy(coins, amount) {
+  // 先对硬币面额从大到小排序
+  coins.sort((a, b) => b - a);
 
-<div class="post-code">
-    <div class="code-header">
-        <span class="file-type">Js</span>
-  <button class="copy-button" onclick="copyCode(event)" aria-label="复制代码">复制代码</button>
-    </div>
-    <pre><code class="language-Javascript">
-/* 零钱兑换：贪心 */
-function coinChangeGreedy(coins, amt) {
-    // 假设 coins 数组有序
-    let i = coins.length - 1;
-    let count = 0;
-    // 循环进行贪心选择，直到无剩余金额
-    while (amt > 0) {
-        // 找到小于且最接近剩余金额的硬币
-        while (i > 0 && coins[i] > amt) {
-            i--;
-        }
-        // 选择 coins[i]
-        amt -= coins[i];
-        count++;
+  let count = 0;
+  let remainingAmount = amount;
+  
+  console.log(`Trying to make change for: ${amount}`);
+  console.log(`Available coins: ${coins.join(', ')}`);
+
+  for (const coin of coins) {
+    if (remainingAmount >= coin) {
+      // 计算当前面额硬币能用多少个
+      const numCoins = Math.floor(remainingAmount / coin);
+      count += numCoins;
+      remainingAmount -= numCoins * coin;
+      console.log(`Used ${numCoins} of ${coin}, remaining: ${remainingAmount}`);
     }
-    // 若未找到可行方案，则返回 -1
-    return amt === 0 ? count : -1;
+    // 如果剩余金额为0，提前结束
+    if (remainingAmount === 0) {
+      break;
+    }
+  }
+
+  // 如果最后剩余金额不为0，说明贪心法无解
+  if (remainingAmount > 0) {
+    console.log("Greedy approach failed.");
+    return -1;
+  }
+
+  console.log(`Total coins used: ${count}`);
+  return count;
 }
+
+// 示例
+const coins = [1, 5, 10, 25];
+const amount = 63;
+coinChangeGreedy(coins, amount); // 尝试找零
                     </code></pre>
                 </div>
-                <h3>思考与成长：关于未来的探索</h3>
+
+                <h3>思考与成长：关于未来的探索 🤔</h3>
                 <p>大学四年是我们规划未来、探索自我的宝贵时光。许多人会在这段时间开始思考自己的职业方向、兴趣爱好和人生目标。我们可以尝试不同的实践项目、实习机会，在探索中逐渐明确自己的方向。同时，保持积极的心态，勇敢尝试新事物，将使我们在大学生活中获得更多成长。</p>
-<div class="video-container">
-    <iframe 
-        width="560" 
-        height="315" 
-        src="https://player.bilibili.com/player.html?bvid=BV1phC2YnE4D&autoplay=0" 
-        frameborder="0" 
-        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
-        allowfullscreen>
-    </iframe>
-</div>
 
+                <!-- 嵌入 Bilibili 视频 -->
+                <div class="video-container">
+                    <iframe
+                        src="https://player.bilibili.com/player.html?bvid=BV1phC2YnE4D&page=1&autoplay=0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
 
-                <h3>结论</h3>
-                <p>大学生活是短暂而珍贵的，它不仅塑造了我们的知识和技能，更影响了我们的性格与人生观。珍惜大学的每一天，不断挑战自我、提升自己，将为我们未来的人生奠定坚实的基础。愿每位大学生都能在大学生活中找到自己的方向，走向更光明的未来。</p>
+                <h3>结语 💖</h3>
+                <p>大学生活是短暂而珍贵的，它不仅塑造了我们的知识和技能，更影响了我们的性格与人生观。珍惜大学的每一天，不断挑战自我、提升自己，将为我们未来的人生奠定坚实的基础。愿每位大学生都能在大学生活中找到自己的方向，走向更光明的未来！ (๑•̀ㅂ•́)و✧</p>
 
-                <p>感谢您的阅读！如果您有任何问题或反馈，请随时联系我。</p>
+                <p>感谢阅读喵~ 如果有任何想法或建议，欢迎<a href="contact.html">联系我</a>！</p>
             </article>
         </main>
         <footer>
-            <p>© 2024 我的博客 | <a href="blog_page1.html" class="back-link">返回博客</a></p>
+            <p>© 2024 MOLIFULAN's Blog | <a href="blog_page1.html?page=1" class="back-link">返回博客列表</a></p>
         </footer>
     </div>
+    <!-- JS 文件 -->
     <script src="js/script.js"></script>
-		<!-- 在 body 底部引入 highlight.js 脚本 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        hljs.highlightAll();
-    });
-</script>
+    <!-- 引入 highlight.js 脚本 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <!-- 如果需要支持更多语言 -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/go.min.js"></script> -->
+    <script>
+        // 初始化 highlight.js (确保在DOM加载后执行)
+        // document.addEventListener('DOMContentLoaded', (event) => { // JS脚本已包含此逻辑
+        //     hljs.highlightAll();
+        // });
+    </script>
 </body>
 </html>
-

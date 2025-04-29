@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>博客页面 1</title>
+    <title>博客文章 - 第 1 页</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -13,156 +13,114 @@
     <!-- 侧边栏 -->
     <div id="sidebar">
         <nav id="sidebar-nav">
-            <a href="index.html">主页</a>
-            <a href="about.html">关于我</a>
-            <a href="blog_page1.html">博客</a>
-            <a href="contact.html">联系我</a>
-			<a href="download.html">文件下载</a>
+            <a href="index.html">🏠 主页</a>
+            <a href="about.html">✨ 关于我</a>
+            <a href="blog_page1.html">📝 博客</a>
+            <a href="contact.html">💌 联系我</a>
+            <a href="download.html">📁 文件下载</a>
+            <a href="ai_draw.html">🎨 AI 作画</a> <!-- 新增链接 -->
         </nav>
     </div>
 
     <!-- 切换按钮 -->
-    <button class="toggle-btn" id="toggle-btn">☰</button>
-		<div class="content scroll-container">
+    <button id="toggle-btn">☰</button>
+
+    <!-- 页面内容 -->
+	<div class="content scroll-container">
         <header>
-            <h1>我的博客文章 - 第 1 页</h1>
+            <h1>博客文章 - 第 1 页</h1>
         </header>
-        
+
         <main>
-<div class="search-container">
-    <input type="text" id="search" placeholder="搜索文章..." oninput="searchPosts()">
-    <button id="clear-btn" aria-label="清空搜索框" onclick="clearSearch()">✖</button>
-</div>
+            <!-- 搜索框 -->
+            <div class="search-container">
+                <input type="text" id="search" placeholder="搜点什么呢... (标题或内容)" oninput="searchPosts()">
+                <button id="clear-btn" aria-label="清空搜索框" onclick="clearSearch()">✖</button>
+            </div>
 
+            <!-- 文章列表容器 -->
+            <section id="posts-container" class="large-container">
+                <!-- 计算封面图尺寸 (e.g., 4:3) -->
+                <!-- width=240, height=184 -->
 
- <section id="posts-container" class="large-container">
+                <!-- 文章项 1 -->
                 <article class="post-item">
                     <a href="post1.html">
-                        <img class="post-image" src="images/cover1.jpg" alt="封面图">
+                        <img class="post-image" src="https://image.pollinations.ai/prompt/anime%20girl%20sitting%20at%20desk%20in%20a%20cozy%20room,%20window%20view%20of%20university%20campus,%20afternoon%20light,%20detailed%20illustration?width=240&height=184&seed=11345&model=flux&nologo=true" alt="大学生活封面">
                     </a>
                     <div class="post-content">
                         <a href="post1.html">
-                            <h2>文章标题 1</h2>
+                            <h2>大学生活：探索与成长 🌱</h2>
                         </a>
-                        <p>这是文章 1 的简要内容。</p>
+                        <p>大学生活是一段充满挑战和机遇的旅程，从懵懂新生到逐渐找到自己的方向...</p>
                     </div>
                 </article>
-                <hr class="divider">
-                
+                <!-- <hr class="divider"> 隐藏 -->
+
+                <!-- 文章项 2 -->
                 <article class="post-item">
                     <a href="post2.html">
-                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
+                        <img class="post-image" src="https://image.pollinations.ai/prompt/anime%20style,%20glowing%20data%20streams,%20server%20racks%20background,%20futuristic%20technology%20concept,%20cyberpunk%20aesthetic?width=240&height=184&seed=67890&model=flux&nologo=true" alt="内网穿透封面">
                     </a>
                     <div class="post-content">
                         <a href="post2.html">
-                            <h2>文章标题 2</h2>
+                            <h2>Gradio项目迁移：Colab 到 Kaggle (内网穿透大法好) 🚀</h2>
                         </a>
-                        <p>这是文章 2 的简要内容。</p>
+                        <p>记一次把深度学习项目从 Colab 搬到 Kaggle，并用 Ngrok 绕开限制的经历。</p>
                     </div>
                 </article>
-                <hr class="divider">
- 
-	 <article class="post-item">
-                    <a href="post2.html">
-                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
+
+                <!-- 文章项 3 (Placeholder) -->
+                 <article class="post-item">
+                    <a href="post3.html"> <!-- 假设有 post3.html -->
+                        <img class="post-image" src="https://image.pollinations.ai/prompt/cute%20anime%20cat%20wearing%20headphones,%20sitting%20on%20a%20stack%20of%20books,%20soft%20pastel%20colors,%20kawaii%20illustration?width=240&height=184&seed=11223&model=flux&nologo=true" alt="Placeholder Post Cover">
                     </a>
                     <div class="post-content">
-                        <a href="post2.html">
-                            <h2>文章标题 2</h2>
+                        <a href="post3.html">
+                            <h2>Placeholder: 第三篇文章标题 🎶</h2>
                         </a>
-                        <p>这是文章 2 的简要内容。</p>
+                        <p>这里是第三篇文章的简短描述或摘要内容...</p>
                     </div>
                 </article>
-                <hr class="divider">
-	  
-	 <article class="post-item">
-                    <a href="post2.html">
-                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
+
+                <!-- 再加几个 Placeholder -->
+                <article class="post-item">
+                    <a href="#">
+                         <img class="post-image" src="https://image.pollinations.ai/prompt/anime%20girl%20baking%20cookies%20in%20a%20sunny%20kitchen,%20warm%20and%20cozy%20atmosphere,%20slice%20of%20life?width=240&height=184&seed=44556&model=flux&nologo=true" alt="Placeholder Post Cover 4">
                     </a>
                     <div class="post-content">
-                        <a href="post2.html">
-                            <h2>文章标题 2</h2>
-                        </a>
-                        <p>这是文章 2 的简要内容。</p>
+                        <a href="#"><h2>Placeholder: 第四篇 🍪</h2></a>
+                        <p>文章四的摘要内容...</p>
                     </div>
                 </article>
-                <hr class="divider">
-	 
-	  <article class="post-item">
-                    <a href="post2.html">
-                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
+                 <article class="post-item">
+                    <a href="#">
+                         <img class="post-image" src="https://image.pollinations.ai/prompt/fantasy%20anime%20landscape,%20floating%20crystal%20castle%20in%20the%20clouds,%20majestic%20scenery,%20epic%20illustration?width=240&height=184&seed=77889&model=flux&nologo=true" alt="Placeholder Post Cover 5">
                     </a>
                     <div class="post-content">
-                        <a href="post2.html">
-                            <h2>文章标题 2</h2>
-                        </a>
-                        <p>这是文章 2 的简要内容。</p>
+                         <a href="#"><h2>Placeholder: 第五篇 ✨</h2></a>
+                        <p>文章五的摘要内容...</p>
                     </div>
                 </article>
-                <hr class="divider">
-	 
-	  <article class="post-item">
-                    <a href="post2.html">
-                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
-                    </a>
-                    <div class="post-content">
-                        <a href="post2.html">
-                            <h2>文章标题 2</h2>
-                        </a>
-                        <p>这是文章 2 的简要内容。</p>
-                    </div>
-                </article>
-                <hr class="divider">
-	 
-	  <article class="post-item">
-                    <a href="post2.html">
-                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
-                    </a>
-                    <div class="post-content">
-                        <a href="post2.html">
-                            <h2>文章标题 2</h2>
-                        </a>
-                        <p>这是文章 2 的简要内容。</p>
-                    </div>
-                </article>
-                <hr class="divider">
-	 
-	  <article class="post-item">
-                    <a href="post2.html">
-                        <img class="post-image" src="images/cover2.jpg" alt="封面图">
-                    </a>
-                    <div class="post-content">
-                        <a href="post2.html">
-                            <h2>文章标题 2</h2>
-                        </a>
-                        <p>这是文章 2 的简要内容。</p>
-                    </div>
-                </article>
-                <hr class="divider">
-                <!-- 可以继续添加更多文章 -->
+                <!-- 你可以继续添加更多文章项 -->
             </section>
 
-<div class="pagination">
-    <button id="prevBtn" class="page-button" onclick="prevPage()">上一页</button>
-    
-    <div id="pageButtons" class="page-buttons">
-        <!-- 页码按钮将被动态生成 -->
-    </div>
-
-    <button id="nextBtn" class="page-button" onclick="nextPage()">下一页</button>
-</div>
+            <!-- 分页 -->
+            <div class="pagination">
+                <button id="prevBtn" onclick="prevPage()" disabled>上一页</button> <!-- 第一页禁用 -->
+                <div id="pageButtons" class="page-buttons">
+                    <!-- JS 会生成页码按钮 -->
+                </div>
+                <button id="nextBtn" onclick="nextPage()">下一页</button>
+            </div>
 
         </main>
-        
+
         <footer>
-            <p>© 2024 我的博客</p>
+             <p>© 2024 MOLIFULAN's Blog | Stay tuned for more! (づ｡◕‿‿◕｡)づ</p>
         </footer>
     </div>
 
     <script src="js/script.js"></script>
 </body>
 </html>
-
-
-
-

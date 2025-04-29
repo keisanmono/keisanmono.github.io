@@ -6,13 +6,55 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background: linear-gradient(135deg, #c0c0c0, #ffffff);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; /* 更现代的字体 */
+    line-height: 1.7; /* 增加行高提高可读性 */
+    color: #333; /* 基础文字颜色 */
+    /* 更梦幻的背景渐变 */
+    background: linear-gradient(135deg, #ffc0cb, #add8e6, #f0e68c); /* 粉色-淡蓝-淡黄 */
     display: flex;
+    overflow: hidden; /* 防止body滚动 */
+    position: relative; /* 为了粒子效果定位 */
+}
+
+/* --- 漂浮粒子效果 --- */
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* 不阻挡鼠标事件 */
+    z-index: -2; /* 在背景图后面 */
     overflow: hidden;
 }
+
+.particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.7); /* 半透明白色粒子 */
+    border-radius: 50%;
+    animation: float 20s infinite linear;
+    opacity: 0; /* 初始透明 */
+}
+
+/* 粒子动画 */
+@keyframes float {
+    0% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+         opacity: 0.8; /* 渐显 */
+    }
+    90% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(var(--drift, 0px)) rotate(720deg); /* 向上漂浮并旋转，带一点水平漂移 */
+        opacity: 0; /* 渐隐 */
+    }
+}
+/* --- 粒子效果结束 --- */
+
 
 /* 背景容器样式 */
 .background {
@@ -21,796 +63,966 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    z-index: -1; /* 在内容后面 */
     background-size: cover;
     background-position: center;
-    opacity: 1;
-    transition: opacity 1s ease-in-out; /* 添加淡入淡出效果 */
+    opacity: 0.7; /* 让背景稍微柔和一点，突出内容 */
+    transition: opacity 1s ease-in-out, background-image 0.5s ease-in; /* 平滑过渡 */
+    filter: blur(2px) brightness(0.9); /* 给背景加一点模糊和压暗 */
 }
+
 
 /* 按钮样式 */
 #toggle-btn {
-    background: transparent;
-    border: none;
-    font-size: 24px;
+    background: rgba(255, 105, 180, 0.6); /* 粉色毛玻璃 */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 28px; /* 增大图标 */
     color: white;
     cursor: pointer;
-    transition: color 0.3s ease, text-shadow 0.3s ease;
+    transition: all 0.4s ease; /* 平滑所有过渡 */
     position: fixed;
-    top: 10px; /* 向下调整 */
-    left: 10px; /* 向右调整 */
+    top: 15px; /* 调整位置 */
+    left: 15px; /* 调整位置 */
     z-index: 15;
-    width: 40px;
-    height: 40px;
+    width: 45px; /* 增大按钮 */
+    height: 45px;
     border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px); /* 毛玻璃效果 */
 }
 
-/* 鼠标悬停时的发光效果 */
+/* 鼠标悬停时的发光和变形效果 */
 #toggle-btn:hover {
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);
+    background: rgba(255, 105, 180, 0.8);
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 25px rgba(255, 255, 255, 0.6);
+    transform: scale(1.1) rotate(15deg); /* 放大并轻微旋转 */
+    box-shadow: 0 0 15px rgba(255, 105, 180, 0.7);
 }
 
-/* 侧边栏样�?*/
+/* 侧边栏样式 */
 #sidebar {
     position: fixed;
     top: 0;
     left: 0;
     height: 100%;
-    width: 150px;
-    background-color: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px) saturate(180%);
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    width: 200px; /* 加宽侧边栏 */
+    /* 更活泼的侧边栏背景 */
+    background: linear-gradient(160deg, rgba(135, 206, 250, 0.5), rgba(255, 182, 193, 0.5)); /* 淡蓝到淡粉的毛玻璃 */
+    backdrop-filter: blur(12px) saturate(200%);
+    box-shadow: 3px 0 15px rgba(0, 0, 0, 0.3);
     color: #fff;
-    padding: 20px;
+    padding: 30px 20px; /* 增加内边距 */
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     z-index: 10;
     overflow: hidden;
-    transition: width 0.4s ease, padding 0.4s ease;
+    transition: width 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), padding 0.4s ease; /* 加入弹性过渡 */
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* 侧边栏折叠的样式 */
 #sidebar.collapsed {
     width: 0;
     padding: 0;
+    border-right: none;
 }
 
-/* 侧边栏导航链接样�?*/
+/* 侧边栏导航链接样式 */
 #sidebar nav {
-    margin-top: 20px;
+    margin-top: 40px; /* 与顶部按钮留出更多空间 */
     display: flex;
     flex-direction: column;
     width: 100%;
     opacity: 1;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.4s ease 0.1s; /* 延迟显示 */
 }
 
 /* 导航链接样式 */
 #sidebar a {
-    padding: 10px 0;
+    padding: 12px 15px; /* 增加链接内边距 */
+    margin-bottom: 10px; /* 增加链接间距 */
     color: #fff;
     text-decoration: none;
-    transition: background-color 0.3s, opacity 0.3s;
+    transition: all 0.3s ease; /* 平滑所有过渡 */
     width: 100%;
-    text-align: center;
+    text-align: left; /* 左对齐 */
+    border-radius: 8px; /* 圆角 */
+    font-weight: 500; /* 稍粗字体 */
+    position: relative;
+    overflow: hidden; /* 为了悬停效果 */
+    z-index: 1; /* 确保在伪元素之上 */
+}
+
+/* 导航链接悬停背景填充效果 */
+#sidebar a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%; /* 初始在左侧外面 */
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: left 0.4s ease; /* 平滑移入 */
+    z-index: -1;
+    border-radius: 8px;
 }
 
 /* 鼠标悬停时导航链接的效果 */
 #sidebar a:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.9);
+    color: #f0f8ff; /* 悬停时文字更亮 */
+    transform: translateX(5px) scale(1.02); /* 轻微右移和放大 */
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
 }
+
+#sidebar a:hover::before {
+    left: 0; /* 背景滑入 */
+}
+
 
 /* 折叠后的链接样式 */
 #sidebar.collapsed nav {
     opacity: 0;
+    transition: opacity 0.1s ease; /* 快速隐藏 */
 }
 
 /* 页面内容部分 */
 .content {
     flex: 1;
-    margin-left: 150px; /* 确保与侧边栏对齐 */
+    margin-left: 200px; /* 确保与侧边栏对齐 */
     transition: margin-left 0.4s ease; /* 动画效果 */
-    overflow-y: auto; /* 启用垂直滚动�?*/
-    height: 100vh; /* 设置高度为视口高�?*/
-    padding: 20px; /* 内边�?*/
-    background-color: rgba(255, 255, 255, 0.2); /* 背景颜色，带透明�?*/
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+    overflow-y: auto; /* 启用垂直滚动条 */
+    height: 100vh; /* 设置高度为视口高度 */
+    padding: 30px 40px; /* 增加内边距 */
+    /* 内容区域背景，更精致的毛玻璃 */
+    background-color: rgba(255, 255, 255, 0.4); /* 稍微不透明 */
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1); /* 内阴影增加层次感 */
     position: relative; /* 添加相对定位 */
-	backdrop-filter: blur(5px) saturate(180%); /* 毛玻璃模糊效�?*/
-    -webkit-backdrop-filter: blur(5px) saturate(180%); /* 兼容性处�?*/
+	backdrop-filter: blur(8px) saturate(150%); /* 毛玻璃模糊效果 */
+    -webkit-backdrop-filter: blur(8px) saturate(150%); /* 兼容性处理 */
+    border-left: 1px solid rgba(255, 255, 255, 0.2); /* 左边框 */
 }
-/* 侧边栏折叠后的内容样�?*/
+/* 侧边栏折叠后的内容样式 */
 #sidebar.collapsed ~ .content {
-    margin-left: 50px; /* 当侧边栏折叠时，调整内容的左边距 */
+    margin-left: 0px; /* 当侧边栏折叠时，内容的左边距归零 */
 }
 
-
-
+/* 博客文章列表容器 */
 #posts-container {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* 每篇文章之间的间�?*/
+    gap: 30px; /* 每篇文章之间的间距加大 */
     padding: 20px;
 }
 
-.frosted-container {
+/* 单个文章预览容器（替代frosted-container） */
+.post-item, .post-preview {
     display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.2); /* 更轻的毛玻璃效果 */
-    backdrop-filter: blur(10px);
-    border-radius: 10px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
-    padding: 20px;
+    align-items: center; /* 垂直居中 */
+    background: rgba(255, 255, 255, 0.6); /* 更亮的毛玻璃 */
+    backdrop-filter: blur(10px) saturate(180%);
+    border-radius: 15px; /* 更大的圆角 */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); /* 更柔和的阴影 */
+    padding: 25px; /* 加大内边距 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* 加入悬停动画 */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden; /* 防止图片溢出 */
 }
 
-.post-image {
-    width: 120px;
-    height: auto;
-    border-radius: 8px;
-    margin-right: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+.post-item:hover, .post-preview:hover {
+    transform: translateY(-5px) scale(1.01); /* 悬停时上浮并轻微放大 */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* 悬停时阴影加深 */
 }
 
-.post-content h2 {
-    font-size: 1.5em;
-    color: #007bff;
-    margin: 0;
+/* 文章封面图 */
+.post-image, .post-cover {
+    width: 150px; /* 统一封面图尺寸 */
+    height: 110px; /* 固定高度 */
+    object-fit: cover; /* 保证图片不变形 */
+    border-radius: 10px; /* 圆角 */
+    margin-right: 25px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 图片阴影 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.5); /* 图片加个白色边框 */
 }
 
-.post-content p {
-    color: #666;
+.post-image:hover, .post-cover:hover {
+    transform: scale(1.08) rotate(3deg); /* 悬停时放大旋转 */
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3); /* 阴影加深 */
 }
+
+/* 文章内容区域 */
 .post-content {
     flex: 1;
-    padding-right: 20px;
 }
 
-.post-content h2 {
+/* 文章标题 */
+.post-content h2, .post-content h3 {
+    font-size: 1.6em; /* 增大标题 */
     margin: 0 0 10px;
-    font-size: 1.5em;
-    color: #333;
+    font-weight: 600; /* 加粗 */
     transition: color 0.3s, text-shadow 0.3s; /* 添加过渡效果 */
 }
 
-/* 移除下划线，悬停时发光效�?*/
+/* 标题链接样式 */
 .post-content a {
-    text-decoration: none; /* 移除下划�?*/
-    color: inherit; /* 继承父元素的颜色 */
+    text-decoration: none; /* 移除下划线 */
+    color: #e91e63; /* 使用更活泼的粉色 */
 }
 
-.post-content a:hover {
-    color: #007acc; /* 鼠标悬停时的颜色 */
-    text-shadow: 0 0 10px rgba(0, 122, 204, 0.8); /* 发光效果 */
+/* 标题链接悬停效果 */
+.post-content a:hover h2,
+.post-content a:hover h3,
+.post-content h2 a:hover, /* 针对 index.html 的结构 */
+.post-content h3 a:hover { /* 针对 index.html 的结构 */
+    color: #c2185b; /* 悬停时深粉色 */
+    text-shadow: 0 0 12px rgba(233, 30, 99, 0.7); /* 粉色发光效果 */
 }
 
-.post-image {
-    max-width: 200px;
-    border-radius: 8px;
-    transition: box-shadow 0.3s;
+/* 文章摘要 */
+.post-content p {
+    color: #555; /* 稍深的灰色 */
+    line-height: 1.6;
+    font-size: 0.95em;
 }
 
-.post-image:hover {
-    box-shadow: 0 0 15px 5px rgba(0, 122, 204, 0.6); /* 封面图的发光效果 */
-}
 
+/* 搜索框容器 */
 .search-container {
-    margin: 20px auto; /* 上下外边距为 20px，左右居�?*/
-    max-width: 600px; /* 设置搜索框的最大宽�?*/
-    position: relative; /* 让按钮可以绝对定�?*/
+    margin: 30px auto; /* 上下外边距加大 */
+    max-width: 700px; /* 加宽 */
+    position: relative;
 }
 
 .search-container input {
-    width: 100%; /* 让输入框占满父容器的宽度 */
-    padding: 10px 40px 10px 10px; /* 右侧增加内边距以留出清除按钮空间 */
-    border: none; /* 去掉边框 */
-    border-radius: 8px; /* 圆角 */
-    background: rgba(255, 255, 255, 0.3); /* 背景透明 */
-    backdrop-filter: blur(10px); /* 毛玻璃效�?*/
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
-    outline: none; /* 去掉聚焦时的轮廓 */
-    transition: background 0.3s, box-shadow 0.3s; /* 添加过渡效果 */
+    width: 100%;
+    padding: 15px 50px 15px 20px; /* 调整内边距 */
+    border: none;
+    border-radius: 25px; /* 全圆角 */
+    background: rgba(255, 255, 255, 0.5); /* 毛玻璃 */
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    outline: none;
+    transition: all 0.3s ease;
+    font-size: 1em;
+    color: #333;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.search-container input::placeholder {
+    color: #888;
 }
 
 .search-container input:focus {
-    background: rgba(255, 255, 255, 0.5); /* 聚焦时的背景变化 */
-    box-shadow: 0 0 10px rgba(0, 122, 204, 0.8); /* 添加光晕效果 */
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 15px rgba(135, 206, 250, 0.8); /* 聚焦时光晕 - 淡蓝色 */
+    border-color: rgba(135, 206, 250, 0.5);
 }
 
 #clear-btn {
-    position: absolute; /* 使用绝对定位 */
-    right: 10px; /* 距离右边的距�?*/
-    top: 40%; /* 垂直居中 */
-    transform: translateY(-50%); /* 确保按钮垂直居中 */
-    background: none; /* 去掉背景 */
-    border: none; /* 去掉边框 */
-    cursor: pointer; /* 鼠标变为指针 */
-    font-size: 16px; /* 根据需要调整大�?*/
-    color: #888; /* 默认颜色 */
-    line-height: 1; /* 确保文本行高正常 */
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px; /* 加大清除按钮 */
+    color: #aaa;
+    line-height: 1;
+    transition: color 0.3s, transform 0.3s;
 }
 #clear-btn:hover {
-    color: #333; /* 鼠标悬停时改变颜�?*/
+    color: #e91e63; /* 悬停时粉色 */
+    transform: translateY(-50%) scale(1.2) rotate(90deg); /* 放大旋转 */
 }
 
 
 /* 分页样式 */
 .pagination {
     display: flex;
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
-    margin: 20px 0;
+    justify-content: center;
+    align-items: center;
+    margin: 40px 0 20px; /* 加大上边距 */
+    gap: 8px; /* 按钮间距 */
 }
 
-.page-buttons {
-    display: flex; /* 使按钮在一行中显示 */
-    align-items: center; /* 垂直居中 */
-}
-
-.page-buttons button {
-    margin: 0 5px; /* 按钮之间的间�?*/
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff; /* 普通按钮背�?*/
-    color: black; /* 设置文本颜色为黑�?*/
-    cursor: pointer;
-}
-
-.page-buttons button.active {
-    background: rgba(255, 255, 255, 0.3); /* 毛玻璃背�?*/
-    backdrop-filter: blur(10px); /* 毛玻璃效�?*/
-    box-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.6); /* 发光效果 */
-    color: black; /* 当前页码的文本颜�?*/
-}
-
-.page-buttons button:hover {
-    background-color: #0056b3; /* 悬停效果 */
-    color: white; /* 悬停时将文本颜色改为白色 */
-}
-
-.pagination button {
-    padding: 10px 15px;
+/* 分页按钮（上一页/下一页） */
+.pagination button, .page-buttons button {
+    padding: 10px 18px; /* 增加内边距 */
     cursor: pointer;
     border: none;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    color: black; /* 所有按钮的文本颜色 */
+    border-radius: 20px; /* 更圆的角 */
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    color: #555; /* 默认文字颜色 */
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* 禁用按钮样式 */
 .pagination button:disabled {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.2);
     cursor: not-allowed;
+    opacity: 0.6;
+    box-shadow: none;
 }
 
-.pagination button:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.5);
-    color: black; /* 悬停时将文本颜色保持为黑�?*/
-}
-span {
-    margin: 0 5px; /* 省略号的左右间距 */
-    font-weight: bold; /* 使省略号加粗 */
-    color: #007BFF; /* 省略号的颜色 */
-    cursor: default; /* 鼠标悬停时显示为箭头 */
-    font-size: 16px; /* 省略号的字体大小 */
-}
-/* 毛玻璃效�?*/
-.scroll-container {
-    backdrop-filter: blur(5px) saturate(180%); /* 毛玻璃模糊效�?*/
-    -webkit-backdrop-filter: blur(5px) saturate(180%); /* 兼容性处�?*/
-	background: rgba(255, 255, 255, 0.2); /* �޸�͸���� */
+/* 悬停效果（非禁用） */
+.pagination button:hover:not(:disabled), .page-buttons button:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.7);
+    color: #e91e63; /* 悬停时粉色文字 */
+    transform: translateY(-3px); /* 悬停时上浮 */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
-/* 自定义滚动条样式 */
+/* 页码按钮容器 */
+.page-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* 页码按钮间距 */
+}
+
+/* 当前页码按钮 */
+.page-buttons button.active {
+    background: linear-gradient(135deg, #ff8aae, #ffaddd); /* 粉色渐变 */
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(233, 30, 99, 0.6); /* 粉色光晕 */
+    transform: scale(1.05); /* 当前页突出显示 */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* 省略号样式 */
+span.pagination-ellipsis { /* 给省略号加个class，避免影响其他span */
+    margin: 0 5px;
+    font-weight: bold;
+    color: #aaa; /* 灰色 */
+    cursor: default;
+    font-size: 16px;
+    align-self: center; /* 垂直居中 */
+    padding: 10px 0; /* 保持和其他按钮高度一致 */
+}
+
+/* 自定义滚动条样式 (水晶风格) */
 .scroll-container::-webkit-scrollbar {
-    width: 12px; /* 滚动条宽�?*/
+    width: 12px;
 }
 
 .scroll-container::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.3); /* 更透明的白色背景，增强水晶效果 */
-    border-radius: 10px; /* 圆角 */
+    background: rgba(255, 255, 255, 0.2); /* 更透明 */
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); /* 内阴影 */
 }
 
 .scroll-container::-webkit-scrollbar-thumb {
-    background: rgba(173, 216, 230, 0.8); /* 水晶蓝色滑块，增加透明度以获得透亮效果 */
-    border-radius: 10px; /* 圆角 */
-    box-shadow: 0 0 5px rgba(0, 122, 204, 0.5); /* 添加光晕效果 */
-    transition: background 0.3s; /* 平滑过渡 */
-}
-
-.scroll-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(135, 206, 250, 1); /* 悬停时加深滑块颜�?*/
-}
-/* 联系我页面样�?*/
-.contact-container {
-    max-width: 600px; /* 设置最大宽�?*/
-    margin: 20px auto; /* 上下外边距为 20px，左右居�?*/
-    padding: 20px; /* 内边�?*/
-    background: rgba(255, 255, 255, 0.8); /* 背景颜色 */
-    border-radius: 10px; /* 圆角 */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 阴影效果 */
-}
-
-.contact-container h2 {
-    text-align: center; /* 标题居中 */
-}
-
-form {
-    display: flex;
-    flex-direction: column; /* 纵向排列 */
-}
-
-label {
-    margin-bottom: 5px; /* 标签与输入框之间的间�?*/
-}
-
-input, textarea {
-    padding: 10px;
-    border: none; /* 去掉边框 */
-    border-radius: 5px; /* 圆角 */
-    background: rgba(230, 230, 230, 0.7); /* 输入框背�?*/
-    margin-bottom: 15px; /* 输入框之间的间隔 */
-    outline: none; /* 去掉聚焦时的轮廓 */
-    transition: background 0.3s; /* 添加过渡效果 */
-    width: 100%; /* 确保输入框和文本区域占满父容器的宽度 */
-    box-sizing: border-box; /* �?padding �?border 不影响宽�?*/
-}
-
-textarea {
-    resize: vertical; /* 允许用户垂直调整大小 */
-    min-height: 100px; /* 设置最小高�?*/
-}
-
-input:focus, textarea:focus {
-    background: rgba(255, 255, 255, 1); /* 聚焦时的背景变化 */
-}
-
-button {
-    padding: 10px;
-    border: none; /* 去掉边框 */
-    border-radius: 5px; /* 圆角 */
-    background: #007BFF; /* 按钮背景颜色 */
-    color: white; /* 字体颜色 */
-    font-size: 16px;
-    cursor: pointer; /* 鼠标指针 */
-    transition: background 0.3s; /* 添加过渡效果 */
-}
-
-button:hover {
-    background: #0056b3; /* 悬停时的背景颜色 */
-}
-/* 关于我页面样�?*/
-.about-container {
-    max-width: 800px; /* 设置最大宽�?*/
-    margin: 20px auto; /* 上下外边距为 20px，左右居�?*/
-    padding: 20px; /* 内边�?*/
-    background: rgba(255, 255, 255, 0.8); /* 背景颜色 */
-    border-radius: 10px; /* 圆角 */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 阴影效果 */
-}
-
-.profile-image {
-    width: 150px; /* 设置头像宽度 */
-    height: 150px; /* 设置头像高度 */
-    border-radius: 50%; /* 圆形头像 */
-    display: block; /* 让头像居中显�?*/
-    margin: 0 auto 20px; /* 顶部外边距为 0，底部外边距�?20px，左右居�?*/
-}
-
-.about-container h2 {
-    text-align: center; /* 标题居中 */
-}
-
-.about-container h3 {
-    margin-top: 20px; /* 设置章节标题的上边距 */
-}
-
-.about-container ul {
-    list-style-type: disc; /* 列表样式 */
-    padding-left: 20px; /* 列表左边�?*/
-}
-.profile-image {
-    width: 150px; /* 设置头像宽度 */
-    height: 150px; /* 设置头像高度 */
-    border-radius: 50%; /* 圆形头像 */
-    display: block; /* 让头像居中显�?*/
-    margin: 0 auto 20px; /* 顶部外边距为 0，底部外边距�?20px，左右居�?*/
-}
-.post-content {
-    margin: 20px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.8); /* 背景色稍微透明 */
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.post-content h2, .post-content h3 {
-    color: #333; /* 标题颜色 */
-}
-
-.post-content p {
-    line-height: 1.6; /* 行高 */
-}
-.back-link {
-    text-decoration: none; /* 取消下划�?*/
-    color: #007BFF; /* 设置链接的颜色（可以根据需要调整） */
-    transition: text-shadow 0.3s; /* 添加过渡效果 */
-}
-
-.back-link:hover {
-    text-shadow: 0 0 10px rgba(0, 123, 255, 0.8), 0 0 20px rgba(0, 123, 255, 0.6); /* 鼠标悬停时发光效�?*/
-}
-.links-container {
-    margin: 20px 0; /* 上下外边�?*/
-    text-align: center; /* 内容居中 */
-}
-
-.links-header {
-    display: flex; /* 使用 flexbox 布局 */
-    align-items: center; /* 垂直居中对齐 */
-    justify-content: center; /* 水平居中对齐 */
-}
-
-.links-header h2 {
-    font-size: 20px; /* 标题字体大小 */
-    margin-right: 15px; /* 标题右侧外边�?*/
-}
-
-.links-list {
-    display: flex; /* 使用 flexbox 布局 */
-    padding: 0; /* 去掉内边�?*/
-    list-style: none; /* 去掉列表样式 */
-}
-
-.links-list li {
-    margin: 0 10px; /* 左右外边�?*/
-}
-
-/* 最新文章标题链接的样式 */
-.links-list a {
-    text-decoration: none; /* 去掉下划�?*/
-    color: #007bff; /* 设置标题颜色 */
-}
-
-/* 当鼠标悬停时的样�?*/
-.links-list a:hover {
-    color: #0056b3; /* 悬停时标题颜�?*/
-    text-decoration: none; /* 悬停时仍然去掉下划线 */
-}
-
-.download-section {
-    margin: 20px auto; /* 上下外边�?*/
-    max-width: 600px; /* 设置最大宽�?*/
-    text-align: center; /* 内容居中 */
-}
-
-.download-list {
-    list-style: none; /* 去掉列表样式 */
-    padding: 0; /* 去掉内边�?*/
-}
-
-.download-list li {
-    margin: 10px 0; /* 上下外边�?*/
-}
-
-.download-list a {
-    text-decoration: none; /* 去掉下划�?*/
-    color: #007BFF; /* 设置链接颜色 */
-    font-size: 18px; /* 链接字体大小 */
-    transition: color 0.3s; /* 添加过渡效果 */
-}
-
-.download-list a:hover {
-    color: #0056b3; /* 悬停时颜色变�?*/
-}
-.download-button {
-    display: inline-block; /* 使链接呈现为�?*/
-    padding: 10px 20px; /* 内边�?*/
-    margin: 10px 0; /* 外边�?*/
-    background-color: rgba(255, 255, 255, 0.7); /* 白色毛玻璃背�?*/
-    color: black; /* 字体颜色 */
-    text-decoration: none; /* 去掉下划�?*/
-    border-radius: 5px; /* 圆角 */
-    transition: background-color 0.3s, box-shadow 0.3s; /* 背景色和阴影变化过渡 */
-    backdrop-filter: blur(10px); /* 毛玻璃效�?*/
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
-}
-
-.download-button:hover {
-    background-color: rgba(255, 255, 255, 0.9); /* 悬停时颜色变�?*/
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* 悬停时阴影效果变�?*/
-}
-.download-btn {
-    display: inline-block;
-    background-color: rgba(0, 122, 255, 0.7); /* 增加不透明�?*/
-    color: #fff;
-    padding: 10px 20px;
-    margin: 5px 0;
-    text-decoration: none;
-    border-radius: 8px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(180deg, #aeeeee, #87cefa, #add8e6); /* 蓝绿色渐变 */
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(135, 206, 250, 0.7); /* 淡蓝色光晕 */
+    border: 1px solid rgba(255, 255, 255, 0.4); /* 边框增加立体感 */
     transition: background 0.3s;
 }
 
-.download-btn:hover {
-    background-color: rgba(0, 122, 255, 0.9); /* 鼠标悬停时更加不透明 */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+.scroll-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #b0ffff, #97ddff, #bde6ff); /* 悬停时更亮 */
+    box-shadow: 0 0 12px rgba(135, 206, 250, 1);
 }
 
-.download-frosted-container {
-    background: rgba(255, 255, 255, 0.1); /* 更透明的毛玻璃背景 */
-    backdrop-filter: blur(1px); /* 模糊效果 */
-    border-radius: 10px; /* 圆角 */
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2); /* 阴影 */
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 800px;
-    color: #333;
+/* 联系我页面 & 关于我页面 & 下载页面容器 */
+.contact-container, .about-container, .download-frosted-container, .glass-container {
+    max-width: 700px; /* 统一最大宽度 */
+    margin: 40px auto; /* 上下外边距 */
+    padding: 30px 40px; /* 内边距 */
+    background: rgba(255, 255, 255, 0.65); /* 毛玻璃背景 */
+    backdrop-filter: blur(12px) saturate(180%);
+    border-radius: 15px; /* 圆角 */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* 阴影 */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #444; /* 容器内文字颜色 */
+}
+
+.contact-container h2, .about-container h2, .download-frosted-container h2 {
     text-align: center;
+    margin-bottom: 25px;
+    color: #e91e63; /* 粉色标题 */
+    font-size: 1.8em;
+    text-shadow: 0 0 8px rgba(233, 30, 99, 0.4);
 }
 
-.download-frosted-container ul {
-    list-style: none; /* 去掉列表项前的点 */
-    padding: 0;
+/* 联系我表单 */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* 元素间距 */
 }
 
-.download-frosted-container li {
-    margin: 10px 0;
+label {
+    font-weight: 500;
+    color: #555;
 }
-#latest-posts {
+
+input[type="text"], input[type="email"], textarea {
+    padding: 12px 15px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.7); /* 输入框背景 */
+    outline: none;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 0.95em;
+    color: #333;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, textarea:focus {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(135, 206, 250, 0.7); /* 聚焦时淡蓝边框 */
+    box-shadow: 0 0 10px rgba(135, 206, 250, 0.5); /* 淡蓝光晕 */
+}
+
+/* 提交按钮 (复用分页按钮样式，改颜色) */
+form button[type="submit"] {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px; /* 圆角 */
+    background: linear-gradient(135deg, #ff8aae, #ff5c8a); /* 粉色渐变 */
+    color: white;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4);
+    margin-top: 10px; /* 和上方元素间距 */
+}
+
+form button[type="submit"]:hover {
+    background: linear-gradient(135deg, #ff5c8a, #e91e63); /* 悬停时加深 */
+    box-shadow: 0 8px 20px rgba(233, 30, 99, 0.6);
+    transform: translateY(-3px);
+}
+
+/* 关于我页面 */
+.profile-image {
+    width: 180px; /* 加大头像 */
+    height: 180px;
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto 30px;
+    border: 5px solid rgba(255, 255, 255, 0.7); /* 加宽边框 */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* 加深阴影 */
+    transition: transform 0.4s ease;
+}
+.profile-image:hover {
+    transform: scale(1.05) rotate(-5deg); /* 悬停时轻微放大旋转 */
+}
+
+.about-container h3 {
+    margin-top: 25px;
+    margin-bottom: 10px; /* 和列表间距 */
+    color: #87cefa; /* 淡蓝色小标题 */
+    font-size: 1.4em;
+}
+
+.about-container ul {
+    list-style-type: none; /* 去掉默认点 */
+    padding-left: 0;
+}
+.about-container ul li {
+    padding-left: 25px; /* 自定义图标空间 */
+    position: relative;
+    margin-bottom: 8px; /* 列表项间距 */
+}
+/* 自定义列表项图标 */
+.about-container ul li::before {
+    content: '✨'; /* 星星图标 */
+    position: absolute;
+    left: 0;
+    top: 2px;
+    font-size: 1.1em;
+    color: #ffd700; /* 金色 */
+}
+
+
+/* 文章详情页内容样式 */
+.post-content { /* 这个类名在很多地方用了，需要区分文章列表和文章详情 */
+    /* 对文章详情页的.post-content进行特定设置 */
+    max-width: 900px; /* 加宽文章内容区域 */
+    margin: 20px auto; /* 居中 */
+    padding: 30px 40px; /* 内边距 */
+    background: rgba(255, 255, 255, 0.75); /* 更不透明的背景 */
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    line-height: 1.8; /* 提高可读性 */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+article.post-content h1 { /* 文章主标题 */
+     font-size: 2.5em;
+     color: #e91e63;
+     text-align: center;
+     margin-bottom: 15px;
+     text-shadow: 0 0 10px rgba(233, 30, 99, 0.4);
+}
+
+article.post-content h2 { /* 文章内二级标题 */
+    font-size: 1.8em;
+    color: #4682b4; /* 钢蓝色 */
+    margin-top: 30px;
+    margin-bottom: 15px;
+    border-bottom: 2px dashed #add8e6; /* 淡蓝虚线 */
+    padding-bottom: 5px;
+}
+article.post-content h3 { /* 文章内三级标题 */
+    font-size: 1.5em;
+    color: #6a5acd; /* 石板蓝 */
+    margin-top: 25px;
+    margin-bottom: 12px;
+}
+
+article.post-content p {
+    color: #444;
+    margin-bottom: 1.2em; /* 段落间距 */
+    font-size: 1.05em; /* 稍大字体 */
+}
+article.post-content a { /* 文章内链接 */
+    color: #007bff;
+    text-decoration: underline;
+    text-decoration-color: rgba(0, 123, 255, 0.5);
+    transition: color 0.3s, text-decoration-color 0.3s;
+}
+article.post-content a:hover {
+    color: #0056b3;
+    text-decoration-color: rgba(0, 86, 179, 1);
+    text-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* 返回博客链接 */
+.back-link {
+    text-decoration: none;
+    color: #ff69b4; /* 亮粉色 */
+    font-weight: 500;
+    transition: text-shadow 0.3s, color 0.3s;
+    display: inline-block; /* 使transform生效 */
+    margin-top: 20px; /* 与页脚内容间距 */
+}
+
+.back-link:hover {
+    color: #ff1493; /* 深粉色 */
+    text-shadow: 0 0 10px rgba(255, 105, 180, 0.8), 0 0 20px rgba(255, 105, 180, 0.6); /* 发光效果 */
+    transform: translateX(-5px); /* 悬停时左移 */
+}
+
+/* 友情链接区域 */
+.links-container {
+    margin: 40px 0 20px; /* 调整外边距 */
+    text-align: center;
     padding: 20px;
-    background-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.3);
     border-radius: 10px;
     backdrop-filter: blur(5px);
 }
 
-#latest-posts h2 {
-    margin-bottom: 20px;
-    color: #333;
-}
-
-.post-preview {
+.links-header {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    justify-content: center;
+    margin-bottom: 15px; /* 标题和列表间距 */
 }
 
-.post-cover {
-    width: 150px;       /* �޸�Ϊ����Ŀ��� */
-    height: auto;       /* ����Ӧ�߶� */
-    border-radius: 8px;
-    margin-right: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-
-.post-content {
-    max-width: 800px; /* 增加容器宽度 */
-    margin: 0 auto; /* 水平居中 */
-    padding: 20px; /* 添加左右内边�?*/
-    line-height: 1.7;
-}
-.post-content h3 a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-.post-content h3 a:hover {
-    text-decoration: none;
-}
-
-.post-content p {
-    color: #666;
-}
-/* 大容�?*/
-.large-container {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px) saturate(180%);
-    border-radius: 10px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 800px;
-}
-
-/* 每篇文章的样�?*/
-.post-item {
-    display: flex;
-    align-items: center;
-    padding: 20px 0;
-}
-
-/* 文章封面�?*/
-.post-image {
-    width: 120px;
-    height: auto;
-    border-radius: 8px;
+.links-header h2 {
+    font-size: 1.5em; /* 增大标题 */
+    color: #6a5acd; /* 石板蓝 */
     margin-right: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+/* 友情链接标题装饰 */
+.links-header h2::before, .links-header h2::after {
+    content: '🔗';
+    font-size: 0.8em;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.7;
+}
+.links-header h2::before { left: -25px; }
+.links-header h2::after { right: -25px; }
+
+
+.links-list {
+    display: flex;
+    padding: 0;
+    list-style: none;
+    justify-content: center; /* 居中 */
+    flex-wrap: wrap; /* 允许换行 */
+    gap: 15px; /* 链接间距 */
 }
 
-/* 文章标题和内�?*/
-.post-content h2 {
-    font-size: 1.5em;
-    color: #007bff;
-    margin: 0;
-}
-
-.post-content p {
-    color: #666;
-}
-
-/* 分割线样�?*/
-.divider {
-    border: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    margin: 10px 0;
-}
-/* 最新文章标题链接的样式 */
-.post-content a {
-    text-decoration: none; /* 去掉下划�?*/
-    color: #007bff; /* 设置标题颜色 */
-}
-
-/* 当鼠标悬停时的样�?*/
-.post-content a:hover {
-    color: #0056b3; /* 悬停时标题颜�?*/
-    text-decoration: none; /* 悬停时仍然去掉下划线 */
-}
-/* 时间戳的基本样式 */
-.post-date {
-    font-size: 0.9rem;
-    color: #666666; /* 使用较深的灰色字体颜�?*/
-    margin-bottom: 10px;
+/* 友情链接样式 */
+.links-list a {
+    text-decoration: none;
+    color: #ff6347; /* 番茄色 */
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.4);
     display: inline-block;
-    font-style: italic; /* 使用斜体使其更显美观 */
 }
 
-/* 添加一个图�?*/
+.links-list a:hover {
+    color: white;
+    background: #ff6347; /* 悬停时背景变色 */
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255, 99, 71, 0.6);
+}
+
+/* 下载页面 */
+.download-section {
+    margin: 40px auto;
+    max-width: 700px;
+    text-align: center;
+}
+.download-section h2 { /* download.html 的标题 */
+     text-align: center;
+     margin-bottom: 25px;
+     color: #4682b4; /* 钢蓝色 */
+     font-size: 1.8em;
+}
+
+
+.download-list {
+    list-style: none;
+    padding: 0;
+    display: flex; /* 横向排列 */
+    justify-content: center; /* 居中 */
+    flex-wrap: wrap; /* 换行 */
+    gap: 15px; /* 按钮间距 */
+}
+
+/* 文件下载主页的按钮 */
+.download-button {
+    display: inline-block;
+    padding: 12px 25px;
+    margin: 5px; /* 调整间距 */
+    background-color: rgba(173, 216, 230, 0.7); /* 淡蓝色毛玻璃 */
+    color: #333;
+    text-decoration: none;
+    border-radius: 25px; /* 圆角 */
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-weight: 500;
+    font-size: 1em;
+}
+
+.download-button:hover {
+    background-color: rgba(173, 216, 230, 0.9);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px) scale(1.03);
+    color: #0056b3; /* 深蓝色文字 */
+}
+
+/* 具体文件下载页面的按钮 */
+.download-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #87cefa, #add8e6); /* 淡蓝渐变 */
+    color: white;
+    padding: 12px 25px;
+    margin: 10px 5px; /* 调整间距 */
+    text-decoration: none;
+    border-radius: 25px; /* 圆角 */
+    backdrop-filter: blur(8px);
+    box-shadow: 0 5px 15px rgba(135, 206, 250, 0.5);
+    transition: all 0.3s ease;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.download-btn:hover {
+    background: linear-gradient(135deg, #add8e6, #87cefa); /* 反向渐变 */
+    box-shadow: 0 8px 20px rgba(135, 206, 250, 0.7);
+    transform: translateY(-3px) scale(1.03);
+}
+
+/* 具体文件下载页面的容器 */
+.download-frosted-container ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px; /* 列表与标题间距 */
+}
+
+.download-frosted-container li {
+    margin: 15px 0; /* 列表项间距 */
+}
+
+/* 主页最新文章 */
+#latest-posts {
+    padding: 30px; /* 加大内边距 */
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 15px;
+    backdrop-filter: blur(8px);
+    margin-top: 30px; /* 与上方内容间距 */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#latest-posts h2 {
+    margin-bottom: 25px;
+    color: #ff69b4; /* 粉色标题 */
+    text-align: center;
+    font-size: 1.8em;
+    text-shadow: 0 0 8px rgba(255, 105, 180, 0.4);
+}
+
+/* 主页最新文章预览项（复用post-preview样式） */
+.post-preview {
+    margin-bottom: 25px;
+    padding-bottom: 0; /* 移除内部下边距，因为外部容器已有边框 */
+    border-bottom: none; /* 移除内部下划线 */
+}
+/* 移除主页最新文章最后一个的下边距 */
+#latest-posts .post-preview:last-child {
+    margin-bottom: 0;
+}
+
+/* 大容器（用于博客列表页） */
+.large-container {
+    background: rgba(255, 255, 255, 0.4); /* 半透明白 */
+    backdrop-filter: blur(10px) saturate(160%);
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px; /* 加大内边距 */
+    margin: 20px auto;
+    max-width: 950px; /* 加宽 */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 博客列表页的文章项（复用post-item样式） */
+.post-item {
+    padding: 25px 0; /* 列表项上下内边距 */
+    background: none; /* 移除单个item的背景，用large-container的 */
+    backdrop-filter: none;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.1); /* 用虚线分隔 */
+    transition: background-color 0.3s ease; /* 悬停加背景色 */
+    margin: 0 -25px; /* 抵消父容器padding，让分隔线撑满 */
+    padding: 25px 25px; /* 恢复内边距 */
+}
+.post-item:last-child {
+    border-bottom: none; /* 最后一项无分隔线 */
+}
+.post-item:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* 悬停时加一点背景 */
+    transform: none; /* 移除单个item的悬停变形，保持列表整齐 */
+    box-shadow: none;
+}
+
+/* 分割线样式 (现在由 post-item 的 border-bottom 代替) */
+.divider {
+    display: none; /* 隐藏旧的 hr 分割线 */
+}
+
+/* 文章时间戳 */
+.post-date {
+    font-size: 0.9em;
+    color: #888; /* 灰色 */
+    margin-bottom: 15px; /* 与正文间距 */
+    display: inline-block;
+    font-style: italic;
+    background: rgba(220, 220, 220, 0.3); /* 加个淡淡的背景 */
+    padding: 3px 8px;
+    border-radius: 10px;
+}
+
+/* 时间戳图标 */
 .post-date::before {
-    content: "📅"; /* 使用日历图标 */
+    content: "🌸 "; /* 樱花图标 */
     margin-right: 6px;
-    font-style: normal; /* 图标不使用斜�?*/
+    font-style: normal;
+    color: #ffb6c1; /* 淡粉色 */
 }
 
-/* 悬停效果 */
-.post-date:hover {
-    color: #333333; /* 悬停时字体颜色变�?*/
-}
-.post-media {
-    border-radius: 15px;  /* 设置圆角大小 */
-    max-width: 100%;      /* 确保图片自适应容器宽度 */
-    height: auto;         /* 保持图片的纵横比 */
-    display: block;       /* 将图片设置为块级元素 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* 添加阴影效果 */
+/* 文章内媒体（图片/视频/音频） */
+.post-media, .video-container, .post-audio {
+    margin: 25px auto; /* 上下外边距，自动左右居中 */
+    max-width: 100%;
+    display: block; /* 确保居中 */
 }
 
-.post-video {
+.post-media img { /* 文章内图片 */
+    border-radius: 15px;
     max-width: 100%;
     height: auto;
-    margin: 20px 0;
     display: block;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* 图片阴影 */
+    border: 3px solid rgba(255, 255, 255, 0.6); /* 白色边框 */
+    transition: transform 0.3s ease;
 }
-.video-container {
-    max-width: 100%; /* 确保视频容器宽度不超过其父容�?*/
-    height: auto;    /* 高度自适应 */
-    overflow: hidden; /* 隐藏超出部分 */
+.post-media img:hover {
+    transform: scale(1.03); /* 悬停放大 */
 }
 
+/* 视频容器 */
 .video-container iframe,
 .video-container video {
-    width: 100%;    /* 视频宽度 100% */
-    height: auto;   /* 高度自动调整，保持纵横比 */
-    border-radius: 15px; /* 可选：添加圆角效果 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 可选：添加阴影效果 */
-}
-
-.post-audio {
     width: 100%;
-    margin: 20px 0;
-}
-/* �Ľ�������������ʽ */
-.post-code {
-    margin: 1.5em 0;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: auto;
+    aspect-ratio: 16 / 9; /* 保持16:9 */
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    border: 3px solid rgba(255, 255, 255, 0.6);
 }
 
-/* �ϱ߿���ʽ */
+/* 音频播放器 */
+.post-audio audio {
+    width: 100%;
+    border-radius: 25px; /* 圆角播放器 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+
+/* 代码块容器 */
+.post-code {
+    margin: 2em 0; /* 加大上下边距 */
+    border-radius: 10px; /* 圆角 */
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25); /* 加深阴影 */
+    position: relative; /* 为了复制按钮定位 */
+}
+
+/* 代码块头部 */
 .code-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #393939;
-    color: #e1e4e8;
-    padding: 6px 12px;
+    background: #2d2d2d; /* 深灰色头部 */
+    color: #ccc;
+    padding: 8px 15px; /* 内边距 */
     font-size: 0.9em;
-    font-family: Arial, sans-serif;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    font-family: 'Segoe UI', sans-serif;
+    border-bottom: 1px solid #444; /* 分隔线 */
 }
 
-/* �ļ�������ʽ */
+/* 文件类型 */
 .file-type {
     font-weight: bold;
-    color: #b0b5ba;
+    color: #87cefa; /* 淡蓝色 */
 }
 
-/* ���ư�ť��ʽ */
+/* 复制按钮 */
 .copy-button {
-    background: #393939;
-    border: none;
-    color: white;
-    padding: 5px 10px;
+    background: #444; /* 按钮背景 */
+    border: 1px solid #555;
+    color: #eee;
+    padding: 6px 12px;
     cursor: pointer;
-    border-radius: 4px;
-    font-size: 0.8em;
-    transition: background-color 0.3s;
+    border-radius: 5px;
+    font-size: 0.85em;
+    transition: all 0.3s ease;
 }
 
 .copy-button:hover {
-    background: #242424;
+    background: #555;
+    color: white;
+    border-color: #777;
+}
+/* 复制成功样式 */
+.copy-button.copied {
+    background: #28a745; /* 绿色 */
+    color: white;
+    border-color: #28a745;
 }
 
-/* ������ڲ���ʽ */
+
+/* 代码区域 */
 pre {
-    overflow-x: auto; /* ֧�ֺ������ */
+    overflow-x: auto;
     margin: 0;
+    background-color: #1e1e1e; /* VSCode暗色背景 */
+    padding: 1.5em; /* 加大内边距 */
 }
 
 pre code {
     display: block;
-    padding: 1.2em;
     font-size: 0.95em;
     line-height: 1.6;
-    background-color: #1F1F1F;
-    color: #FFFFFF;
-    font-family: 'Fira Code', 'Source Code Pro', monospace; /* ʹ�ø�Բ������� */
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
-    white-space: pre; /* ���ִ���ԭ�и�ʽ */
+    color: #d4d4d4; /* 默认文字颜色 */
+    font-family: 'Fira Code', 'Consolas', monospace; /* 优先使用Fira Code */
+    white-space: pre;
+    background: none; /* 清除可能继承的背景 */
+    padding: 0; /* 清除可能继承的内边距 */
+    border-radius: 0; /* 清除可能继承的圆角 */
 }
 
-/* �Զ����﷨���� */
-.hljs {
-    background: #1F1F1F;
+/* highlight.js 主题微调 (基于 VSCode Dark) */
+.hljs { background: #1e1e1e; color: #d4d4d4; }
+.hljs-comment, .hljs-quote { color: #6a9955; font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-subst { color: #569cd6; font-weight: normal;} /* 蓝色关键字 */
+.hljs-number, .hljs-literal, .hljs-variable, .hljs-template-variable, .hljs-tag .hljs-attr { color: #b5cea8; } /* 淡绿色数字/常量 */
+.hljs-string, .hljs-doctag { color: #ce9178; } /* 橙色字符串 */
+.hljs-title, .hljs-section, .hljs-selector-id, .hljs-class .hljs-title { color: #dcdcaa; } /* 黄色类名/函数名 */
+.hljs-strong { font-weight: bold; }
+.hljs-emphasis { font-style: italic; }
+.hljs-attr { color: #9cdcfe; } /* 淡蓝色属性 */
+.hljs-regexp, .hljs-symbol, .hljs-link { color: #d16969; } /* 淡红色正则/符号 */
+.hljs-meta { color: #569cd6; }
+.hljs-built_in, .hljs-type { color: #4ec9b0; } /* 青色内置/类型 */
+.hljs-deletion { background-color: #800000; color: #d4d4d4; }
+.hljs-addition { background-color: #008000; color: #d4d4d4; }
+
+/* 页脚样式 */
+footer {
+    text-align: center;
+    margin-top: 40px; /* 与上方内容间距 */
+    padding-top: 20px; /* 页脚内上边距 */
+    border-top: 1px solid rgba(0, 0, 0, 0.1); /* 页脚上分割线 */
+    color: #777; /* 页脚文字颜色 */
+    font-size: 0.9em;
+}
+footer p {
+    margin-bottom: 10px; /* 底部文字间距 */
 }
 
-.hljs-keyword { color: #d73a49; font-weight: 600; }
-.hljs-string { color: #032f62; }
-.hljs-comment { color: #6a737d; font-style: italic; }
-.hljs-function { color: #005cc5; }
-.hljs-number { color: #005cc5; }
-
-
-
-.copied-message {
-    display: none; /* 默认不显示提�?*/
-    font-size: 0.9rem; /* 提示文字大小 */
-    color: white; /* 提示文字颜色 */
+/* 页眉标题 */
+header h1 {
+    text-align: center;
+    font-size: 2.8em; /* 加大标题 */
+    color: #fff; /* 白色标题 */
+    margin-bottom: 30px; /* 与下方内容间距 */
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 255, 255, 0.5); /* 文字阴影和发光 */
+    font-weight: 700; /* 加粗 */
 }
 
-pre {
-    margin: 0;
-    white-space: pre-wrap; /* 允许换行 */
-    overflow: auto; /* 支持滚动 */
+/* 主页简介 */
+section.intro p {
+    text-align: center;
+    font-size: 1.2em;
+    color: #eee; /* 亮灰色 */
+    margin-bottom: 30px;
+    background: rgba(0, 0, 0, 0.3); /* 加个暗色背景衬托 */
+    padding: 10px 15px;
+    border-radius: 10px;
+    display: inline-block; /* 使背景适应文字宽度 */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
-code {
-    font-family: "Courier New", Courier, monospace; /* 使用等宽字体 */
+/* 确保iframe响应式 */
+iframe {
+    max-width: 100%;
+    border-radius: 15px; /* 和视频/图片统一 */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    border: 3px solid rgba(255, 255, 255, 0.6);
 }
- iframe {
-        width: 100%; /* 让iframe宽度填满容器 */
-        height: auto; /* 让高度自适应 */
-        aspect-ratio: 16 / 9; /* 保持16:9的宽高比 */
-    }
-
-

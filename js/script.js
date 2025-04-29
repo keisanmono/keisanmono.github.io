@@ -1,52 +1,85 @@
 let currentPage = 1; // 当前页码
-const totalPages = 10; // 总页数（根据您的内容数量进行调整）
+const totalPages = 5; // 总页数（假设有5页博客列表）
 
 // 获取当前页码（在每个页面中都应指定）
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.has('page')) {
-    currentPage = parseInt(urlParams.get('page'), 10);
+    currentPage = parseInt(urlParams.get('page'), 10) || 1; // 加上 fallback
 }
 
 function updatePagination() {
-    // 更新分页按钮的显示状态
-    document.getElementById('prevBtn').style.display = currentPage === 1 ? 'none' : 'inline-block';
-    document.getElementById('nextBtn').style.display = currentPage === totalPages ? 'none' : 'inline-block';
-
-    // 更新页码按钮的显示
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
     const pageButtonsContainer = document.getElementById('pageButtons');
+
+    if (!prevBtn || !nextBtn || !pageButtonsContainer) return; // 如果元素不存在则退出
+
+    // 更新上一页/下一页按钮的可用状态
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
+
     pageButtonsContainer.innerHTML = ''; // 清空当前页码按钮
 
-    // 计算显示的页码范围
-    const startPage = Math.max(1, currentPage - 5); // 起始页码
-    const endPage = Math.min(totalPages, currentPage + 5); // 结束页码
+    const maxVisiblePages = 5; // 最多显示多少个页码按钮（不含省略号）
+    let startPage, endPage;
 
-    // 添加前面的页码
+    if (totalPages <= maxVisiblePages) {
+        // 总页数不多，全部显示
+        startPage = 1;
+        endPage = totalPages;
+    } else {
+        // 总页数较多，需要计算显示范围
+        const maxPagesBeforeCurrent = Math.floor((maxVisiblePages - 1) / 2);
+        const maxPagesAfterCurrent = Math.ceil((maxVisiblePages - 1) / 2);
+
+        if (currentPage <= maxPagesBeforeCurrent + 1) {
+            // 靠近第一页
+            startPage = 1;
+            endPage = maxVisiblePages;
+        } else if (currentPage >= totalPages - maxPagesAfterCurrent) {
+            // 靠近最后一页
+            startPage = totalPages - maxVisiblePages + 1;
+            endPage = totalPages;
+        } else {
+            // 在中间
+            startPage = currentPage - maxPagesBeforeCurrent;
+            endPage = currentPage + maxPagesAfterCurrent;
+        }
+    }
+
+    // 添加第一页和前面的省略号
+    if (startPage > 1) {
+        const firstPageButton = document.createElement('button');
+        firstPageButton.textContent = 1;
+        firstPageButton.onclick = () => goToPage(1);
+        pageButtonsContainer.appendChild(firstPageButton);
+        if (startPage > 2) {
+            const ellipsis = document.createElement('span');
+            ellipsis.textContent = '...';
+            ellipsis.className = 'pagination-ellipsis'; // 添加class以便样式化
+            pageButtonsContainer.appendChild(ellipsis);
+        }
+    }
+
+    // 添加中间的页码
     for (let i = startPage; i <= endPage; i++) {
         const pageButton = document.createElement('button');
         pageButton.textContent = i;
         pageButton.onclick = () => goToPage(i);
-        pageButton.className = currentPage === i ? 'active' : ''; // 当前页高亮
+        if (currentPage === i) {
+            pageButton.className = 'active'; // 当前页高亮
+        }
         pageButtonsContainer.appendChild(pageButton);
     }
 
-    // 如果起始页码大于1，显示省略号
-    if (startPage > 1) {
-        const ellipsis = document.createElement('span');
-        ellipsis.textContent = '...'; // 省略号
-        pageButtonsContainer.insertBefore(ellipsis, pageButtonsContainer.firstChild);
-        // 添加第一页按钮
-        const firstPageButton = document.createElement('button');
-        firstPageButton.textContent = 1;
-        firstPageButton.onclick = () => goToPage(1);
-        pageButtonsContainer.insertBefore(firstPageButton, ellipsis);
-    }
-
-    // 如果结束页码小于总页数，显示省略号
+    // 添加后面的省略号和最后一页
     if (endPage < totalPages) {
-        const ellipsis = document.createElement('span');
-        ellipsis.textContent = '...'; // 省略号
-        pageButtonsContainer.appendChild(ellipsis);
-        // 添加最后一页按钮
+        if (endPage < totalPages - 1) {
+            const ellipsis = document.createElement('span');
+            ellipsis.textContent = '...';
+            ellipsis.className = 'pagination-ellipsis'; // 添加class以便样式化
+            pageButtonsContainer.appendChild(ellipsis);
+        }
         const lastPageButton = document.createElement('button');
         lastPageButton.textContent = totalPages;
         lastPageButton.onclick = () => goToPage(totalPages);
@@ -72,7 +105,10 @@ function nextPage() {
 
 // 导航到相应页面
 function navigateToPage() {
-    window.location.href = `blog_page${currentPage}.html?page=${currentPage}`; // 根据页面命名方式调整
+    // 确保 currentPage 是有效数字
+    if (isNaN(currentPage) || currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    window.location.href = `blog_page${currentPage}.html?page=${currentPage}`;
 }
 
 // 跳转到指定页码
@@ -81,116 +117,234 @@ function goToPage(pageNumber) {
     navigateToPage();
 }
 
-// 初始化时更新按钮状态
-document.addEventListener('DOMContentLoaded', function () {
-    updatePagination();
-});
-
+// 切换侧边栏
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const toggleButton = document.getElementById('toggle-btn');
 
+    if (!sidebar || !toggleButton) return; // 确保元素存在
+
     // 切换侧边栏的折叠状态
     sidebar.classList.toggle('collapsed');
 
-    // 更新按钮的文本和样式
+    // 更新按钮的图标和样式
     if (sidebar.classList.contains('collapsed')) {
-        toggleButton.textContent = '▶'; // 使用右箭头表示折叠
-        toggleButton.classList.add('collapsed'); // 添加折叠类
+        toggleButton.textContent = '>'; // 使用右箭头表示展开
+        toggleButton.style.transform = 'rotate(0deg)'; // 恢复旋转
     } else {
-        toggleButton.textContent = '☰'; // 使用左箭头表示展开
-        toggleButton.classList.remove('collapsed'); // 移除折叠类
+        toggleButton.textContent = '☰'; // 使用汉堡包图标
+        toggleButton.style.transform = 'rotate(0deg)'; // 初始状态无旋转
     }
 }
-let copied = false; // 标记是否已复制
 
+// 复制代码功能优化
 function copyCode(event) {
-    event.preventDefault(); // 防止页面跳动
-    const codeElement = document.querySelector('.post-code code');
-    const button = document.querySelector('.copy-button');
+    const button = event.target; // 获取触发事件的按钮
+    const codeElement = button.closest('.post-code')?.querySelector('code'); // 找到最近的代码元素
 
-    // 使用 Clipboard API 进行复制
+    if (!codeElement || !navigator.clipboard) {
+        console.error("无法找到代码元素或浏览器不支持 Clipboard API");
+        button.textContent = '复制失败';
+        setTimeout(() => { button.textContent = '复制代码'; }, 2000);
+        return;
+    }
+
+    const originalText = button.textContent;
+    const originalClass = button.className;
+
     navigator.clipboard.writeText(codeElement.innerText).then(() => {
-        if (!copied) {
-            // 如果未复制，显示已复制提示
-            button.innerHTML = '✔️ 已复制！'; // 修改按钮文本
-            copied = true; // 设置已复制标记
+        button.textContent = '✔️ 已复制!';
+        button.classList.add('copied'); // 添加成功样式
 
-            // 设定 2 秒后恢复原状
-            setTimeout(() => {
-                button.innerHTML = '复制代码'; // 恢复按钮文本
-                copied = false; // 重置已复制标记
-            }, 2000);
-        }
+        // 设定 2 秒后恢复原状
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.classList.remove('copied'); // 移除成功样式
+        }, 2000);
     }).catch((err) => {
         console.error('复制失败：', err);
+        button.textContent = '复制出错';
+        setTimeout(() => { button.textContent = originalText; }, 2000);
     });
 }
 
 
+// 清空搜索框
 function clearSearch() {
     const searchInput = document.getElementById('search');
-    searchInput.value = ''; // 清空搜索框
-    searchPosts(); // 调用搜索功能以更新显示
-}
-
-// 等待文档加载完成后再添加事件监听
-document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('toggle-btn').addEventListener('click', toggleSidebar);
-    changeBackground(); // 确保初始背景在文档加载后运行
-    setInterval(changeBackground, 5000); // 每5秒切换一次背景
-});
-
-// 背景图片路径数组
-const images = [
-    'images/background1.jpg',
-    'images/background2.jpg',
-    'images/background3.jpg',
-    'images/background4.jpg'
-];
-
-// 随机打乱数组的函数
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    if (searchInput) {
+        searchInput.value = '';
+        // 如果有搜索功能，在这里调用 searchPosts();
     }
 }
 
-// 随机打乱图片顺序
-shuffle(images);
+// 搜索功能 (简单示例，仅隐藏/显示文章项)
+function searchPosts() {
+    const searchTerm = document.getElementById('search')?.value.toLowerCase();
+    const posts = document.querySelectorAll('#posts-container .post-item, #latest-posts .post-preview'); // 同时搜索博客页和首页
 
-let currentIndex = 0; // 当前显示的图片索引
+    if (!posts.length) return;
+
+    posts.forEach(post => {
+        const titleElement = post.querySelector('h2 a, h3 a'); // 查找标题链接
+        const title = titleElement ? titleElement.textContent.toLowerCase() : '';
+        const contentElement = post.querySelector('p'); // 查找内容段落
+        const content = contentElement ? contentElement.textContent.toLowerCase() : '';
+
+        if (title.includes(searchTerm) || content.includes(searchTerm)) {
+            post.style.display = 'flex'; // 或 'block' 根据布局
+        } else {
+            post.style.display = 'none';
+        }
+    });
+}
+
+// 背景图片轮播
 const backgroundElement = document.querySelector('.background');
+let bgImages = []; // 将在下面生成
+let currentBgIndex = 0;
 
 // 定义切换背景函数
 function changeBackground() {
-    // 设置当前背景为不透明
-    backgroundElement.style.opacity = 1; 
-
-    // 设置下一张背景图片
-    backgroundElement.style.backgroundImage = `url(${images[currentIndex]})`;
-  
-    // 淡出和淡入效果
-    backgroundElement.style.transition = 'opacity 1s ease'; // 设置过渡效果
-
-    // 使用 setTimeout 创建淡出效果
-    setTimeout(() => {
-        backgroundElement.style.opacity = 0; // 先淡出
-    }, 1000); // 在1秒后开始淡出
+    if (!backgroundElement || bgImages.length === 0) return;
 
     // 计算下一张背景的索引
-    currentIndex = (currentIndex + 1) % images.length; 
+    currentBgIndex = (currentBgIndex + 1) % bgImages.length;
 
-    // 在淡出后设置新背景，并恢复不透明
+    // 1. 创建一个新的 div 用于加载新背景图，并设置淡入效果
+    const nextBackground = document.createElement('div');
+    nextBackground.classList.add('background-next'); // 可以添加样式
+    nextBackground.style.position = 'fixed';
+    nextBackground.style.top = '0';
+    nextBackground.style.left = '0';
+    nextBackground.style.width = '100%';
+    nextBackground.style.height = '100%';
+    nextBackground.style.zIndex = '-1'; // 确保在当前背景之下
+    nextBackground.style.backgroundSize = 'cover';
+    nextBackground.style.backgroundPosition = 'center';
+    nextBackground.style.backgroundImage = `url(${bgImages[currentBgIndex]})`;
+    nextBackground.style.opacity = '0'; // 初始透明
+    nextBackground.style.transition = 'opacity 1s ease-in-out';
+    nextBackground.style.filter = 'blur(2px) brightness(0.9)'; // 应用和主背景一样的滤镜
+
+    document.body.insertBefore(nextBackground, backgroundElement);
+
+    // 2. 等待新图片加载（或设置一个延迟），然后开始淡入新背景，同时淡出旧背景
     setTimeout(() => {
-        backgroundElement.style.backgroundImage = `url(${images[currentIndex]})`; // 切换背景
-        backgroundElement.style.opacity = 1; // 然后淡入
-    }, 2000); // 2秒后切换新背景（1秒淡出 + 1秒停顿）
+        nextBackground.style.opacity = '0.7'; // 新背景淡入
+        backgroundElement.style.opacity = '0'; // 旧背景淡出
+    }, 100); // 短暂延迟确保元素已插入DOM
+
+    // 3. 过渡完成后，将新背景设为主背景，并移除旧背景元素
+    setTimeout(() => {
+        backgroundElement.style.backgroundImage = `url(${bgImages[currentBgIndex]})`;
+        backgroundElement.style.opacity = '0.7'; // 恢复主背景不透明度
+        if (nextBackground.parentNode) {
+            nextBackground.parentNode.removeChild(nextBackground); // 移除临时背景
+        }
+    }, 1100); // 等待淡入淡出完成 (100ms + 1000ms)
 }
 
-// 初始显示第一张图片
-backgroundElement.style.backgroundImage = `url(${images[currentIndex]})`;
+// --- 粒子效果JS ---
+function createParticles() {
+    const particlesContainer = document.createElement('div');
+    particlesContainer.className = 'particles';
+    document.body.appendChild(particlesContainer);
+    const numParticles = 50; // 粒子数量
+
+    for (let i = 0; i < numParticles; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        const size = Math.random() * 5 + 2; // 粒子大小 2px - 7px
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${Math.random() * 100}%`; // 随机水平位置
+        particle.style.bottom = `${Math.random() * -20 - 10}%`; // 从屏幕下方稍外侧开始
+        particle.style.animationDuration = `${Math.random() * 10 + 15}s`; // 动画时长 15s - 25s
+        particle.style.animationDelay = `${Math.random() * 10}s`; // 随机延迟开始
+        particle.style.setProperty('--drift', `${(Math.random() - 0.5) * 100}px`); // 设置随机水平漂移
+
+        // 添加不同形状或颜色（可选）
+         if (Math.random() > 0.7) {
+             particle.style.background = 'rgba(255, 192, 203, 0.7)'; // 添加一些粉色粒子
+             particle.style.borderRadius = '30% 70% 70% 30% / 30% 30% 70% 70%'; // 类似花瓣
+         } else if (Math.random() > 0.8) {
+              particle.style.background = 'rgba(135, 206, 250, 0.7)'; // 添加一些蓝色粒子
+         }
+
+        particlesContainer.appendChild(particle);
+    }
+}
 
 
+// DOMContentLoaded 事件监听器
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('toggle-btn');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleSidebar);
+        // 初始化按钮状态
+        const sidebar = document.getElementById('sidebar');
+         if (sidebar && sidebar.classList.contains('collapsed')) {
+             toggleBtn.textContent = '>';
+         } else if(sidebar) {
+             toggleBtn.textContent = '☰';
+         }
+    }
 
+     // --- 图片生成和背景初始化 ---
+    // 计算背景图尺寸 (16:9 示例)
+    const max_pixel_bg = 1024 * 1024;
+    const w_bg = 16, h_bg = 9;
+    const width_bg = Math.round(Math.sqrt(max_pixel_bg * w_bg / h_bg) / 8) * 8;
+    const height_bg = Math.round(Math.sqrt(max_pixel_bg * h_bg / w_bg) / 8) * 8; // 1024x576
+
+    // 生成背景图片 URL 列表
+    bgImages = [
+        `https://image.pollinations.ai/prompt/anime%20scenery,%20dreamy%20pastel%20sky,%20floating%20islands,%20cherry%20blossoms%20falling,%20highly%20detailed%20illustration,%20cinematic%20lighting?width=${width_bg}&height=${height_bg}&seed=${Math.random() * 1000000}&model=flux&nologo=true`,
+        `https://image.pollinations.ai/prompt/anime%20style,%20magical%20forest%20at%20night,%20glowing%20mushrooms,%20fireflies,%20mystical%20atmosphere,%20vibrant%20colors,%20fantasy%20art?width=${width_bg}&height=${height_bg}&seed=${Math.random() * 1000000}&model=flux&nologo=true`,
+        `https://image.pollinations.ai/prompt/anime%20cityscape%20at%20sunset,%20vaporwave%20aesthetic,%20neon%20lights,%20reflective%20streets,%20beautiful%20detailed%20sky,%208k?width=${width_bg}&height=${height_bg}&seed=${Math.random() * 1000000}&model=flux&nologo=true`,
+        `https://image.pollinations.ai/prompt/anime%20girl%20standing%20on%20a%20cliff,%20overlooking%20a%20vast%20ocean,%20windy%20day,%20dynamic%20clouds,%20emotional%20scene,%20studio%20ghibli%20style?width=${width_bg}&height=${height_bg}&seed=${Math.random() * 1000000}&model=flux&nologo=true`
+    ];
+
+    // 初始显示第一张背景
+    if (backgroundElement && bgImages.length > 0) {
+         backgroundElement.style.backgroundImage = `url(${bgImages[0]})`;
+         backgroundElement.style.opacity = 0.7; // 初始透明度
+         setInterval(changeBackground, 7000); // 每7秒切换一次背景
+    }
+    // --- 背景初始化结束 ---
+
+    updatePagination(); // 初始化分页按钮状态
+
+    // 搜索框输入事件
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        searchInput.addEventListener('input', searchPosts);
+    }
+
+    // 添加代码块复制按钮的事件监听 (使用事件委托)
+    const contentArea = document.querySelector('.content');
+    if (contentArea) {
+        contentArea.addEventListener('click', function(event) {
+            if (event.target.classList.contains('copy-button')) {
+                copyCode(event);
+            }
+        });
+    }
+
+    // 创建粒子效果
+    createParticles();
+
+    // 如果使用了 highlight.js, 初始化它
+    if (typeof hljs !== 'undefined') {
+        hljs.highlightAll();
+    } else {
+        // 如果没有全局引入hljs，尝试在代码块内部初始化
+        document.querySelectorAll('pre code').forEach((block) => {
+             if (typeof hljs !== 'undefined') { // 再次检查，可能异步加载
+                hljs.highlightElement(block);
+             }
+        });
+    }
+
+});

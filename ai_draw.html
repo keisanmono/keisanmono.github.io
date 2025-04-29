@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 AI 绘画</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Add specific styles for this page if needed, or put them in style.css -->
+    <style>
+        .ai-draw-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px 40px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px) saturate(180%);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #444;
+        }
+
+        .ai-draw-container h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #87cefa; /* 淡蓝色标题 */
+            font-size: 1.8em;
+            text-shadow: 0 0 8px rgba(135, 206, 250, 0.4);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            outline: none;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            font-size: 0.95em;
+            color: #333;
+            font-family: inherit; /* 继承body字体 */
+        }
+         .form-group input::placeholder,
+         .form-group textarea::placeholder {
+             color: #aaa;
+         }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(135, 206, 250, 0.7);
+            box-shadow: 0 0 10px rgba(135, 206, 250, 0.5);
+        }
+
+        .dimension-inputs {
+            display: flex;
+            gap: 15px;
+        }
+        .dimension-inputs .form-group {
+            flex: 1;
+            margin-bottom: 0; /* 移除内部组的下边距 */
+        }
+
+        .aspect-ratio-buttons {
+            margin-top: 10px;
+            margin-bottom: 20px; /* 和下一组间距 */
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap; /* 换行 */
+        }
+
+        .aspect-ratio-buttons button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(173, 216, 230, 0.6); /* 淡蓝毛玻璃 */
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .aspect-ratio-buttons button:hover {
+            background: rgba(173, 216, 230, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .generate-button { /* 沿用表单提交按钮样式 */
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #ff8aae, #ff5c8a);
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4);
+            margin-top: 10px;
+            display: block; /* 独占一行 */
+            width: 100%;
+        }
+        .generate-button:hover {
+            background: linear-gradient(135deg, #ff5c8a, #e91e63);
+            box-shadow: 0 8px 20px rgba(233, 30, 99, 0.6);
+            transform: translateY(-3px);
+        }
+         .generate-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        #image-result-container {
+            margin-top: 30px;
+            text-align: center;
+            min-height: 200px; /* 至少给点高度 */
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex; /* 使用flex居中 */
+            justify-content: center;
+            align-items: center;
+            border: 1px dashed rgba(0, 0, 0, 0.1);
+            position: relative; /* For potential overlay elements */
+            overflow: hidden; /* Prevent image overflow if needed */
+        }
+
+        #generated-image {
+            max-width: 100%;
+            max-height: 60vh; /* 限制最大高度 */
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none; /* 默认隐藏 */
+            vertical-align: middle; /* Better alignment if container uses text-align */
+        }
+
+        #loading-indicator {
+            display: none; /* 默认隐藏 */
+            font-size: 1.1em;
+            color: #666;
+            animation: pulse 1.5s infinite ease-in-out;
+            text-align: center; /* Ensure text is centered */
+        }
+        #error-message {
+             display: none; /* 默认隐藏 */
+             color: #dc3545; /* 红色 */
+             font-weight: bold;
+             margin-top: 10px;
+             text-align: center; /* Center error message */
+         }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+         .pixel-hint {
+             font-size: 0.85em;
+             color: #777;
+             margin-top: 5px;
+             display: block; /* Make it block level */
+             text-align: left; /* Align text left within its block */
+             padding-left: 2px; /* Small padding if needed */
+         }
+
+    </style>
+</head>
+<body>
+    <!-- 背景容器 -->
+    <div class="background"></div>
+    <!-- 侧边栏 -->
+    <div id="sidebar">
+        <nav id="sidebar-nav">
+            <a href="index.html">🏠 主页</a>
+            <a href="about.html">✨ 关于我</a>
+            <a href="blog_page1.html">📝 博客</a>
+            <a href="contact.html">💌 联系我</a>
+            <a href="download.html">📁 文件下载</a>
+            <a href="ai_draw.html">🎨 AI 作画</a> <!-- 新增链接 -->
+        </nav>
+    </div>
+    <!-- 切换按钮 -->
+    <button id="toggle-btn">☰</button>
+
+    <!-- 页面内容 -->
+    <div class="content scroll-container">
+        <header>
+            <h1>AI 绘画实验室</h1>
+        </header>
+
+        <main>
+            <div class="ai-draw-container">
+                <h2>输入你的奇思妙想吧！✨</h2>
+
+                <div class="form-group">
+                    <label for="prompt">绘画提示词 (Prompt - 英文):</label>
+                    <textarea id="prompt" name="prompt" rows="3" placeholder="e.g., anime girl, magical forest, glowing mushrooms, detailed illustration, cinematic lighting" required></textarea>
+                </div>
+
+                 <div class="form-group">
+                    <label>预设尺寸 (点击自动填充):</label>
+                    <div class="aspect-ratio-buttons">
+                        <!-- Removed onclick, added data-ratio -->
+                        <button data-ratio="16:9">16:9 (宽屏)</button>
+                        <button data-ratio="4:3">4:3 (标准)</button>
+                        <button data-ratio="1:1">1:1 (方形)</button>
+                        <button data-ratio="9:16">9:16 (竖屏)</button>
+                        <button data-ratio="3:4">3:4 (竖屏)</button>
+                    </div>
+                </div>
+
+
+                <div class="dimension-inputs form-group">
+                     <div class="form-group">
+                        <label for="width">宽度 (Width - px):</label>
+                        <input type="number" id="width" name="width" min="64" step="8" value="768" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="height">高度 (Height - px):</label>
+                        <input type="number" id="height" name="height" min="64" step="8" value="768" required>
+                    </div>
+                 </div>
+                 <div class="pixel-hint">总像素数 (宽 × 高) 不能超过 1024 × 1024 ≈ 104万像素。系统会尽量接近该限制计算。</div>
+
+
+                <div class="form-group">
+                    <label for="model">选择模型 (Model):</label>
+                    <select id="model" name="model">
+                        <option value="flux" selected>Flux (效果更好, 稍慢)</option>
+                        <option value="turbo">Turbo (速度更快)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="seed">种子 (Seed - 可选, 留空则随机):</label>
+                    <input type="number" id="seed" name="seed" placeholder="输入数字或留空">
+                </div>
+
+                <button id="generate-btn" class="generate-button">开始作画!</button>
+                <div id="error-message"></div> <!-- 用于显示错误信息 -->
+
+                <div id="image-result-container">
+                    <span id="loading-indicator">正在努力绘画中... 请稍候... <br> (首次生成或复杂提示词可能需要几十秒)</span>
+                    <img id="generated-image" src="#" alt="AI 生成的图片">
+                </div>
+
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2024 MOLIFULAN's Blog | AI Image Generation via Pollinations.ai</p>
+        </footer>
+    </div>
+
+    <!-- JS 文件 -->
+    <script src="js/script.js"></script>
+    <!-- Add specific JS for this page -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- AI Draw Page Specific JS ---
+
+        // Get references only once DOM is ready
+        const promptInput = document.getElementById('prompt');
+        const widthInput = document.getElementById('width');
+        const heightInput = document.getElementById('height');
+        const modelSelect = document.getElementById('model');
+        const seedInput = document.getElementById('seed');
+        const generateBtn = document.getElementById('generate-btn');
+        const imageResultContainer = document.getElementById('image-result-container');
+        const generatedImage = document.getElementById('generated-image');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const errorMessage = document.getElementById('error-message');
+        const aspectRatioButtonsContainer = document.querySelector('.aspect-ratio-buttons');
+        const hintElement = document.querySelector('.pixel-hint');
+
+        // Check if all essential elements were found
+        if (!promptInput || !widthInput || !heightInput || !modelSelect || !seedInput || !generateBtn || !imageResultContainer || !generatedImage || !loadingIndicator || !errorMessage || !aspectRatioButtonsContainer || !hintElement) {
+            console.error("One or more essential elements for the AI Draw page were not found. Functionality might be limited.");
+            // Optionally display an error to the user here
+             if(errorMessage){
+                 errorMessage.textContent = "页面初始化错误，部分功能可能无法使用。请尝试刷新。";
+                 errorMessage.style.display = 'block';
+             }
+            return; // Stop script execution if critical elements are missing
+        }
+
+
+        const MAX_PIXELS = 1024 * 1024; // 1048576
+
+        function calculateDimensions(aspectRatioString) {
+            try {
+                const [wRatio, hRatio] = aspectRatioString.split(':').map(Number);
+                if (isNaN(wRatio) || isNaN(hRatio) || wRatio <= 0 || hRatio <= 0) {
+                    console.error("Invalid aspect ratio format:", aspectRatioString); return null;
+                }
+                let width = Math.round(Math.sqrt(MAX_PIXELS * wRatio / hRatio) / 8) * 8;
+                let height = Math.round(Math.sqrt(MAX_PIXELS * hRatio / wRatio) / 8) * 8;
+                while (width * height > MAX_PIXELS) {
+                    width -= 8; height = Math.round(width * hRatio / wRatio / 8) * 8;
+                }
+                if (height < 64) height = 64;
+                width = Math.round(height * wRatio / hRatio / 8) * 8;
+                while (width * height > MAX_PIXELS) {
+                    height -= 8; width = Math.round(height * wRatio / hRatio / 8) * 8;
+                }
+                 if (width < 64) width = 64;
+                if(width > 1024) width = 1024; if(height > 1024) height = 1024;
+                height = Math.round(width * hRatio / wRatio / 8) * 8;
+                 while (width * height > MAX_PIXELS) {
+                    width -= 8; height = Math.round(width * hRatio / wRatio / 8) * 8;
+                 }
+                return { width, height };
+            } catch (e) { console.error("Error calculating dimensions:", e); return null; }
+        }
+
+        function setAspectRatio(aspectRatio) {
+            const dims = calculateDimensions(aspectRatio);
+            if (dims) {
+                widthInput.value = dims.width;
+                heightInput.value = dims.height;
+                console.log(`Set dimensions for ${aspectRatio}: ${dims.width}x${dims.height}`);
+                updatePixelHint();
+            } else {
+                 showError("无法计算该宽高比的尺寸。");
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+        function hideError() {
+             errorMessage.style.display = 'none';
+             errorMessage.textContent = '';
+         }
+
+        function updatePixelHint() {
+            const w = parseInt(widthInput.value, 10) || 0;
+            const h = parseInt(heightInput.value, 10) || 0;
+            const currentPixels = w * h;
+            let message = `总像素数 (宽 × 高) 不能超过 ${MAX_PIXELS}。当前: ${currentPixels}`;
+            if (currentPixels > MAX_PIXELS) {
+                message += " (已超限!)";
+                hintElement.style.color = '#dc3545';
+            } else {
+                hintElement.style.color = '#777';
+            }
+            hintElement.textContent = message;
+        }
+
+        // --- Add Event Listeners ---
+        widthInput.addEventListener('input', updatePixelHint);
+        heightInput.addEventListener('input', updatePixelHint);
+
+        generateBtn.addEventListener('click', () => {
+            const prompt = promptInput.value.trim();
+            const width = parseInt(widthInput.value, 10);
+            const height = parseInt(heightInput.value, 10);
+            const model = modelSelect.value;
+            const seed = seedInput.value.trim();
+
+            hideError();
+
+            if (!prompt) { showError('提示词不能为空哦！'); promptInput.focus(); return; }
+            if (/[^\x00-\x7F]/.test(prompt)) { showError('提示词目前只支持英文呢...'); promptInput.focus(); return; }
+            if (isNaN(width) || isNaN(height) || width < 64 || height < 64) { showError('宽度和高度必须是大于等于 64 的数字。'); return; }
+            if (width * height > MAX_PIXELS) { showError(`总像素数 (${width * height}) 不能超过 ${MAX_PIXELS} (约 1024x1024)。请调小宽度或高度。`); return; }
+            if (seed && isNaN(parseInt(seed, 10))) { showError('种子 (Seed) 如果填写，必须是一个数字。'); seedInput.focus(); return; }
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = '正在生成...';
+            loadingIndicator.style.display = 'block';
+            generatedImage.style.display = 'none';
+            generatedImage.src = '#';
+
+            const encodedPrompt = encodeURIComponent(prompt);
+            let apiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&model=${model}&nologo=true`;
+            const finalSeed = seed ? seed : Math.floor(Math.random() * 10000000);
+            apiUrl += `&seed=${finalSeed}`;
+
+            console.log("Generating image with URL:", apiUrl);
+
+             generatedImage.onload = () => {
+                 console.log("Image loaded successfully!");
+                 loadingIndicator.style.display = 'none';
+                 generatedImage.style.display = 'block';
+                 generateBtn.disabled = false;
+                 generateBtn.textContent = '开始作画!';
+             };
+             generatedImage.onerror = (e) => {
+                 console.error("Error loading image:", e);
+                 loadingIndicator.style.display = 'none';
+                 showError('图片生成失败 QAQ 请检查提示词、尺寸或网络连接，然后重试。 (提示: Flux模型有时较慢或不稳定)');
+                 generateBtn.disabled = false;
+                 generateBtn.textContent = '开始作画!';
+             };
+            generatedImage.src = apiUrl;
+        });
+
+        aspectRatioButtonsContainer.addEventListener('click', (event) => {
+            if (event.target.tagName === 'BUTTON') {
+                const ratio = event.target.dataset.ratio;
+                if (ratio) {
+                    setAspectRatio(ratio);
+                }
+            }
+        });
+
+        // --- Initial Setup Calls ---
+        updatePixelHint(); // Initial call
+
+    }); // End of DOMContentLoaded listener
+    </script>
+
+</body>
+</html>
