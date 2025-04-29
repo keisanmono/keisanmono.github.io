@@ -128,12 +128,27 @@ function toggleSidebar() {
     sidebar.classList.toggle('collapsed');
 
     // 更新按钮的图标和样式
-    if (sidebar.classList.contains('collapsed')) {
-        toggleButton.textContent = '>'; // 使用右箭头表示展开
-        toggleButton.style.transform = 'rotate(0deg)'; // 恢复旋转
+    const isCollapsed = sidebar.classList.contains('collapsed');
+    const isMobile = window.innerWidth <= 800; // Check if we are in mobile view
+
+    if (isCollapsed) {
+        toggleButton.textContent = '☰'; // Show hamburger when sidebar is closed/collapsed
+        toggleButton.classList.remove('toggle-btn-shifted'); // Remove the shifted class
+        toggleButton.style.transform = 'rotate(0deg)'; // Reset rotation
+        // Optional: Remove focus to prevent staying active after closing
+        toggleButton.blur();
     } else {
-        toggleButton.textContent = '☰'; // 使用汉堡包图标
-        toggleButton.style.transform = 'rotate(0deg)'; // 初始状态无旋转
+        toggleButton.textContent = '✕'; // Show 'X' (close icon) when sidebar is open
+        if (isMobile) {
+            // Only shift the button on mobile view when opening
+            toggleButton.classList.add('toggle-btn-shifted');
+            toggleButton.style.transform = 'rotate(180deg)'; // Rotate 'X'
+        } else {
+            // On desktop, ensure it's not shifted and rotation is reset
+            toggleButton.classList.remove('toggle-btn-shifted');
+            toggleButton.style.transform = 'rotate(0deg)';
+            // Keep '✕' icon on desktop when open? Or change back? Let's keep X for now.
+        }
     }
 }
 
@@ -279,17 +294,33 @@ function createParticles() {
 
 // DOMContentLoaded 事件监听器
 document.addEventListener('DOMContentLoaded', function () {
+    // --- ADDED/MODIFIED CODE --- //
     const toggleBtn = document.getElementById('toggle-btn');
-    if (toggleBtn) {
+    const sidebar = document.getElementById('sidebar'); // Get sidebar reference
+
+    // Check initial screen width for sidebar state
+    const isMobile = window.innerWidth <= 800; // Match the CSS breakpoint
+
+    if (toggleBtn && sidebar) { // Ensure both exist
+        // Set initial state based on screen size and whether sidebar starts collapsed
+        if (isMobile) {
+            // Ensure it starts collapsed and button is NOT shifted
+            if (!sidebar.classList.contains('collapsed')) {
+                sidebar.classList.add('collapsed'); // Force collapse if not already
+            }
+            toggleBtn.classList.remove('toggle-btn-shifted'); // Ensure no shift initially
+            toggleBtn.textContent = '☰'; // Hamburger for closed state
+            toggleBtn.style.transform = 'rotate(0deg)'; // Reset rotation
+        } else {
+            // Desktop initial state
+            sidebar.classList.remove('toggle-btn-shifted'); // Should never be shifted on desktop
+            toggleBtn.textContent = sidebar.classList.contains('collapsed') ? '☰' : '✕'; // Icon depends on initial state
+            toggleBtn.style.transform = 'rotate(0deg)';
+        }
+        // Add listener AFTER setting initial state
         toggleBtn.addEventListener('click', toggleSidebar);
-        // 初始化按钮状态
-        const sidebar = document.getElementById('sidebar');
-         if (sidebar && sidebar.classList.contains('collapsed')) {
-             toggleBtn.textContent = '>';
-         } else if(sidebar) {
-             toggleBtn.textContent = '☰';
-         }
     }
+    // --- END of ADDED/MODIFIED CODE --- //
 
      // --- 图片生成和背景初始化 ---
     // 计算背景图尺寸 (16:9 示例)

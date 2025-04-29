@@ -1026,3 +1026,271 @@ iframe {
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
     border: 3px solid rgba(255, 255, 255, 0.6);
 }
+/* =================================== */
+/* ========== Responsive Styles ========== */
+/* =================================== */
+
+/* Medium Screens & Tablets (e.g., <= 800px) */
+@media (max-width: 800px) {
+    /* Inside @media (max-width: 800px) { ... } */
+
+    #toggle-btn {
+        /* ... existing styles ... */
+        /* Add transition for the left property */
+        transition: all 0.4s ease, left 0.3s ease-out; /* Combine transitions */
+        /* Ensure button is above sidebar when it's open and shifted */
+        z-index: 101; /* Higher than sidebar's z-index (100) */
+    }
+
+    /* New class to shift the button when sidebar is open on mobile */
+    #toggle-btn.toggle-btn-shifted {
+        /* Move it right by sidebar width + original offset */
+        /* Sidebar open width is 250px, original left is 15px */
+        left: 265px;
+        /* Optional: Rotate the icon for visual feedback */
+        transform: rotate(180deg);
+        /* Optional: Change background/color for close state */
+        /* background: rgba(220, 53, 69, 0.7); */ /* Example: Bootstrap danger color */
+    }
+    /* --- Sidebar Handling --- */
+    #sidebar {
+        /* Start collapsed by default on smaller screens */
+        width: 0;
+        padding: 0;
+        border-right: none; /* Hide border when collapsed */
+        /* Ensure it appears above content when opened */
+        z-index: 100;
+        /* Slightly faster transition for mobile */
+        transition: width 0.3s ease-out, padding 0.3s ease-out;
+        /* Add a subtle shadow for the overlay effect */
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Styles for when the sidebar is *explicitly opened* via JS */
+    #sidebar:not(.collapsed) {
+        width: 250px; /* Make it slightly wider for easier tapping */
+        padding: 30px 20px;
+    }
+
+    /* Sidebar initially collapsed means content takes full width */
+    .content {
+        margin-left: 0 !important; /* Override default margin */
+        padding: 25px 15px; /* Reduce padding on smaller screens */
+        border-left: none; /* Remove left border as sidebar is overlay */
+    }
+
+    #toggle-btn {
+        /* Adjust position slightly if needed */
+        left: 15px;
+        top: 15px;
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+    }
+
+    /* --- General Content Adjustments --- */
+    header h1 {
+        font-size: 2.2em; /* Slightly smaller main titles */
+        margin-bottom: 20px;
+    }
+
+    article.post-content h1 {
+        font-size: 2em; /* Smaller article titles */
+    }
+     article.post-content h2 {
+         font-size: 1.5em;
+     }
+     article.post-content h3 {
+         font-size: 1.3em;
+     }
+     article.post-content p {
+         font-size: 1em; /* Ensure base font size is readable */
+     }
+
+
+    .large-container,
+    .contact-container,
+    .about-container,
+    .download-frosted-container,
+    .glass-container,
+    .ai-draw-container {
+        padding: 20px 15px; /* Reduce padding inside containers */
+        margin: 20px auto; /* Reduce vertical margins */
+    }
+
+    /* --- Blog List / Post Preview --- */
+    .post-item,
+    .post-preview {
+        flex-direction: column; /* Stack image and text vertically */
+        align-items: center; /* Center items horizontally */
+        padding: 20px 15px; /* Adjust padding */
+        text-align: center; /* Center text */
+    }
+
+    .post-item .post-image,
+    .post-preview .post-cover {
+        margin-right: 0; /* Remove right margin */
+        margin-bottom: 15px; /* Add bottom margin */
+        width: 80%; /* Make image slightly smaller than container */
+        max-width: 200px; /* But not too large */
+        height: auto; /* Let height adjust */
+    }
+     .post-item .post-content,
+     .post-preview .post-content {
+        padding-right: 0; /* Remove padding */
+     }
+
+
+    /* --- Search Bar --- */
+    .search-container {
+        margin: 20px auto;
+        max-width: 90%; /* Allow slightly wider on tablets */
+    }
+    .search-container input {
+        padding: 12px 45px 12px 15px; /* Adjust padding */
+        font-size: 0.95em;
+    }
+    #clear-btn {
+        right: 12px;
+        font-size: 18px;
+    }
+
+    /* --- Pagination --- */
+    .pagination {
+        flex-wrap: wrap; /* Allow buttons to wrap */
+        justify-content: center;
+        gap: 5px; /* Reduce gap slightly */
+        margin-top: 30px;
+    }
+    .pagination button,
+    .page-buttons button {
+        padding: 8px 15px; /* Slightly smaller buttons */
+    }
+
+    /* --- Footer Links --- */
+     .links-container {
+         padding: 15px;
+     }
+     .links-header {
+         flex-direction: column; /* Stack title and list */
+         margin-bottom: 10px;
+     }
+     .links-header h2 {
+         margin-right: 0;
+         margin-bottom: 10px;
+     }
+      .links-header h2::before, .links-header h2::after {
+         display: none; /* Hide decorative icons on mobile */
+      }
+     .links-list {
+         gap: 8px; /* Adjust gap */
+     }
+     .links-list a {
+        font-size: 0.9em; /* Smaller link text */
+        padding: 4px 8px;
+     }
+
+    /* --- Code Blocks --- */
+    pre {
+        padding: 1em; /* Reduce padding */
+    }
+    pre code {
+        font-size: 0.85em; /* Make code font slightly smaller */
+    }
+     .code-header {
+        padding: 6px 10px;
+        font-size: 0.85em;
+     }
+     .copy-button {
+        padding: 4px 8px;
+        font-size: 0.8em;
+     }
+
+
+    /* --- AI Draw Page --- */
+    .dimension-inputs {
+        flex-direction: column; /* Stack width/height inputs */
+        gap: 0; /* Remove horizontal gap */
+    }
+     .dimension-inputs .form-group {
+        margin-bottom: 15px; /* Add back bottom margin when stacked */
+     }
+     .ai-draw-container h2 {
+        font-size: 1.6em;
+     }
+}
+
+
+/* Smaller Mobile Screens (e.g., <= 480px) */
+@media (max-width: 480px) {
+    body {
+        /* Potentially slightly smaller base font size */
+        /* font-size: 15px; */
+    }
+
+    header h1 {
+        font-size: 1.8em; /* Even smaller main title */
+    }
+
+     article.post-content h1 {
+        font-size: 1.6em;
+    }
+     article.post-content h2 {
+         font-size: 1.3em;
+     }
+     article.post-content h3 {
+         font-size: 1.15em;
+     }
+
+    .content {
+        padding: 20px 10px; /* Further reduce padding */
+    }
+
+    #sidebar:not(.collapsed) {
+        width: 220px; /* Maybe slightly narrower on very small screens */
+    }
+
+    .search-container {
+        max-width: 95%; /* Almost full width */
+    }
+
+    .post-item .post-image,
+    .post-preview .post-cover {
+        width: 90%; /* Allow image to be wider relative to small container */
+        max-width: 180px;
+    }
+
+    .pagination button,
+    .page-buttons button {
+        padding: 6px 12px; /* Smaller buttons */
+        font-size: 0.9em;
+    }
+
+    footer {
+        font-size: 0.85em; /* Smaller footer text */
+    }
+
+    /* Reduce padding even more in specific containers */
+     .large-container,
+     .contact-container,
+     .about-container,
+     .download-frosted-container,
+     .glass-container,
+     .ai-draw-container {
+        padding: 15px 10px;
+     }
+
+     .profile-image {
+        width: 120px;
+        height: 120px;
+     }
+
+     .download-button, .download-btn {
+        padding: 10px 20px;
+        font-size: 0.95em;
+     }
+
+     pre code {
+        font-size: 0.8em; /* Even smaller code */
+     }
+}
