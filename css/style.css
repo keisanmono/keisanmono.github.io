@@ -623,65 +623,81 @@ form label, .ai-draw-container label, .if-container label, .generator-container 
 }
 /* css/style.css */
 
-/* --- FIND and MODIFY the general input/select styles --- */
+/* css/style.css */
+
+/* --- 找到通用的 input/select 样式 --- */
 input[type="text"], input[type="email"], input[type="number"],
 input[type="password"], input[type="url"], textarea, select {
-    /* ... keep existing styles like width, padding, border-radius, etc. ... */
+    /* ... 保留 width, border-radius, background, color, font-family 等 ... */
+    width: 100%;
+    padding: 12px 15px; /* *** 恢复正常的右内边距 *** */
     border: 1px solid var(--border-color-input);
+    border-radius: 8px;
     background: var(--input-bg);
     color: var(--text-color);
-    /* --- Ensure appearance is set for select --- */
-    appearance: none; /* Standard */
-    -webkit-appearance: none; /* Safari/Chrome */
-    -moz-appearance: none; /* Firefox */
-    /* --- REMOVE background-image, repeat, position, size FOR select --- */
-    /* background-image: url(...); REMOVE */
-    /* background-repeat: no-repeat; REMOVE */
-    /* background-position: right 10px center; REMOVE */
-    /* background-size: 16px 12px; REMOVE */
-    padding-right: 40px; /* Increase padding to make space for the ::after arrow */
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    font-size: 0.95em;
+    font-family: inherit;
+    /* --- 保持 appearance: none 来隐藏默认箭头 --- */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     cursor: pointer; /* Add pointer cursor to select */
 }
 
-/* --- REMOVE this entire rule for dark theme select arrow --- */
+/* --- 找到并移除或注释掉旧的 :has() 箭头规则 --- */
 /*
-body.theme-dark select {
-    background-image: url("...");
-}
-*/
-
-/* --- ADD new rules for the container and pseudo-element arrow --- */
-
-/* Add position relative to the container of the select */
-/* Assuming your select is always inside a .form-group */
-.form-group {
-    position: relative; /* Needed for absolute positioning of the pseudo-element */
-    /* Keep other .form-group styles if any */
-}
-
-/* Style the ::after pseudo-element for the custom arrow */
-/* Target the form-group when it contains a select */
 .form-group:has(select)::after {
-    content: '▼'; /* Use a simple unicode arrow */
-    /* Or use an SVG Data URI like before, but applied here */
-    /* content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E"); */
-    /* Use currentColor or a CSS variable for fill if using SVG */
-
+    content: '▼';
     position: absolute;
-    top: 50%; /* Position vertically centered */
-    right: 15px; /* Position on the right */
-    transform: translateY(-50%); /* Adjust vertical centering */
-    font-size: 1.1em; /* Adjust arrow size */
-    color: var(--text-color-light); /* Use CSS variable for color */
-    pointer-events: none; /* Allow clicks to pass through to the select */
-    z-index: 2; /* Ensure it's above the select box visually */
-    transition: color 0.3s ease; /* Smooth color transition */
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    font-size: 1.1em;
+    color: var(--text-color-light);
+    pointer-events: none;
+    z-index: 2;
+    transition: color 0.3s ease;
 }
-
-/* Optional: Change arrow color on hover/focus of the select's container */
 .form-group:has(select):hover::after {
     color: var(--text-color);
 }
+*/
+
+/* --- 添加新的 select 包裹容器样式 --- */
+.select-wrapper {
+    position: relative; /* 让 ::after 伪元素相对于它定位 */
+    display: block; /* 或者根据需要设置为 inline-block */
+}
+
+/* --- 添加新的自定义箭头规则，作用于包裹容器 --- */
+.select-wrapper::after {
+    content: '▼'; /* 使用简单的 Unicode 箭头 */
+    position: absolute;
+    top: 50%; /* 垂直居中 */
+    right: 15px; /* 距离右边框的距离 */
+    transform: translateY(-50%); /* 精确垂直居中 */
+    font-size: 1.1em; /* 箭头大小 */
+    color: var(--text-color-light); /* 箭头颜色 */
+    pointer-events: none; /* 允许点击穿透到 select */
+    z-index: 2; /* 确保在 select 之上 */
+    transition: color 0.3s ease;
+}
+
+/* --- 可选：鼠标悬停在包裹容器上时改变箭头颜色 --- */
+.select-wrapper:hover::after {
+    color: var(--text-color);
+}
+
+/* --- 如果 .form-group 的 position: relative 仅用于 select 箭头，可以考虑移除 --- */
+/* .form-group { */
+/*     position: relative; /* REMOVE if not needed elsewhere */
+/* } */
+/* --- 但是为了安全起见，暂时保留 .form-group 的 position: relative 也没问题 --- */
+
+/* ... 其他 CSS 规则保持不变 ... */
 /* Contact Form Submit Button */
 form button[type="submit"] {
     padding: 12px 20px; border: none; border-radius: 25px;
@@ -1185,4 +1201,57 @@ body.theme-dark .theme-button.active { background: var(--heading-color-secondary
      .control-button { padding: 6px 12px; font-size: 0.85em; }
      #history-panel { width: 90%; height: 60%; }
 }
-/* --- End of CSS --- */
+/* --- AI Draw Worker Specific Styles --- */
+.hidden {
+    display: none;
+}
+
+.worker-settings {
+    border: 1px dashed var(--border-color-input);
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 8px;
+    background: rgba(200, 200, 255, 0.1); /* Subtle highlight */
+}
+/* Dark theme adjustment */
+body.theme-dark .worker-settings {
+    background: rgba(100, 100, 150, 0.1);
+    border-color: var(--border-color-light); /* Use theme border */
+}
+
+.worker-settings label {
+    font-weight: bold; /* Make labels slightly bolder */
+    color: var(--text-color-light);
+}
+
+#text-info-container {
+    width: 100%; /* Take full width */
+    box-sizing: border-box; /* Include padding in width */
+    margin-bottom: 20px;
+    padding: 15px;
+    background: var(--input-bg); /* Use input background for consistency */
+    border-radius: 5px;
+    text-align: left;
+    font-size: 0.9em;
+    white-space: pre-wrap; /* Preserve line breaks and spaces */
+    line-height: 1.5;
+    color: var(--text-color); /* Use standard text color */
+    display: none; /* Hide initially */
+    border: 1px solid var(--border-color-input); /* Add subtle border */
+    max-height: 200px; /* Limit height and make scrollable */
+    overflow-y: auto;
+     /* Custom scrollbar for text info */
+     scrollbar-width: thin;
+     scrollbar-color: var(--scrollbar-thumb-bg) var(--scrollbar-track-bg);
+}
+#text-info-container::-webkit-scrollbar { width: 8px; }
+#text-info-container::-webkit-scrollbar-track { background: var(--scrollbar-track-bg); border-radius: 4px; }
+#text-info-container::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb-bg); border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.1); }
+#text-info-container::-webkit-scrollbar-thumb:hover { background-color: var(--scrollbar-thumb-hover-bg); }
+
+
+/* Adjust main result container to stack elements */
+#image-result-container {
+    flex-direction: column; /* Stack text info and image vertically */
+    align-items: center; /* Center items horizontally */
+}

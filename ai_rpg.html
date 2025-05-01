@@ -4,338 +4,276 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💖 AI Galgame | 🌸 我的二次元小窝 🌸</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css"> <!-- Link to main style -->
     <!-- Marked.js for Markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- DOMPurify for security (optional but recommended) -->
+    <!-- DOMPurify for security -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.10/purify.min.js"></script>
 
     <style>
-        /* --- Galgame Specific Styles --- */
+        /* --- Galgame Specific Styles (Unchanged from previous version) --- */
+        /* Main container */
         #galgame-container {
             position: relative;
             width: 100%;
-            height: calc(100vh - 120px); /* Example: Full height minus header/footer approx */
+            height: calc(100vh - 100px); /* Example: Full viewport height minus approximate header/footer */
+            min-height: 500px; /* Minimum height */
             overflow: hidden;
             border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            margin-top: 20px; /* Spacing from header */
+            box-shadow: 0 5px 20px var(--galgame-container-shadow, rgba(0,0,0,0.2));
+            margin-top: 20px;
         }
 
+        /* Background Image */
         #game-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #add8e6; /* Default background color */
-            background-size: cover;
-            background-position: center;
-            z-index: 1;
-            transition: background-image 0.5s ease-in-out;
-            background-image: url('https://image.pollinations.ai/prompt/beautiful%20anime%20classroom%20background,%20large%20windows,%20sunlight%20streaming%20in,%20empty,%20detailed,%20peaceful%20atmosphere?width=1024&height=576&seed=101');
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--content-bg); /* Fallback color */
+            background-size: cover; background-position: center; z-index: 1;
+            transition: background-image 0.8s ease-in-out; /* Smoother transition */
+            background-image: url('https://image.pollinations.ai/prompt/beautiful%20anime%20classroom%20background,%20large%20windows,%20sunlight%20streaming%20in,%20empty,%20detailed,%20peaceful%20atmosphere?width=1024&height=576&seed=101&nologo=true');
         }
 
-        #character-area {
+        /* --- Character Sprite Areas --- */
+        .character-area {
             position: absolute;
-            bottom: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-            height: 70%;
-            width: auto;
+            bottom: 5%;
+            height: 65%;
+            width: auto; /* Allow width to adjust based on height */
+            max-width: 40%; /* Limit width slightly more to fit two */
             z-index: 3;
             display: flex;
             justify-content: center;
             align-items: flex-end;
             pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
         }
 
-        #character-sprite {
+        /* AI Character (Right Side) */
+        #ai-character-area {
+            right: 5%; /* Position on the right */
+            transform: none; /* Remove horizontal centering */
+        }
+
+        /* Player Character (Left Side) */
+        #player-character-area {
+            left: 5%; /* Position on the left */
+            transform: none; /* Remove horizontal centering */
+        }
+
+        .character-sprite {
+            display: block;
             max-height: 100%;
             max-width: 100%;
             height: auto;
-            content: url('https://image.pollinations.ai/prompt/1girl,%20anime%20style,%20school%20uniform,%20standing,%20full%20body,%20simple%20white%20background,%20transparent%20background%20png,%20no%20shadows%20on%20background?width=512&height=768&seed=203&nofeed=true&nologo=true&negative_prompt=background,text,signature,scenery,objects');
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4)); /* Keep shadow for definition */
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(3px 5px 8px rgba(0,0,0,0.4));
+            transition: transform 0.4s ease, opacity 0.5s ease;
             opacity: 1;
         }
+        /* Class to hide sprites */
+        .character-sprite.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        /* Specific ID for AI sprite if needed */
+        #ai-character-sprite { }
+        /* Specific ID for Player sprite */
+        #player-character-sprite {
+            /* Flip horizontally if desired */
+             /* transform: scaleX(-1); */
+        }
 
+
+        /* Dialogue Box */
         #dialogue-box {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 85%;
-            max-width: 900px;
-            min-height: 150px;
-            max-height: 35%;
-            /* Make background more transparent */
-            background: rgba(0, 0, 0, 0.6); /* Adjusted alpha from 0.7 to 0.6 */
-            backdrop-filter: blur(6px); /* Slightly increase blur */
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2); /* Slightly less visible border */
-            padding: 20px 25px;
-            color: #fff;
-            z-index: 4;
-            overflow-y: auto;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 950px;
+            min-height: 140px; max-height: 38%;
+            background: var(--galgame-dialogue-bg);
+            backdrop-filter: var(--galgame-dialogue-backdrop-filter);
+            border-radius: 12px;
+            border: 1px solid var(--galgame-dialogue-border);
+            padding: 20px 30px;
+            color: var(--galgame-dialogue-text-color);
+            z-index: 4; overflow-y: auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
             scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.4); /* Adjusted scrollbar */
+            scrollbar-color: var(--galgame-scrollbar-thumb-bg) var(--galgame-scrollbar-track-bg);
         }
          #dialogue-box::-webkit-scrollbar { width: 8px; }
-         #dialogue-box::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 4px;} /* Lighter track */
-         #dialogue-box::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.4); border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.3); }
-         #dialogue-box::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.6); }
+         #dialogue-box::-webkit-scrollbar-track { background: var(--galgame-scrollbar-track-bg); border-radius: 4px;}
+         #dialogue-box::-webkit-scrollbar-thumb { background-color: var(--galgame-scrollbar-thumb-bg); border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.3); }
+         #dialogue-box::-webkit-scrollbar-thumb:hover { background-color: var(--galgame-scrollbar-thumb-hover-bg); }
 
         #speaker-name {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #ffc0cb;
-            font-size: 1.1em;
+            font-weight: bold; margin-bottom: 10px;
+            color: var(--galgame-speaker-name-color);
+            font-size: 1.15em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
-
-        #dialogue-text {
-            line-height: 1.6;
-            font-size: 1em;
-        }
-         /* Markdown Styles (Keep as is) */
+        #dialogue-text { line-height: 1.7; font-size: 1.05em; }
+        /* Markdown Styles (Keep as before) */
          #dialogue-text p { margin-bottom: 0.8em;}
-         #dialogue-text h1, #dialogue-text h2, #dialogue-text h3 { margin-top: 0.5em; margin-bottom: 0.3em; color: #add8e6; }
-         #dialogue-text strong { color: #ffd700; }
+         #dialogue-text h1, #dialogue-text h2, #dialogue-text h3 { margin-top: 0.5em; margin-bottom: 0.3em; color: var(--galgame-config-link-color); }
+         #dialogue-text strong { color: var(--galgame-speaker-name-color); }
          #dialogue-text em { color: #90ee90; }
          #dialogue-text ul, #dialogue-text ol { padding-left: 25px; margin-bottom: 0.8em;}
          #dialogue-text li { margin-bottom: 0.3em;}
          #dialogue-text code { background-color: rgba(255,255,255,0.1); padding: 2px 5px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; color: #f0f0f0; }
          #dialogue-text pre { background-color: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; overflow-x: auto; margin-bottom: 0.8em; }
          #dialogue-text pre code { background: none; padding: 0; }
-         #dialogue-text blockquote { border-left: 3px solid #87cefa; padding-left: 10px; margin: 0.8em 0; color: #ccc; font-style: italic; }
-         #dialogue-text a { color: #ff8aae; text-decoration: underline; }
-         #dialogue-text a:hover { color: #ffaddd; }
+         #dialogue-text blockquote { border-left: 3px solid var(--galgame-control-btn-bg); padding-left: 10px; margin: 0.8em 0; color: #ccc; font-style: italic; }
+         #dialogue-text a { color: var(--galgame-config-link-color); text-decoration: underline; }
+         #dialogue-text a:hover { filter: brightness(1.2); }
 
+        /* Game Controls */
         #game-controls {
-            position: absolute;
-            bottom: 30px;
-            right: 40px;
-            z-index: 5;
-            display: flex;
-            gap: 10px;
-            align-items: center; /* Align items vertically */
+            position: absolute; bottom: 25px; right: 30px; z-index: 5;
+            display: flex; gap: 12px; align-items: center;
         }
-
         .control-button {
-             padding: 10px 20px;
-             border: none;
-             border-radius: 20px;
-             background: linear-gradient(135deg, #87cefa, #add8e6);
-             color: white;
-             cursor: pointer;
-             transition: all 0.3s ease;
-             font-size: 1em;
-             font-weight: 500;
-             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-             border: 1px solid rgba(255, 255, 255, 0.2);
+             padding: 10px 20px; border: none; border-radius: 20px;
+             background: var(--galgame-control-btn-bg); color: var(--galgame-control-btn-color);
+             cursor: pointer; transition: all 0.3s ease; font-size: 1em; font-weight: 500;
+             box-shadow: 0 4px 10px var(--shadow-color-medium); border: 1px solid var(--galgame-control-btn-border);
              backdrop-filter: blur(3px);
          }
-         .control-button:hover:not(:disabled) {
-             background: linear-gradient(135deg, #add8e6, #87cefa);
-             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-             transform: translateY(-2px);
-         }
-         .control-button:disabled {
-             background: #aaa;
-             cursor: not-allowed;
-             box-shadow: none;
-             opacity: 0.7;
-         }
-         /* Style for history toggle button */
-         #toggle-history-btn {
-             background: linear-gradient(135deg, #f0e68c, #ffd700); /* Yellow gradient */
-             color: #555; /* Dark text */
-         }
-         #toggle-history-btn:hover:not(:disabled) {
-             background: linear-gradient(135deg, #ffd700, #f0e68c);
-         }
+         .control-button:hover:not(:disabled) { background: var(--galgame-control-btn-hover-bg); box-shadow: 0 6px 15px var(--shadow-color-dark); transform: translateY(-2px); }
+         .control-button:disabled { background: var(--text-color-lighter); cursor: not-allowed; box-shadow: none; opacity: 0.7; }
+         #toggle-history-btn { background: var(--galgame-history-btn-bg); color: var(--galgame-history-btn-color); }
+         #toggle-history-btn:hover:not(:disabled) { background: var(--galgame-history-btn-hover-bg); }
 
-
-        #choices-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 15px;
-        }
+        /* Choices Container */
+        #choices-container { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .choice-button {
-             display: block;
-             width: 100%;
-             text-align: left;
-             padding: 10px 15px;
-             border: 1px solid rgba(255, 255, 255, 0.4);
-             border-radius: 8px;
-             background: rgba(255, 255, 255, 0.15);
-             color: #eee;
-             cursor: pointer;
-             transition: background-color 0.3s ease;
-             font-size: 0.95em;
+             display: block; width: 100%; text-align: left; padding: 10px 15px;
+             border: 1px solid var(--galgame-choice-btn-border); border-radius: 8px;
+             background: var(--galgame-choice-btn-bg); color: var(--galgame-choice-btn-color);
+             cursor: pointer; transition: background-color 0.3s ease; font-size: 0.95em;
          }
-         .choice-button:hover {
-             background: rgba(255, 255, 255, 0.3);
-         }
+         .choice-button:hover { background: var(--galgame-choice-btn-hover-bg); }
 
-        /* --- Config Panel Styles (Keep as is) --- */
+        /* Config Panel & Contents */
         #config-panel {
-            position: absolute; top: 10px; right: 10px; width: 300px;
-            background: rgba(50, 50, 50, 0.85); backdrop-filter: blur(10px);
-            border-radius: 8px; padding: 20px; z-index: 10; color: #eee;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.2);
-            display: none; font-size: 0.9em;
+            position: absolute; top: 10px; right: 10px; width: 350px; /* Wider */
+            background: var(--galgame-config-bg);
+            backdrop-filter: var(--galgame-config-backdrop-filter);
+            border-radius: 8px; padding: 20px; z-index: 10; color: var(--galgame-config-text-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid var(--galgame-config-border);
+            display: none; font-size: 0.9em; max-height: 80vh; overflow-y: auto; /* Allow scrolling */
         }
         #config-panel.visible { display: block; }
-        #config-panel h3 { margin-top: 0; margin-bottom: 15px; text-align: center; color: #87cefa; }
+        #config-panel h3 { margin-top: 0; margin-bottom: 15px; text-align: center; color: var(--galgame-config-link-color); }
         #config-panel .form-group { margin-bottom: 15px; }
-        #config-panel label { color: #ccc; margin-bottom: 5px; font-size: 0.95em;}
+        #config-panel label { color: var(--galgame-config-label-color); margin-bottom: 5px; font-size: 0.95em; display: block;} /* Ensure label is block */
         #config-panel input[type="text"], #config-panel input[type="password"],
-        #config-panel input[type="url"], #config-panel input[type="text"]#api-model /* Target text input */ {
-            width: 100%; padding: 8px 10px; border: 1px solid #555;
-            border-radius: 5px; background: #444; color: #eee;
-            font-size: 1em; box-sizing: border-box;
-         }
+        #config-panel input[type="url"], #config-panel .select-wrapper select,
+        #config-panel textarea {
+            width: 100%; padding: 8px 10px; border: 1px solid var(--galgame-config-input-border);
+            border-radius: 5px; background: var(--galgame-config-input-bg); color: var(--galgame-config-text-color);
+            font-size: 1em; box-sizing: border-box; font-family: inherit;
+             appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        }
+         #config-panel textarea { min-height: 60px; } /* Give textareas a min height */
+        #config-panel .select-wrapper::after { color: var(--galgame-config-label-color); }
         #config-panel .config-buttons { display: flex; justify-content: space-between; margin-top: 20px; }
         #config-panel button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; font-size: 0.9em; }
-        #save-config-btn { background-color: #4CAF50; color: white;} #save-config-btn:hover { background-color: #45a049;}
-        #close-config-btn { background-color: #f44336; color: white;} #close-config-btn:hover { background-color: #da190b;}
+        #save-config-btn { background-color: var(--galgame-save-btn-bg); color: white;} #save-config-btn:hover { background-color: var(--galgame-save-btn-hover-bg);}
+        #close-config-btn { background-color: var(--galgame-close-btn-bg); color: white;} #close-config-btn:hover { background-color: var(--galgame-close-btn-hover-bg);}
         #key-status { font-size: 0.85em; margin-top: 5px; display: inline-block; height: 1.2em; }
         #key-status.testing { color: #ffc107; } #key-status.valid { color: #28a745; }
         #key-status.invalid { color: #dc3545; } #key-status.error { color: #ff8aae; }
-
-
-        #toggle-config-btn { /* Keep as is */
+        #toggle-config-btn {
             position: absolute; top: 20px; right: 20px; z-index: 15;
-             background: rgba(100, 100, 100, 0.7); color: white; border: 1px solid rgba(255, 255, 255, 0.3);
+             background: var(--button-glass-bg); color: var(--button-primary-text); border: 1px solid var(--border-color-light);
              border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer;
              backdrop-filter: blur(5px); transition: all 0.3s ease; display: flex; justify-content: center; align-items: center;
          }
-        #toggle-config-btn:hover { background: rgba(120, 120, 120, 0.9); transform: scale(1.1) rotate(45deg); }
+         #toggle-config-btn:hover { background: var(--button-glass-hover-bg); transform: scale(1.1) rotate(45deg); }
 
-        #game-loading-overlay { /* Keep as is */
-             position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6);
-             z-index: 9; display: none; justify-content: center; align-items: center; color: white;
-             font-size: 1.5em; text-align: center; border-radius: 15px;
-         }
+        /* Loading & Error Overlays (Keep as before) */
+        #game-loading-overlay { background: var(--galgame-loading-bg); color: var(--galgame-loading-text-color); position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 9; display: none; justify-content: center; align-items: center; font-size: 1.5em; text-align: center; border-radius: 15px;}
         #game-loading-overlay.visible { display: flex; }
-         #game-loading-overlay span { animation: pulse 1.5s infinite ease-in-out; }
-         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        #game-loading-overlay span { animation: pulse 1.5s infinite ease-in-out; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        #game-error-message { background: var(--galgame-error-bg); color: var(--galgame-error-text-color); position: absolute; top: 10px; left: 50%; transform: translateX(-50%); padding: 10px 20px; border-radius: 8px; z-index: 11; display: none; font-size: 0.95em; box-shadow: 0 3px 10px rgba(0,0,0,0.2); }
 
-
-        #game-error-message { /* Keep as is */
-             position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-             background: rgba(220, 53, 69, 0.85); color: white; padding: 10px 20px;
-             border-radius: 8px; z-index: 11; display: none; font-size: 0.95em;
-             box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-         }
-
-         /* --- History Panel Styles --- */
-         #history-panel {
-             position: absolute;
-             top: 10%;
-             left: 50%;
-             transform: translateX(-50%);
-             width: 70%;
-             max-width: 700px;
-             height: 70%;
-             max-height: 600px;
-             background: rgba(40, 40, 40, 0.9); /* Darker history panel */
-             backdrop-filter: blur(8px);
-             border-radius: 10px;
-             border: 1px solid rgba(255, 255, 255, 0.2);
-             padding: 25px;
-             color: #eee;
-             z-index: 12; /* Above game elements, below config maybe */
-             box-shadow: 0 5px 25px rgba(0,0,0,0.4);
-             display: none; /* Initially hidden */
-             flex-direction: column; /* Stack title, content, button */
-             font-size: 0.95em;
-         }
-         #history-panel.visible {
-             display: flex;
-         }
-
-         #history-panel h3 {
-             margin-top: 0;
-             margin-bottom: 15px;
-             text-align: center;
-             color: #add8e6; /* Light blue title */
-             flex-shrink: 0; /* Prevent title from shrinking */
-         }
-
-         #history-content {
-             flex-grow: 1; /* Take available space */
-             overflow-y: auto; /* Enable scrolling for history */
-             padding-right: 10px; /* Space for scrollbar */
-             margin-bottom: 15px; /* Space before close button */
-             line-height: 1.6;
-             /* Custom scrollbar for history */
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.5);
-         }
+        /* History Panel (Keep as before, display logic modified in JS) */
+        #history-panel {
+            background: var(--galgame-history-panel-bg); backdrop-filter: var(--galgame-history-panel-backdrop-filter);
+            border: 1px solid var(--galgame-history-panel-border); color: var(--galgame-history-panel-text-color);
+            position: absolute; top: 10%; left: 50%; transform: translateX(-50%); width: 70%; max-width: 700px; height: 70%; max-height: 600px; border-radius: 10px; padding: 25px; z-index: 12; box-shadow: 0 5px 25px rgba(0,0,0,0.4); display: none; flex-direction: column; font-size: 0.95em;
+        }
+        #history-panel.visible { display: flex; }
+        #history-panel h3 { color: var(--galgame-history-panel-title-color); margin-top: 0; margin-bottom: 15px; text-align: center; flex-shrink: 0;}
+        #history-content {
+            flex-grow: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 15px; line-height: 1.6;
+            scrollbar-color: var(--galgame-history-scrollbar-thumb-bg) var(--galgame-history-scrollbar-track-bg);
+        }
         #history-content::-webkit-scrollbar { width: 8px; }
-        #history-content::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); border-radius: 4px;}
-        #history-content::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.4); border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.5); }
-        #history-content::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.6); }
-
-         #history-content .history-entry {
-             margin-bottom: 15px;
-             padding-bottom: 10px;
-             border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
-         }
-         #history-content .history-entry:last-child {
-             border-bottom: none;
-         }
-         #history-content .history-role-user {
-             font-weight: bold;
-             color: #90ee90; /* Light green for user */
-             margin-bottom: 5px;
-         }
-         #history-content .history-role-model {
-             font-weight: bold;
-             color: #87cefa; /* Light blue for model */
-             margin-bottom: 5px;
-         }
-         #history-content .history-text {
-             /* Use similar Markdown styling as dialogue box */
-             font-size: 0.95em;
-         }
-         /* Reuse markdown styles within history */
-         #history-content .history-text p { margin-bottom: 0.5em;}
-         #history-content .history-text strong { color: #ffd700; }
-         #history-content .history-text em { color: #90ee90; }
-         #history-content .history-text code { background-color: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 3px; font-family: 'Courier New', Courier, monospace; color: #ddd; }
-         #history-content .history-text pre { background-color: rgba(0,0,0,0.4); padding: 8px; border-radius: 4px; overflow-x: auto; margin-bottom: 0.5em; }
-         #history-content .history-text pre code { background: none; padding: 0; }
-         #history-content .history-text blockquote { border-left: 3px solid #87cefa; padding-left: 8px; margin: 0.5em 0; color: #bbb; font-style: italic; }
-         #history-content .history-text a { color: #ff8aae; text-decoration: underline; }
-         #history-content .history-text a:hover { color: #ffaddd; }
+        #history-content::-webkit-scrollbar-track { background: var(--galgame-history-scrollbar-track-bg); border-radius: 4px; }
+        #history-content::-webkit-scrollbar-thumb { background-color: var(--galgame-history-scrollbar-thumb-bg); border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.5); }
+        #history-content::-webkit-scrollbar-thumb:hover { background-color: var(--galgame-history-scrollbar-thumb-hover-bg); }
+        #history-content .history-entry { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.15); }
+        #history-content .history-entry:last-child { border-bottom: none; }
+        #history-content .history-role-user { font-weight: bold; color: var(--galgame-history-role-user-color); margin-bottom: 5px; }
+        #history-content .history-role-model { font-weight: bold; color: var(--galgame-history-role-model-color); margin-bottom: 5px; }
+        /* Nested history text for segments */
+        #history-content .history-dialogue-segment { margin-left: 10px; margin-bottom: 5px; font-size: 0.98em; }
+        #history-content .history-dialogue-segment .segment-speaker { font-weight: bold; color: var(--galgame-speaker-name-color); margin-right: 5px; }
+        #history-content .history-dialogue-segment .segment-text {}
+        #history-content .history-dialogue-segment .segment-text p {margin-bottom: 0.3em;} /* Adjust spacing in history */
 
 
-         #close-history-btn {
-             /* Reuse control button style, maybe different color */
-             padding: 8px 15px;
-             border: none;
-             border-radius: 5px;
-             background-color: #6c757d; /* Gray */
-             color: white;
-             cursor: pointer;
-             transition: background-color 0.3s;
-             font-size: 0.9em;
-             align-self: center; /* Center button horizontally */
-             flex-shrink: 0; /* Prevent button shrinking */
-         }
-         #close-history-btn:hover {
-             background-color: #5a6268;
-         }
+        #close-history-btn {
+             background-color: var(--galgame-history-close-btn-bg); color: white;
+             padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; font-size: 0.9em; align-self: center; flex-shrink: 0;
+        }
+        #close-history-btn:hover { background-color: var(--galgame-history-close-btn-hover-bg); }
 
+        /* Config Section Styles */
+        .config-section { border: 1px dashed var(--galgame-config-input-border); padding: 15px; margin-bottom: 20px; border-radius: 8px; background: rgba(10, 10, 10, 0.1); }
+        body.theme-dark .config-section { background: rgba(200, 200, 220, 0.05); }
+        .config-section h4 { margin-top: 0; margin-bottom: 10px; color: var(--galgame-config-link-color); border-bottom: 1px solid var(--galgame-config-input-border); padding-bottom: 5px; }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .api-key-wrapper { position: relative; display: flex; align-items: center; }
+        .api-key-wrapper input { padding-right: 45px; flex-grow: 1; }
+        #toggle-api-key-visibility { position: absolute; right: 1px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 10px; color: var(--galgame-config-label-color); font-size: 1.2em; line-height: 1; opacity: 0.7; transition: opacity 0.2s; }
+        #toggle-api-key-visibility:hover { opacity: 1; color: var(--galgame-config-text-color); }
+        .api-url-wrapper { display: flex; gap: 0; align-items: stretch; }
+        .api-url-wrapper input[type="url"] { flex-grow: 1; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; }
+        #fetch-models-btn { flex-shrink: 0; padding: 8px 15px; border: 1px solid var(--galgame-config-input-border); border-left: none; border-top-left-radius: 0; border-bottom-left-radius: 0; background: var(--galgame-control-btn-bg); color: var(--galgame-control-btn-color); cursor: pointer; font-weight: 500; font-size: 0.9em; transition: all 0.3s ease; height: auto; }
+        #fetch-models-btn:hover { background: var(--galgame-control-btn-hover-bg); }
+        #fetch-models-btn:disabled { background: rgba(255,255,255,0.1); color: var(--galgame-config-label-color); box-shadow: none; opacity: 0.5; }
+        #model-loading-indicator { margin-left: 8px; color: var(--galgame-config-label-color); font-size: 1.2em; vertical-align: middle; display: none; }
+        .input-hint { font-size: 0.85em; color: var(--galgame-config-label-color); display:block; margin-top: 5px; opacity: 0.8; }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+             #galgame-container { height: calc(100vh - 80px); }
+             .character-area { height: 55%; max-width: 45%; } /* Adjust width for smaller screens */
+             #dialogue-box { width: 95%; min-height: 120px; max-height: 45%; padding: 15px 20px; }
+             #speaker-name { font-size: 1.05em; } #dialogue-text { font-size: 0.95em; }
+             #game-controls { bottom: 15px; right: 15px; gap: 8px; } .control-button { padding: 8px 15px; font-size: 0.9em; }
+             #history-panel { width: 90%; height: 75%; }
+             #config-panel { width: 90%; max-width: 350px; right: 50%; transform: translateX(50%); top: 5%; }
+             #toggle-config-btn { top: 10px; right: 10px; width: 35px; height: 35px; font-size: 18px;}
+         }
+         @media (max-width: 480px) {
+             .character-area { height: 50%; max-width: 55%; } /* Further adjust width */
+             #ai-character-area { right: 2%; }
+             #player-character-area { left: 2%; }
+             #dialogue-box { max-height: 50%; padding: 10px 15px; }
+             #speaker-name { font-size: 1em; } #dialogue-text { font-size: 0.9em; }
+             .control-button { padding: 6px 12px; font-size: 0.85em; }
+             #history-panel { width: 95%; height: 80%; padding: 15px; }
+             #config-panel { padding: 15px; width: 95%; }
+         }
     </style>
 </head>
 <body>
-    <!-- Background, Sidebar -->
+    <!-- Background, Sidebar, Toggle Button (Keep as before) -->
     <div class="background"></div>
     <div id="sidebar">
         <nav id="sidebar-nav">
@@ -345,19 +283,17 @@
             <a href="contact.html">💌 联系我</a>
             <a href="download.html">📁 文件下载</a>
             <a href="ai_draw.html">🎨 AI 作画</a>
-            <a href="tno_generator.html">📜 TNO事件生成</a> <!-- Added Link -->
+            <a href="tno_generator.html">📜 TNO事件生成</a>
+            <a href="if_game.html">🌌 AI 互动小说</a>
+            <a href="ai_rpg.html">💖 AI Galgame</a> <!-- Link Added -->
         </nav>
-
-        <!-- Theme Switcher Added Here -->
         <div class="theme-switcher">
             <h4>切换主题:</h4>
             <div class="theme-buttons-container">
                 <button data-theme="pastel" class="theme-button">🌸 粉彩梦境</button>
                 <button data-theme="dark" class="theme-button">🌙 午夜樱落</button>
-                <!-- Add more buttons here if you create more themes -->
             </div>
         </div>
-        <!-- End of Theme Switcher -->
     </div>
     <button id="toggle-btn">☰</button>
 
@@ -365,96 +301,133 @@
     <div class="content scroll-container">
         <header>
             <h1>AI Galgame 互动故事</h1>
-             <button id="toggle-config-btn" title="设置">⚙</button>
+             <button id="toggle-config-btn" title="设置">⚙</button> <!-- Config Toggle -->
         </header>
 
         <main>
-            <!-- Configuration Panel (Structure remains the same) -->
+            <!-- Configuration Panel (HTML unchanged from previous version) -->
             <div id="config-panel">
-                <h3>API 设置</h3>
-                <div class="form-group">
-                    <label for="api-key">Gemini API Key:</label>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="password" id="api-key" placeholder="粘贴你的 API Key" style="flex-grow: 1;">
-                        <button id="test-key-btn" class="control-button" style="padding: 8px 12px; font-size: 0.85em; flex-shrink: 0;">测试 Key</button>
+                <!-- Player Settings Section -->
+                <div class="config-section">
+                    <h4>玩家设定</h4>
+                    <div class="form-group">
+                        <label for="player-name-input">你的名字:</label>
+                        <input type="text" id="player-name-input" placeholder="输入你想使用的名字">
                     </div>
-                    <span id="key-status" style="font-size: 0.85em; margin-top: 5px; display: inline-block; height: 1.2em;"></span>
-                    <small>从 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#87cefa;">Google AI Studio</a> 获取</small>
+                    <div class="form-group">
+                        <label for="player-persona-input">你的角色简介:</label>
+                        <textarea id="player-persona-input" rows="3" placeholder="简单描述你的角色 (例如：一个有点内向但善良的高中生，喜欢读书和音乐)"></textarea>
+                        <small class="input-hint">AI会基于此进行扩充并生成立绘提示词。</small>
+                    </div>
+                     <div class="form-group">
+                        <label for="player-start-input">期望的开局:</label>
+                        <textarea id="player-start-input" rows="3" placeholder="描述你想要的开局场景或剧情引入点 (例如：在新学校的第一天迷路了；在图书馆偶然发现一本神秘的书；收到一封奇怪的匿名信)"></textarea>
+                        <small class="input-hint">AI会基于此设定展开故事，不限于校园恋爱。</small>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="api-url">API URL (可选):</label>
-                    <input type="url" id="api-url" placeholder="默认: generativelanguage.googleapis.com">
-                     <small>用于代理或 Vertex AI</small>
-                </div>
-                <div class="form-group">
-                    <label for="api-model">模型名称 (Model Name):</label>
-                    <input type="text" id="api-model" placeholder="e.g., gemini-1.5-flash-latest">
-                     <small>输入你想使用的 Gemini 模型名称。</small>
-                </div>
+
+                <!-- AI & API Settings Section -->
+                <div class="config-section">
+                     <h4>AI & API 设置</h4>
+                     <div class="form-grid">
+                        <div class="form-group">
+                            <label for="llm-api-key">API 密钥:</label>
+                            <div class="api-key-wrapper">
+                                <input type="password" id="llm-api-key" placeholder="输入 API Key (例如 Gemini)">
+                                <button id="toggle-api-key-visibility" title="切换可见性">👁️</button>
+                            </div>
+                             <span id="key-status"></span>
+                             <button id="test-key-btn" class="control-button" style="padding: 6px 10px; font-size: 0.8em; margin-top: 5px;">测试 Key</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="llm-api-url">API 基础地址:</label>
+                            <div class="api-url-wrapper">
+                                <input type="url" id="llm-api-url" placeholder="例如: https://generativelanguage.googleapis.com" value="https://generativelanguage.googleapis.com">
+                                <button id="fetch-models-btn" title="获取可用模型列表">获取列表</button>
+                            </div>
+                             <small class="input-hint">(Google: 留空或填 ...googleapis.com; OpenAI兼容: 填到 /v1/ 结尾)</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="llm-model-select">选择 LLM 模型:</label>
+                             <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="select-wrapper" style="flex-grow: 1;">
+                                    <select id="llm-model-select" disabled>
+                                        <option value="" disabled selected>-- 请先获取模型列表 --</option>
+                                    </select>
+                                </div>
+                                <span id="model-loading-indicator" title="正在加载模型...">🔄</span>
+                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="galgame-persona">AI 对手角色设定 (可选):</label>
+                            <textarea id="galgame-persona" rows="3" placeholder="你希望AI扮演什么角色？(例如：一个傲娇的同班同学，名叫[亚里沙]...)"></textarea>
+                             <small class="input-hint">在[]中包含角色名，用于AI立绘和对话。</small>
+                        </div>
+                     </div>
+                 </div>
+
                 <div class="config-buttons">
                     <button id="save-config-btn">保存设置</button>
                     <button id="close-config-btn">关闭</button>
                 </div>
             </div>
 
-            <!-- Galgame UI Container -->
+            <!-- Galgame UI Container (HTML unchanged) -->
             <div id="galgame-container">
                 <div id="game-background"></div>
-                <div id="character-area">
-                    <img id="character-sprite" src="#" alt="角色">
+                <div id="player-character-area" class="character-area">
+                    <img id="player-character-sprite" src="#" alt="玩家角色" class="character-sprite hidden">
+                </div>
+                <div id="ai-character-area" class="character-area">
+                    <img id="ai-character-sprite" src="#" alt="AI角色" class="character-sprite hidden">
                 </div>
                 <div id="dialogue-box">
                     <div id="speaker-name">旁白</div>
-                    <div id="dialogue-text">
-                        欢迎来到 AI Galgame 互动故事！<br>
-                        请先点击右上角 ⚙ 设置你的 Gemini API Key。<br>
-                        你可以点击 '测试 Key' 按钮来验证它是否有效。<br>
-                        准备好后，点击“开始”按钮。
-                    </div>
+                    <div id="dialogue-text">在这里设置玩家名称、设定和期望开局后，点击“开始”。</div>
                      <div id="choices-container"></div>
                 </div>
                 <div id="game-controls">
-                    <!-- Add History Button -->
-                    <button id="toggle-history-btn" class="control-button" title="查看对话历史">历史</button>
-                    <button id="next-button" class="control-button">开始</button>
+                    <button id="toggle-history-btn" class="control-button" title="查看对话历史" disabled>历史</button>
+                    <button id="next-button" class="control-button" disabled>开始 (请先设置API)</button>
                 </div>
                  <div id="game-loading-overlay"><span>少女祈祷中...</span></div>
                  <div id="game-error-message"></div>
             </div>
 
-             <!-- History Panel -->
+             <!-- History Panel (HTML unchanged) -->
              <div id="history-panel">
                  <h3>对话历史记录</h3>
-                 <div id="history-content">
-                     <!-- History entries will be added here by JS -->
-                 </div>
+                 <div id="history-content"></div>
                  <button id="close-history-btn">关闭</button>
              </div>
-
         </main>
 
         <footer>
-            <p>© 2024 MOLIFULAN's Blog | Galgame powered by Gemini & You</p>
+            <p>© 2024 MOLIFULAN's Blog | Galgame powered by AI</p>
         </footer>
     </div>
 
     <!-- JS Files -->
-    <script src="js/script.js"></script>
-    <!-- Galgame Specific JS -->
+    <script src="js/script.js"></script> <!-- Main site script -->
     <script>
-        // --- Galgame Specific JS ---
+        // --- Galgame Specific JS (v3 - Style/Consistency Focus) ---
 
-        // DOM Elements (Add History Elements)
+        // --- DOM Element References (Unchanged) ---
         const configPanel = document.getElementById('config-panel');
         const toggleConfigBtn = document.getElementById('toggle-config-btn');
         const saveConfigBtn = document.getElementById('save-config-btn');
         const closeConfigBtn = document.getElementById('close-config-btn');
-        const apiKeyInput = document.getElementById('api-key');
-        const apiUrlInput = document.getElementById('api-url');
-        const apiModelInput = document.getElementById('api-model'); // Changed from select
-        const testKeyBtn = document.getElementById('test-key-btn');
+        const apiKeyInput = document.getElementById('llm-api-key');
+        const apiUrlInput = document.getElementById('llm-api-url');
+        const fetchModelsBtn = document.getElementById('fetch-models-btn');
+        const modelSelect = document.getElementById('llm-model-select');
+        const modelLoadingIndicator = document.getElementById('model-loading-indicator');
+        const toggleApiKeyVisibilityBtn = document.getElementById('toggle-api-key-visibility');
         const keyStatusSpan = document.getElementById('key-status');
-
+        const aiPersonaInput = document.getElementById('galgame-persona');
+        const playerNameInput = document.getElementById('player-name-input');
+        const playerPersonaInput = document.getElementById('player-persona-input');
+        const playerStartInput = document.getElementById('player-start-input');
         const dialogueBox = document.getElementById('dialogue-box');
         const speakerName = document.getElementById('speaker-name');
         const dialogueText = document.getElementById('dialogue-text');
@@ -462,361 +435,372 @@
         const nextButton = document.getElementById('next-button');
         const loadingOverlay = document.getElementById('game-loading-overlay');
         const gameErrorMessage = document.getElementById('game-error-message');
-        const historyPanel = document.getElementById('history-panel'); // New
-        const historyContent = document.getElementById('history-content'); // New
-        const toggleHistoryBtn = document.getElementById('toggle-history-btn'); // New
-        const closeHistoryBtn = document.getElementById('close-history-btn'); // New
-        // const gameBackground = document.getElementById('game-background');
-        // const characterSprite = document.getElementById('character-sprite');
+        const historyPanel = document.getElementById('history-panel');
+        const historyContent = document.getElementById('history-content');
+        const toggleHistoryBtn = document.getElementById('toggle-history-btn');
+        const closeHistoryBtn = document.getElementById('close-history-btn');
+        const gameBackground = document.getElementById('game-background');
+        const aiCharacterSprite = document.getElementById('ai-character-sprite');
+        const playerCharacterSprite = document.getElementById('player-character-sprite');
 
-        // Game State
+        // --- Constants ---
+        // Style prompt placed first, more specific, no "same character", added anti-chibi hints
+        const FIXED_STYLE_PROMPT = "masterpiece, best quality, highres, japanese anime art style, visual novel character sprite, full body sprite, detailed face, proportional body, clean lines, vibrant colors, flat colors, (not chibi), (not Q version)";
+        // Stronger keywords for guaranteed white background
+        const SPRITE_BACKGROUND_KEYWORDS = "plain white background, solid white background, simple white, isolated on white, no background elements, no shadows on background, pure white background";
+
+        // --- State Variables ---
+        // API & AI
         let currentApiKey = '';
         let currentApiUrl = '';
         let currentModel = '';
-        let conversationHistory = []; // Stores {role: 'user'/'model', parts: [{text: '...'}]}
+        let currentAiPersona = '';
+        // Player
+        let playerName = '';
+        let playerPersona = '';
+        let playerStart = '';
+        // Character Appearance
+        let playerBaseAppearancePrompt = ''; // 存储玩家基础外观
+        let aiBaseAppearancePrompt = '';     // 存储AI基础外观
+        let spriteCache = {}; // Add cache object
+        // Game State
+        let conversationHistory = [];
         let isGameStarted = false;
         let isLoading = false;
+        const GALGAME_STORAGE_PREFIX = 'galGame_';
+        const DEFAULT_API_URL_GALGAME = 'https://generativelanguage.googleapis.com';
+        let currentDialogueSegments = []; // 当前回合的对话片段数组
+        let currentSegmentIndex = 0;
+        let currentTurnChoices = [];
+        let currentTurnParsedData = null; // 当前回合解析后的完整JSON
 
-        const DEFAULT_API_URL = 'https://generativelanguage.googleapis.com';
-
-        // --- Configuration Handling (Mostly unchanged) ---
-        function saveConfig() {
-            const apiKey = apiKeyInput.value.trim();
-            const apiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL;
-            const model = apiModelInput.value.trim();
-
-            if (!apiKey) { showGameError("API Key 不能为空！"); apiKeyInput.focus(); return; }
-            if (!model) { showGameError("模型名称不能为空！"); apiModelInput.focus(); return; }
-
-            localStorage.setItem('galgame_apiKey', apiKey);
-            localStorage.setItem('galgame_apiUrl', apiUrl);
-            localStorage.setItem('galgame_model', model);
-
-            currentApiKey = apiKey;
-            currentApiUrl = apiUrl;
-            currentModel = model;
-
-            console.log("Config saved:", { currentApiKey, currentApiUrl, currentModel });
-            alert("设置已保存！");
-            configPanel.classList.remove('visible');
-            nextButton.disabled = !currentApiKey;
-        }
-
-        function loadConfig() {
-            currentApiKey = localStorage.getItem('galgame_apiKey') || '';
-            currentApiUrl = localStorage.getItem('galgame_apiUrl') || DEFAULT_API_URL;
-            currentModel = localStorage.getItem('galgame_model') || 'gemini-1.5-flash-latest';
-
-            apiKeyInput.value = currentApiKey;
-            apiUrlInput.value = currentApiUrl === DEFAULT_API_URL ? '' : currentApiUrl;
-            apiModelInput.value = currentModel;
-            keyStatusSpan.textContent = ''; // Clear key status on load
-            keyStatusSpan.className = '';
-             console.log("Config loaded:", { currentApiKey, currentApiUrl, currentModel });
-
-             if (!currentApiKey && !isGameStarted) {
-                  dialogueText.innerHTML = marked.parse("请点击右上角的 **⚙** 设置你的 Gemini API Key，并可以点击 '测试 Key' 来验证。");
-                 nextButton.disabled = true;
-                 toggleHistoryBtn.disabled = true; // Disable history if no key
-             } else {
-                 nextButton.disabled = false;
-                 toggleHistoryBtn.disabled = false; // Enable history if key exists
-             }
-        }
-
-        function toggleConfigPanel() { configPanel.classList.toggle('visible'); }
-
-        async function testApiKey() {
-            // --- API Key Test Logic (Unchanged) ---
-            const apiKey = apiKeyInput.value.trim();
-            const apiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL;
-            if (!apiKey) { keyStatusSpan.textContent = '请输入 API Key'; keyStatusSpan.className = 'invalid'; return; }
-            keyStatusSpan.textContent = '正在测试...'; keyStatusSpan.className = 'testing'; testKeyBtn.disabled = true;
-            const testUrl = `${apiUrl}/v1beta/models?key=${apiKey}`;
-            try {
-                const response = await fetch(testUrl);
-                if (response.ok) { keyStatusSpan.textContent = '✅ Key 有效'; keyStatusSpan.className = 'valid'; }
-                else {
-                    let errorMsg = `❌ Key 无效 (${response.status})`;
-                    if (response.status === 401 || response.status === 403) errorMsg = '❌ Key 无效或权限不足';
-                    else if (response.status === 400) errorMsg = '❓ 请求错误 (检查API URL?)';
-                    keyStatusSpan.textContent = errorMsg; keyStatusSpan.className = 'invalid';
-                }
-            } catch (error) { keyStatusSpan.textContent = '⚠️ 测试出错 (网络?)'; keyStatusSpan.className = 'error'; }
-            finally { testKeyBtn.disabled = false; }
-        }
-
-        // --- Error Handling (Unchanged) ---
-        function showGameError(message) {
-            gameErrorMessage.textContent = message;
-            gameErrorMessage.style.display = 'block';
-            setTimeout(() => { gameErrorMessage.style.display = 'none'; }, 5000);
-        }
-         function clearGameError() {
-            gameErrorMessage.style.display = 'none';
-            gameErrorMessage.textContent = '';
-         }
-
-        // --- UI Update ---
-         function setLoading(loading) {
+        // --- Error & Loading UI (Unchanged) ---
+        function showGameError(message) { console.error("Game Error:", message); gameErrorMessage.textContent = message; gameErrorMessage.style.display = 'block'; setTimeout(() => { clearGameError(); }, 7000); setLoading(false); }
+        function clearGameError() { gameErrorMessage.style.display = 'none'; gameErrorMessage.textContent = ''; }
+        function setLoading(loading) {
+             console.log("Setting loading state to:", loading);
              isLoading = loading;
-             loadingOverlay.classList.toggle('visible', loading); // Use toggle with boolean
-             nextButton.disabled = loading;
-             toggleHistoryBtn.disabled = loading; // Also disable history button while loading
+             loadingOverlay.classList.toggle('visible', loading);
+             const canInteract = currentApiKey && currentModel;
+             const choicesCurrentlyDisplayed = choicesContainer.querySelector('.choice-button') !== null;
+             const moreSegmentsAvailable = currentDialogueSegments && currentSegmentIndex < currentDialogueSegments.length - 1;
+             nextButton.disabled = loading || !canInteract || !isGameStarted || choicesCurrentlyDisplayed || !moreSegmentsAvailable;
+             toggleHistoryBtn.disabled = loading || !canInteract || !isGameStarted;
+             toggleConfigBtn.disabled = loading;
              document.querySelectorAll('.choice-button').forEach(btn => btn.disabled = loading);
          }
 
-        // Modified updateDialogue to only show the *current* message
-        function updateDialogue(text, speaker = "旁白", choices = []) {
-             clearGameError();
-            speakerName.textContent = speaker;
-             const cleanHtml = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(marked.parse(text)) : marked.parse(text);
-             dialogueText.innerHTML = cleanHtml;
-
-            choicesContainer.innerHTML = '';
-            if (choices && choices.length > 0) {
-                nextButton.style.display = 'none';
-                choices.forEach((choiceText, index) => {
-                    const button = document.createElement('button');
-                    button.classList.add('choice-button');
-                    button.textContent = choiceText;
-                    button.onclick = () => handleChoice(choiceText); // Pass the text directly
-                    choicesContainer.appendChild(button);
-                });
-            } else {
-                nextButton.style.display = 'block';
-            }
-             dialogueBox.scrollTop = dialogueBox.scrollHeight;
+        // --- Configuration Logic (Unchanged) ---
+        function saveConfig() {
+            const apiKey = apiKeyInput.value.trim(); const apiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL_GALGAME; const model = modelSelect.value; const aiPersona = aiPersonaInput.value.trim(); const pName = playerNameInput.value.trim(); const pPersona = playerPersonaInput.value.trim(); const pStart = playerStartInput.value.trim(); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'apiKey', apiKey); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'apiUrl', apiUrl); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'model', model); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'aiPersona', aiPersona); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'playerName', pName); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'playerPersona', pPersona); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'playerStart', pStart); currentApiKey = apiKey; currentApiUrl = apiUrl; currentModel = model; currentAiPersona = aiPersona; playerName = pName; playerPersona = pPersona; playerStart = pStart; console.log("Galgame Config saved (state updated):", { currentApiKey, currentApiUrl, currentModel, currentAiPersona, playerName, playerPersona, playerStart }); const canStart = currentApiKey && currentModel; nextButton.textContent = isGameStarted ? '继续' : (canStart ? '开始' : '开始 (请先设置API)'); nextButton.disabled = isLoading || !canStart; toggleHistoryBtn.disabled = isLoading || !canStart || !isGameStarted; if (!isGameStarted) { if (canStart) { let info = "API 设置已加载。\n"; if (playerName) info += `玩家名称: ${playerName}\n`; if (playerPersona) info += `玩家设定: ${playerPersona.substring(0, 50)}...\n`; if (playerStart) info += `开局提示: ${playerStart.substring(0, 50)}...\n`; if (currentAiPersona) info += `AI 角色: ${currentAiPersona.substring(0, 50)}...\n`; info += "点击“开始”进入故事。"; dialogueText.innerHTML = marked.parse(info); } else { dialogueText.innerHTML = marked.parse("欢迎来到 AI Galgame 互动故事！\n请点击右上角的 **⚙** 设置你的 API Key，并选择一个模型。\n（可选）设置玩家名称、设定和期望开局。\n准备好后，点击“开始”按钮。"); } }
         }
+        function loadConfig() { currentApiKey = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'apiKey') || ''; currentApiUrl = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'apiUrl') || DEFAULT_API_URL_GALGAME; currentModel = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'model') || ''; currentAiPersona = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'aiPersona') || ''; playerName = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'playerName') || ''; playerPersona = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'playerPersona') || ''; playerStart = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'playerStart') || ''; apiKeyInput.value = currentApiKey; apiUrlInput.value = currentApiUrl === DEFAULT_API_URL_GALGAME ? '' : currentApiUrl; aiPersonaInput.value = currentAiPersona; playerNameInput.value = playerName; playerPersonaInput.value = playerPersona; playerStartInput.value = playerStart; modelSelect.innerHTML = '<option value="" disabled selected>-- 获取或选择模型 --</option>'; if (currentModel) { const o = document.createElement('option'); o.value = currentModel; o.textContent = currentModel + " (已保存)"; o.selected = true; modelSelect.appendChild(o); modelSelect.disabled = false; } else { modelSelect.disabled = true; } keyStatusSpan.textContent = ''; keyStatusSpan.className = ''; console.log("Galgame Config loaded:", { currentApiKey, currentApiUrl, currentModel, currentAiPersona, playerName, playerPersona, playerStart }); const canConfigure = currentApiKey && currentModel; isGameStarted = false; if (!canConfigure) { dialogueText.innerHTML = marked.parse("欢迎来到 AI Galgame 互动故事！\n请点击右上角的 **⚙** 设置你的 API Key，并选择一个模型。\n（可选）设置玩家名称、设定和期望开局。\n准备好后，点击“开始”按钮。"); nextButton.textContent = "开始 (请先设置API)"; nextButton.disabled = true; toggleHistoryBtn.disabled = true; } else { let info = "API 设置已加载。\n"; if (playerName) info += `玩家名称: ${playerName}\n`; if (playerPersona) info += `玩家设定: ${playerPersona.substring(0, 50)}...\n`; if (playerStart) info += `开局提示: ${playerStart.substring(0, 50)}...\n`; if (currentAiPersona) info += `AI 角色: ${currentAiPersona.substring(0, 50)}...\n`; info += "点击“开始”进入故事。"; dialogueText.innerHTML = marked.parse(info); nextButton.textContent = "开始"; nextButton.disabled = isLoading || !canConfigure; toggleHistoryBtn.disabled = true; } aiCharacterSprite.classList.add('hidden'); playerCharacterSprite.classList.add('hidden'); }
+        function toggleConfigPanel() { configPanel.classList.toggle('visible'); }
+        async function fetchLLMModels() { const apiKey = apiKeyInput.value.trim(); const baseApiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL_GALGAME; if (!apiKey) { showGameError('请先填写 API 密钥。'); return; } keyStatusSpan.textContent = ''; keyStatusSpan.className = ''; modelLoadingIndicator.style.display = 'inline-block'; fetchModelsBtn.disabled = true; modelSelect.disabled = true; modelSelect.innerHTML = '<option value="" disabled selected>-- 正在获取... --</option>'; let modelListUrl = ''; let headers = { 'Content-Type': 'application/json' }; let method = 'GET'; try { if (baseApiUrl.includes('generativelanguage.googleapis.com')) { modelListUrl = baseApiUrl.replace(/\/$/, '') + `/v1beta/models?key=${apiKey}&pageSize=1000`; } else if (baseApiUrl.includes('/v1')) { headers['Authorization'] = `Bearer ${apiKey}`; modelListUrl = baseApiUrl.replace(/\/v1\/?$/, '') + '/v1/models'; } else { console.warn("未知地址格式，尝试 /v1/models"); headers['Authorization'] = `Bearer ${apiKey}`; modelListUrl = baseApiUrl.replace(/\/$/, '') + '/v1/models'; } console.log("Fetching models from:", modelListUrl); const response = await fetch(modelListUrl, { method, headers }); if (!response.ok) { const e = await response.text(); throw new Error(`获取失败: ${response.status} ${response.statusText}. ${e.substring(0,100)}`); } const data = await response.json(); console.log("Model List Raw:", data); let modelNames = []; if (data.models?.length) { modelNames = data.models.map(m => m.name?.replace(/^models\//, '')).filter(Boolean).filter(name => !/embed|vision|instruct|text-|aqa|diffusion|image/i.test(name)).sort(); } else if (data.data?.length) { modelNames = data.data.map(m => m.id).filter(Boolean).filter(id => !/embed|vision|instruct|text-|whisper|tts|davinci|babbage|curie|ada|image|diffusion/i.test(id)).sort(); } else { throw new Error("无法识别的模型列表格式。"); } if (modelNames.length === 0) { throw new Error("在此 API 地址未找到可用的聊天模型。"); } const previouslySelected = currentModel || modelSelect.value; modelSelect.innerHTML = '<option value="" disabled>-- 请选择一个模型 --</option>'; let foundPrevious = false; modelNames.forEach(name => { const o=document.createElement('option'); o.value=name; o.textContent=name; if(name === previouslySelected) { o.selected = true; foundPrevious = true; } modelSelect.appendChild(o); }); if (!foundPrevious && modelSelect.options.length > 1) { modelSelect.selectedIndex = 1; } else if (!foundPrevious && modelSelect.options.length <= 1) { modelSelect.selectedIndex = 0; } currentModel = modelSelect.value; modelSelect.disabled = !currentModel; clearGameError(); } catch (error) { console.error("获取模型出错:", error); showGameError(error.message || "获取模型列表时出错。"); modelSelect.innerHTML = '<option value="" disabled selected>-- 获取失败 --</option>'; modelSelect.disabled = true; } finally { modelLoadingIndicator.style.display = 'none'; fetchModelsBtn.disabled = false; modelSelect.disabled = modelSelect.options.length <= 1 || !modelSelect.value; saveConfig(); } }
+        async function testApiKey() { const testKeyButtonElement = document.getElementById('test-key-btn'); const apiKey = apiKeyInput.value.trim(); const baseApiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL_GALGAME; if (!apiKey) { keyStatusSpan.textContent = '请输入 API Key'; keyStatusSpan.className = 'invalid'; return; } if (!testKeyButtonElement) { console.error("无法找到测试按钮元素!"); keyStatusSpan.textContent = '页面错误'; keyStatusSpan.className = 'error'; return; } keyStatusSpan.textContent = '正在测试...'; keyStatusSpan.className = 'testing'; testKeyButtonElement.disabled = true; let testUrl = ''; let headers = {}; let method = 'GET'; try { if (baseApiUrl.includes('generativelanguage.googleapis.com')) { testUrl = baseApiUrl.replace(/\/$/, '') + `/v1beta/models?key=${apiKey}`; } else if (baseApiUrl.includes('/v1')) { headers['Authorization'] = `Bearer ${apiKey}`; testUrl = baseApiUrl.replace(/\/v1\/?$/, '') + '/v1/models'; } else { throw new Error("无法确定测试 URL 格式"); } console.log("Testing API Key with URL:", testUrl); const response = await fetch(testUrl, { method, headers }); if (response.ok) { keyStatusSpan.textContent = '✅ Key 有效'; keyStatusSpan.className = 'valid'; } else { let errorMsg = `❌ Key 无效或URL错误 (${response.status})`; try{ const errData = await response.json(); if(errData?.error?.message) errorMsg += `: ${errData.error.message}`; } catch(e){} keyStatusSpan.textContent = errorMsg; keyStatusSpan.className = 'invalid'; } } catch (error) { keyStatusSpan.textContent = '⚠️ 测试出错 (网络/URL?)'; keyStatusSpan.className = 'error'; console.error("Key test error:", error); } finally { testKeyButtonElement.disabled = false; } }
 
-        // --- History Panel Logic ---
-        function toggleHistoryPanel() {
-            if (historyPanel.classList.contains('visible')) {
-                historyPanel.classList.remove('visible');
-            } else {
-                displayHistory(); // Populate content before showing
-                historyPanel.classList.add('visible');
-            }
-        }
+        // --- History Panel Logic (Unchanged) ---
+        function toggleHistoryPanel() { console.log("toggleHistoryPanel called. isLoading:", isLoading, "isGameStarted:", isGameStarted); if (isLoading) return; if (!isGameStarted || !currentApiKey || !currentModel) { showGameError("请先开始游戏以查看历史记录。"); return; } if (historyPanel.classList.contains('visible')) { historyPanel.classList.remove('visible'); } else { displayHistory(); historyPanel.classList.add('visible'); } }
+        function displayHistory() { console.log("Displaying history. Count:", conversationHistory.length); historyContent.innerHTML = ''; if (conversationHistory.length === 0) { historyContent.innerHTML = '<p><i>还没有对话记录呢...</i></p>'; return; } conversationHistory.forEach(entry => { if (entry.role === 'user' && entry.isSetup) { return; } const entryDiv = document.createElement('div'); entryDiv.classList.add('history-entry'); if (entry.role === 'user') { const roleSpan = document.createElement('div'); roleSpan.classList.add('history-role-user'); roleSpan.textContent = `${playerName || '你'}:`; const textDiv = document.createElement('div'); textDiv.classList.add('history-text'); textDiv.textContent = entry.parts[0]?.text || '(空消息)'; entryDiv.appendChild(roleSpan); entryDiv.appendChild(textDiv); } else if (entry.role === 'model') { try { const parsedData = JSON.parse(entry.parts[0]?.text || '{}'); const segments = parsedData.dialogue_segments || []; const choices = parsedData.choices || []; if (segments.length > 0) { segments.forEach(segment => { const segmentDiv = document.createElement('div'); segmentDiv.classList.add('history-dialogue-segment'); const speakerSpan = document.createElement('span'); speakerSpan.classList.add('segment-speaker'); speakerSpan.textContent = `${segment.speaker || '???'}:`; const textSpan = document.createElement('span'); textSpan.classList.add('segment-text'); try { textSpan.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(marked.parse(segment.text || '(空片段)')) : marked.parse(segment.text || '(空片段)'); } catch(e){ textSpan.textContent = segment.text || '(空片段)'; } segmentDiv.appendChild(speakerSpan); segmentDiv.appendChild(textSpan); entryDiv.appendChild(segmentDiv); }); } else { const roleSpan = document.createElement('div'); roleSpan.classList.add('history-role-model'); roleSpan.textContent = `AI (解析错误):`; const textDiv = document.createElement('div'); textDiv.classList.add('history-text'); textDiv.textContent = '(无法解析对话片段)'; entryDiv.appendChild(roleSpan); entryDiv.appendChild(textDiv); } if (choices.length > 0) { const choiceList = document.createElement('ul'); choiceList.style.fontSize = '0.9em'; choiceList.style.opacity = '0.7'; choiceList.style.marginTop = '8px'; choiceList.style.paddingLeft = '25px'; choices.forEach(c => { const li = document.createElement('li'); li.textContent = c.replace(/^\[|\]$/g, ''); choiceList.appendChild(li); }); entryDiv.appendChild(choiceList); } } catch (e) { console.error("Failed to parse model entry in history:", e, entry.parts[0]?.text); const roleSpan = document.createElement('div'); roleSpan.classList.add('history-role-model'); roleSpan.textContent = `AI (原始):`; const textDiv = document.createElement('div'); textDiv.classList.add('history-text'); textDiv.textContent = entry.parts[0]?.text || '(无法解析)'; entryDiv.appendChild(roleSpan); entryDiv.appendChild(textDiv); } } historyContent.appendChild(entryDiv); }); historyContent.scrollTop = historyContent.scrollHeight; }
 
-        function displayHistory() {
-            historyContent.innerHTML = ''; // Clear previous history
-            if (conversationHistory.length === 0) {
-                historyContent.innerHTML = '<p><i>还没有对话记录呢...</i></p>';
-                return;
-            }
-
-            conversationHistory.forEach(entry => {
-                const entryDiv = document.createElement('div');
-                entryDiv.classList.add('history-entry');
-
-                const roleSpan = document.createElement('div');
-                roleSpan.classList.add(entry.role === 'user' ? 'history-role-user' : 'history-role-model');
-                roleSpan.textContent = entry.role === 'user' ? '你:' : `${currentModel}:`; // Or use parsed speaker name if available
-
-                const textDiv = document.createElement('div');
-                textDiv.classList.add('history-text');
-                // Render markdown for model, plain text for user for simplicity
-                const textContent = entry.parts[0]?.text || '(空消息)';
-                if (entry.role === 'model') {
-                     textDiv.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(marked.parse(textContent)) : marked.parse(textContent);
-                 } else {
-                     textDiv.textContent = textContent; // Display user input as plain text
+        // --- Character Sprite Background Removal (Unchanged) ---
+        async function removeEdgeWhiteBackground(img) {
+             return new Promise((resolve, reject) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                const width = img.naturalWidth;
+                const height = img.naturalHeight;
+                 if (width === 0 || height === 0) {
+                     console.warn("Image has zero dimensions, cannot process.");
+                     resolve(img.src); // Return original source if dimensions are invalid
+                     return;
                  }
+                canvas.width = width;
+                canvas.height = height;
 
+                try {
+                    ctx.drawImage(img, 0, 0);
+                    const imageData = ctx.getImageData(0, 0, width, height);
+                    const data = imageData.data;
+                    const visited = new Uint8Array(width * height);
+                    const whiteThreshold = 248;
+                    const tolerance = 7;
+                    const effectiveThreshold = whiteThreshold - tolerance;
 
-                entryDiv.appendChild(roleSpan);
-                entryDiv.appendChild(textDiv);
-                historyContent.appendChild(entryDiv);
-            });
+                    function isNearWhite(index) {
+                        if (index < 0 || index >= data.length || data[index+3] < 128) return false;
+                        const r = data[index]; const g = data[index + 1]; const b = data[index + 2];
+                        return r >= effectiveThreshold && g >= effectiveThreshold && b >= effectiveThreshold;
+                    }
 
-            // Scroll history to bottom
-            historyContent.scrollTop = historyContent.scrollHeight;
-        }
+                    function getIndex(x, y) { return (y * width + x) * 4; }
+                    function getVisitedIndex(x, y) { return y * width + x; }
+                    const queue = [];
 
-        // --- Gemini API Call (Add prompt to history BEFORE call) ---
-        async function callGeminiApi(promptText) {
-            if (!currentApiKey) throw new Error("API Key 未设置！");
-            if (!currentModel) throw new Error("模型名称未设置！");
+                    for (let y = 0; y < height; y++) { for (let x = 0; x < width; x++) { if (y === 0 || y === height - 1 || x === 0 || x === width - 1) { const index = getIndex(x, y); const visitedIndex = getVisitedIndex(x,y); if (isNearWhite(index) && !visited[visitedIndex]) { queue.push({ x, y }); visited[visitedIndex] = 1; } } } }
+                    console.log("Starting flood fill. Queue:", queue.length, "Threshold:", whiteThreshold, "Tolerance:", tolerance);
 
-            const fullApiUrl = `${currentApiUrl}/v1beta/models/${currentModel}:generateContent?key=${currentApiKey}`;
-
-            // Add user prompt to history *before* sending the request
-            // Avoid adding default "继续故事" prompts to history for clarity, unless needed
-            if (promptText && promptText !== "继续故事。") { // Only add meaningful user input
-                 conversationHistory.push({ role: 'user', parts: [{ text: promptText }] });
-            }
-
-
-            // **Important**: Prepare history for API
-            // For Gemini, it's usually best to send the whole history
-            const apiHistoryPayload = conversationHistory;
-            // Trim history if it gets too long (example: keep last 10 turns = 20 messages)
-            const maxHistoryTurns = 10;
-             if(apiHistoryPayload.length > maxHistoryTurns * 2) {
-                 console.warn(`History too long (${apiHistoryPayload.length}), trimming to last ${maxHistoryTurns} turns.`);
-                 // Keep the first message (system prompt if any) and the last N messages
-                 // This needs careful implementation based on your prompting strategy
-                 // Simple trim for now:
-                 // conversationHistory = conversationHistory.slice(-maxHistoryTurns * 2);
-                 // apiHistoryPayload = conversationHistory; // Use the trimmed history
-             }
-
-             console.log("Sending API request to:", fullApiUrl);
-             console.log("Request History Payload:", JSON.stringify({ contents: apiHistoryPayload }));
-
-
-            try {
-                const response = await fetch(fullApiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: apiHistoryPayload }) // Send prepared history
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error("API Error Response:", errorData);
-                     // If user prompt was added, remove it on error
-                     // if (promptText && promptText !== "继续故事。") { conversationHistory.pop(); }
-                    throw new Error(`API 请求失败: ${response.status} ${response.statusText} - ${errorData?.error?.message || '未知错误'}`);
+                    let processedPixelCount = 0;
+                    while (queue.length > 0) {
+                        const { x, y } = queue.shift(); const index = getIndex(x, y); if (data[index + 3] > 0) { data[index + 3] = 0; processedPixelCount++; }
+                        const neighbors = [ { nx: x + 1, ny: y }, { nx: x - 1, ny: y }, { nx: x, ny: y + 1 }, { nx: x, ny: y - 1 } ];
+                        for (const {nx, ny} of neighbors) { if (nx >= 0 && nx < width && ny >= 0 && ny < height) { const neighborIndex = getIndex(nx, ny); const visitedIndex = getVisitedIndex(nx, ny); if (isNearWhite(neighborIndex) && !visited[visitedIndex]) { visited[visitedIndex] = 1; queue.push({ x: nx, y: ny }); } } }
+                    }
+                    console.log(`Flood fill finished. ${processedPixelCount} pixels made transparent.`);
+                    ctx.putImageData(imageData, 0, 0); resolve(canvas.toDataURL('image/png'));
+                } catch (error) {
+                    if (error.name === 'SecurityError') { console.error("Canvas processing error (likely CORS): Cannot process image from different origin without CORS headers.", error); resolve(img.src); } else { console.error("Canvas processing error in removeEdgeWhiteBackground:", error); resolve(img.src); }
                 }
-
-                const data = await response.json();
-                console.log("API Success Response:", data);
-
-                let generatedText = '';
-                 if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
-                    generatedText = data.candidates[0].content.parts[0].text;
-                } else {
-                     console.warn("Could not extract text from response structure:", data);
-                     // If user prompt was added, remove it on error
-                     // if (promptText && promptText !== "继续故事。") { conversationHistory.pop(); }
-                     throw new Error("无法从 API 响应中提取有效文本。");
-                 }
-
-                // Add model response to history
-                conversationHistory.push({ role: 'model', parts: [{ text: generatedText }] });
-
-                return generatedText;
-
-            } catch (error) {
-                console.error("Fetch error:", error);
-                // If user prompt was added, remove it on error
-                // if (promptText && promptText !== "继续故事。") { conversationHistory.pop(); }
-                throw error;
-            }
+            });
         }
 
-
-        // --- Game Logic (Adjustments) ---
-        function startGame() {
-             if (!currentApiKey) {
-                 showGameError("请先设置 API Key！");
-                 toggleConfigPanel();
-                 return;
+        // --- Image Loading (Prompt Order Adjusted) ---
+        async function loadDynamicImage(element, prompt, imageType = "background", nologo = true, seed = null) { // Seed param kept but unused now
+             if (!prompt || !element) {
+                 console.warn(`Skipping ${imageType} image: No prompt or element.`);
+                 if (imageType === 'character') { element.classList.add('hidden'); }
+                 return Promise.resolve();
              }
-            isGameStarted = true;
-            nextButton.textContent = '继续';
-            toggleHistoryBtn.disabled = false; // Ensure history button is enabled
-            conversationHistory = []; // Reset history ON START
-             // Initial prompt - more specific about output format
-             const initialPrompt = `你是一个 Galgame AI 引擎。请为我生成一个浪漫校园恋爱故事的开端。
-规则：
-1.  用旁白的形式描述场景和内心想法，使用 Markdown 斜体 (*) 强调想法或细节。
-2.  如果有人物说话，使用格式 "[角色名]: 对话内容"。例如 "[小光]: 早上好！"。
-3.  如果需要玩家做出选择，在文本末尾另起一行，使用格式 "Choices:\n1. [选项一]\n2. [选项二]"。不要在其他地方使用 "Choices:" 这个词。
-4.  保持故事的连贯性和趣味性。
+             const baseCharacterPrompt = prompt; // Rename for clarity
+             console.log(`Attempting to load ${imageType} image with base prompt: ${baseCharacterPrompt}`);
+             let width = 1024, height = 576, extraParams = "", finalPromptString = '';
 
-开始吧！`;
-            proceedStory(initialPrompt); // Pass the specific initial prompt
-        }
+             if (imageType === 'character') {
+                 width = 512; height = 768; extraParams = "&nofeed=true";
+                 // Assemble the final prompt: Style -> Character Details -> Background
+                 finalPromptString = `${FIXED_STYLE_PROMPT}, ${baseCharacterPrompt}, ${SPRITE_BACKGROUND_KEYWORDS}`;
 
-         // Modified proceedStory to handle the prompt being added before the call
-        async function proceedStory(userPrompt) {
-            setLoading(true);
-            clearGameError();
+                 console.log("Final Character Prompt:", finalPromptString);
 
-            try {
-                 // User prompt is now added to history *before* callGeminiApi is invoked
-
-                const aiResponse = await callGeminiApi(userPrompt); // Pass the actual user input/choice
-
-                // --- Parsing Logic ---
-                let speaker = "旁白";
-                let dialogue = aiResponse;
-                let choices = [];
-
-                // Remove potential "Choices:" section before parsing speaker
-                 let choiceSectionMatch = aiResponse.match(/Choices:\s*\n((?:.|\n)*)/);
-                 let dialogueWithoutChoices = aiResponse;
-                 if (choiceSectionMatch) {
-                     dialogueWithoutChoices = aiResponse.substring(0, choiceSectionMatch.index).trim(); // Get text before "Choices:"
-                     // Parse choices from the section after "Choices:"
-                     const choiceLines = choiceSectionMatch[1].trim().split('\n');
-                     choiceLines.forEach(line => {
-                        // Match formats like "1. [Choice text]" or "- [Choice text]" or "* [Choice text]"
-                         const choiceMatch = line.match(/^(?:\d+\.|-|\*)\s*\[(.*?)\]/);
-                         if (choiceMatch) {
-                             choices.push(choiceMatch[1].trim());
-                         }
-                     });
+                 // --- Caching Logic Start (Unchanged) ---
+                 if (spriteCache[finalPromptString]) {
+                     console.log(`Cache hit for character prompt: ${finalPromptString.substring(0, 100)}...`);
+                     element.src = spriteCache[finalPromptString];
+                     element.classList.remove('hidden');
+                     element.style.opacity = 1;
+                     return Promise.resolve();
                  }
+                 element.classList.add('hidden');
+                 // --- Caching Logic End ---
 
+             } else if (imageType === 'background') {
+                 // Keep background prompt separate
+                 finalPromptString = `${baseCharacterPrompt}, anime style, visual novel background, detailed illustration, high quality`;
+                 width = 1024; height = 576;
+             }
 
-                // Try to parse speaker from the remaining dialogue
-                const speakerMatch = dialogueWithoutChoices.match(/^\[(.*?)]:\s*/);
-                if (speakerMatch) {
-                    speaker = speakerMatch[1];
-                    dialogue = dialogueWithoutChoices.substring(speakerMatch[0].length);
-                } else {
-                     dialogue = dialogueWithoutChoices; // Use the text before choices as dialogue
-                 }
-                // --- End Parsing ---
+             const nologoValue = nologo ? 'true' : 'false';
+             let finalUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPromptString)}?width=${width}&height=${height}&model=flux&nologo=${nologoValue}${extraParams}`;
+             finalUrl += `&seed=${Math.floor(Math.random()*1e7)}`; // Use random seed
+             const url = finalUrl;
+             console.log(`Loading ${imageType} image URL:`, url);
 
+             return new Promise((resolve) => { // Rest of the promise logic unchanged
+                 const img = new Image();
+                 img.crossOrigin = "Anonymous";
 
-                // Only update the main dialogue box with the *latest* response
-                updateDialogue(dialogue, speaker, choices);
+                 img.onload = async () => {
+                     console.log(`${imageType} image preloaded/loaded successfully.`);
+                     if (imageType === 'background') {
+                         element.style.backgroundImage = `url('${url}')`;
+                         console.log(`Background image set for element:`, element);
+                         resolve();
+                     } else { // Character sprite processing
+                         try {
+                             console.log(`Attempting white background removal for ${element.id}...`);
+                             const processedUrl = await removeEdgeWhiteBackground(img);
+                             element.src = processedUrl;
+                             spriteCache[finalPromptString] = processedUrl; // Cache processed URL
+                             element.classList.remove('hidden');
+                             element.style.opacity = 1; console.log(`White background removal finished for ${element.id}.`);
+                         } catch (error) {
+                             console.error(`Using original URL due to background removal error for ${element.id}:`, error);
+                             element.src = url; // Fallback
+                             spriteCache[finalPromptString] = url; // Cache original URL on error
+                             element.classList.remove('hidden');
+                             element.style.opacity = 1; showGameError(`处理 ${element.alt} 背景时出错。`);
+                         } finally { resolve(); }
+                     }
+                 };
 
-            } catch (error) {
-                console.error("Error proceeding story:", error);
-                showGameError(`发生错误: ${error.message}`);
-            } finally {
-                setLoading(false);
-            }
-        }
+                 img.onerror = (e) => {
+                    console.error(`Error loading ${imageType} image:`, e, url);
+                    showGameError(`${imageType === 'character' ? element.alt : '背景'} 加载失败。`);
+                    if (imageType === 'character') {
+                        element.classList.add('hidden');
+                    }
+                    resolve();
+                 };
 
-        function handleNext() {
-             if (isLoading) return;
-            if (!isGameStarted) { startGame(); }
-            else {
-                 // Send a generic prompt to continue if no choices are available
-                proceedStory("继续故事。");
-            }
-        }
-
-        function handleChoice(choiceText) {
-             if (isLoading) return;
-             console.log("User chose:", choiceText);
-             // Add choice to history explicitly here if needed, or rely on it being added in proceedStory
-             // conversationHistory.push({ role: 'user', parts: [{ text: `我选择了 "${choiceText}"` }] }); // Optional explicit add
-             proceedStory(choiceText); // Send the choice as the next prompt
+                 img.src = url;
+             });
          }
 
-        // --- Event Listeners (Add History Listeners) ---
-        toggleConfigBtn.addEventListener('click', toggleConfigPanel);
-        saveConfigBtn.addEventListener('click', saveConfig);
-        closeConfigBtn.addEventListener('click', toggleConfigPanel);
-        testKeyBtn.addEventListener('click', testApiKey);
-        nextButton.addEventListener('click', handleNext);
-        toggleHistoryBtn.addEventListener('click', toggleHistoryPanel); // New
-        closeHistoryBtn.addEventListener('click', toggleHistoryPanel); // New (Close button also toggles)
+
+        // --- LLM API Call (Instructions against "same") ---
+        async function callLLMApi_Galgame(promptHistory) {
+            console.log("callLLMApi_Galgame initiated."); if (!currentApiKey || !currentModel || !currentApiUrl) { showGameError("API 配置不完整！请检查设置。"); return null; } clearGameError(); let finalApiUrl = currentApiUrl.trim(); let requestBody; let headers = { 'Content-Type': 'application/json' };
+
+            // Updated System Instruction with stricter rules against "same..." and for concise emotion
+            const systemInstruction = `你现在是一个 Galgame (视觉小说) 引擎。你的任务是与玩家 (${playerName || '玩家'}) 互动，并生成游戏内容。\n玩家基础外貌提示词(由你生成或完善): ${playerBaseAppearancePrompt || '(尚未生成)'}\nAI角色基础外貌提示词(由你生成或完善): ${aiBaseAppearancePrompt || '(尚未生成)'}\n${currentAiPersona ? `AI 角色设定: ${currentAiPersona}\n` : ''}请**严格**按照以下 JSON 格式生成响应，不要包含任何额外的解释或 Markdown 标记包裹 JSON 本身：\n\`\`\`json\n{\n  "scene_state": {\n    "background_prompt": "String (场景的英文描述, 这是游戏背景图, 不是角色立绘背景!)",\n    "visible_characters": [\n      {\n        "character_id": "'player' or 'ai'",\n        "emotion": "String or Null (角色【当前】的表情/动作/细微变化, e.g., 'smiling slightly', 'surprised face', 'holding a pen', 'adjusting glasses')"\n      }\n      // ... 可能包含 'player' 和/或 'ai'\n    ]\n  },\n  "dialogue_segments": [\n    {\n      "speaker": "String (AI角色名, ${playerName ? "'" + playerName + "'" : "'玩家'"}, '旁白', '内心想法')",\n      "emotion": "String or Null (说话者表情/动作, 对应此【对话】内容)",\n      "text": "String (该片段的对话/旁白文本, 支持Markdown)"\n    }\n    // ... more segments\n  ],\n  "choices": [\n    "String (选项1)", \n    "String (选项2)"\n  ],\n  "initial_setup_details": { \n     // !!! 这个字段【只在】响应第一个设置请求时出现 !!!\n     // **要求：生成【极其详细且连贯】、包含具体特征(发型/发色/瞳色/身材/脸型)和【具体服装】描述的基础提示词。**【禁止】**包含 'same character', 'same face', 'same style' 等无效词语。**\n     "player_base_appearance_prompt": "String (生成【极其详细、连贯】的玩家基础外貌英文提示词, e.g., '1girl, teenage girl, medium height, slim build, long wavy bright pink hair tied in high twin tails with red ribbons, large sparkling emerald green eyes, fair skin, wearing a standard white short-sleeve sailor school uniform with navy blue collar and cuffs, red necktie, navy blue pleated skirt, white knee-high socks, brown loafers')",\n     "ai_base_appearance_prompt": "String (生成【极其详细、连贯】的AI角色基础外貌英文提示词, 同上要求)"\n  }\n}\n\`\`\`\n*   **scene_state**: 描述当前场景视觉状态。\n    *   **background_prompt**: 当前场景的【游戏背景图】提示词。\n    *   **visible_characters**: 数组包含当前屏幕上可见的角色。每个对象指定 \`character_id\` ('player' 或 'ai') 和 \`emotion\`。 \`emotion\` 必须是【极其简洁地描述当前表情、动作或非常小的临时物品】，例如 'smiling', 'sad', 'surprised', 'holding a book', 'waving hand', 'blushing', 'looking down shyly'。**【绝对禁止】** 在 \`emotion\` 字段中重新描述角色的核心特征（如发型、发色、瞳色）、主要服装或整体艺术风格，也**【绝对禁止】**包含 'same character/face/style/clothing' 等词语。客户端会强制应用一致的日式二次元画风和纯白背景。\n*   **dialogue_segments**: 对话内容数组。\n*   **choices**: 玩家选项数组。\n*   **initial_setup_details**: 【只在首次响应时提供】，包含你生成的【极其详细、连贯且不含无效重复词】的基础外貌提示词。\n*   **风格和立绘背景**: 客户端会强制使用固定的【日式二次元视觉小说立绘风格】和【纯白背景】来生成角色立绘。你的任务是提供详细的基础描述和简洁的状态变化，并避免无效关键词。
+
+这是之前的对话历史（最近几条）：\n${JSON.stringify(promptHistory.slice(-6, -1).map(h => `${h.role === 'user' ? (playerName || '玩家') : 'AI Response (Segments)'}: ${h.role === 'user' ? h.parts[0].text : '(...)'}`)).substring(0, 1000)}...\n\n用户的最新输入/选择是: "${promptHistory[promptHistory.length - 1].parts[0].text}"\n\n请生成 JSON 格式的响应。`;
+
+             // --- Rest of the API call logic (unchanged) ---
+             try {
+                 let messagesForApi = [];
+                 if (promptHistory.length === 1 && promptHistory[0].isSetup) { messagesForApi = [ { "role": "system", "content": systemInstruction }, { "role": "user", "content": promptHistory[0].parts[0].text } ]; }
+                 else { messagesForApi = [ { "role": "system", "content": systemInstruction }, ...promptHistory.slice(-7).map(h => ({ role: h.role === 'model' ? 'assistant' : 'user', content: h.parts[0].text })) ]; }
+
+                 if (finalApiUrl.includes('generativelanguage.googleapis.com')) { if (!finalApiUrl.includes('/v1beta/models')) { finalApiUrl = finalApiUrl.replace(/\/$/, '') + `/v1beta/models/${currentModel}:generateContent?key=${currentApiKey}`; } else { finalApiUrl = finalApiUrl.replace(/\/$/, '') + `?key=${currentApiKey}`; } let geminiContents = []; messagesForApi.forEach(msg => { if (msg.role === 'system') return; const role = (msg.role === 'assistant' ? 'model' : 'user'); if (geminiContents.length > 0 && geminiContents[geminiContents.length - 1].role === role) { console.warn(`Skipping message due to non-alternating roles for Gemini: ${JSON.stringify(msg)}`); return; } geminiContents.push({ role: role, parts: [{ text: msg.content }] }); }); requestBody = JSON.stringify({ contents: geminiContents, generationConfig: { responseMimeType: "application/json" } }); }
+                 else if (finalApiUrl.includes('/v1')) { headers['Authorization'] = `Bearer ${currentApiKey}`; if (!finalApiUrl.includes('/chat/completions')) { finalApiUrl = finalApiUrl.replace(/\/v1\/?$/, '') + '/v1/chat/completions'; } requestBody = JSON.stringify({ model: currentModel, messages: messagesForApi, response_format: { type: "json_object" } }); }
+                 else { throw new Error("无法识别的 API 基础地址格式。"); }
+
+                 console.log("Calling Galgame LLM API:", finalApiUrl);
+                 const response = await fetch(finalApiUrl, { method: 'POST', headers, body: requestBody });
+                 console.log("LLM API Response Status:", response.status);
+                 if (!response.ok) { let errorText = `API 请求失败: ${response.status} ${response.statusText}`; try { const errorBody = await response.json(); errorText += `\nDetails: ${errorBody?.error?.message || JSON.stringify(errorBody)}`; } catch (_) { try { errorText += `\nDetails: ${await response.text()}`; } catch (e) {} } throw new Error(errorText); }
+                 const data = await response.json();
+                 let responseContent; if (data.candidates?.[0]?.content?.parts?.[0]?.text) { responseContent = data.candidates[0].content.parts[0].text; } else if (data.choices?.[0]?.message?.content) { responseContent = data.choices[0].message.content; } else { throw new Error("无法从 API 响应中提取有效内容。"); }
+                 console.log("Extracted Response Content (before parsing):", responseContent);
+
+                 let parsedData;
+                 try {
+                     const cleanedText = responseContent.replace(/^```json\s*|```$/gs, '').trim(); parsedData = JSON.parse(cleanedText);
+                     // Validation (Unchanged from previous version)
+                     if (!parsedData || typeof parsedData !== 'object') throw new Error("Parsed data is not an object.");
+                     if (!parsedData.scene_state || typeof parsedData.scene_state !== 'object') throw new Error("Missing or invalid scene_state.");
+                     if (typeof parsedData.scene_state.background_prompt !== 'string') throw new Error("Invalid background_prompt type.");
+                     if (!Array.isArray(parsedData.scene_state.visible_characters)) throw new Error("Invalid visible_characters type.");
+                     for(const charInfo of parsedData.scene_state.visible_characters) { if (typeof charInfo !== 'object' || charInfo === null) throw new Error("Invalid item in visible_characters array."); if (typeof charInfo.character_id !== 'string' || (charInfo.character_id !== 'player' && charInfo.character_id !== 'ai')) throw new Error("Invalid character_id in visible_characters."); if (typeof charInfo.emotion !== 'string' && charInfo.emotion !== null) throw new Error("Invalid emotion type in visible_characters."); }
+                     if (!Array.isArray(parsedData.dialogue_segments)) throw new Error("Invalid dialogue_segments type.");
+                     if (parsedData.dialogue_segments.length === 0) { console.warn("AI provided zero dialogue segments. Adding placeholder."); parsedData.dialogue_segments.push({speaker: "旁白", text:"(AI未返回对话内容)", emotion: null}); } else { for(const segment of parsedData.dialogue_segments) { if (typeof segment !== 'object' || segment === null) throw new Error("Invalid item in dialogue_segments array."); if (typeof segment.speaker !== 'string') throw new Error("Invalid speaker type in dialogue_segments."); if (typeof segment.text !== 'string') throw new Error("Invalid text type in dialogue_segments."); segment.emotion = segment.emotion || null; } }
+                     if (!Array.isArray(parsedData.choices)) throw new Error("Invalid choices type.");
+                      if (parsedData.choices.length === 0) { console.warn("AI provided zero choices. Adding default."); parsedData.choices = ["[继续...]"]; } else { for(let i = 0; i < parsedData.choices.length; i++) { if (typeof parsedData.choices[i] !== 'string') throw new Error(`Invalid choice type at index ${i}.`); } }
+                     if (promptHistory.length === 1 && promptHistory[0].isSetup) { if (!parsedData.initial_setup_details || typeof parsedData.initial_setup_details !== 'object') throw new Error("Initial setup response missing valid initial_setup_details object."); if (typeof parsedData.initial_setup_details.player_base_appearance_prompt !== 'string' || !parsedData.initial_setup_details.player_base_appearance_prompt.trim()) throw new Error("Initial setup missing valid player_base_appearance_prompt."); if (typeof parsedData.initial_setup_details.ai_base_appearance_prompt !== 'string' || !parsedData.initial_setup_details.ai_base_appearance_prompt.trim()) throw new Error("Initial setup missing valid ai_base_appearance_prompt."); console.log("Initial setup details received and validated."); }
+                     else if (parsedData.initial_setup_details) { console.warn("AI incorrectly included initial_setup_details on a non-first turn. Ignoring it."); delete parsedData.initial_setup_details; }
+                 } catch (parseError) {
+                     console.error("Failed to parse or validate LLM JSON response:", parseError); console.error("Received content:", responseContent);
+                     const fallbackData = { scene_state: { background_prompt: "error background", visible_characters: [] }, dialogue_segments: [{ speaker: "系统", text: `抱歉，解析AI响应时出错：${parseError.message}`, emotion: null }], choices: ["[尝试继续]"] };
+                     conversationHistory.push({ role: "model", parts: [{ text: JSON.stringify(fallbackData) }], isErrorFallback: true }); return fallbackData;
+                 }
+
+                 conversationHistory.push({ role: "model", parts: [{ text: JSON.stringify(parsedData) }] });
+                 return parsedData;
+
+             } catch (error) {
+                 console.error("调用 Galgame LLM API 时出错:", error); showGameError(error.message || "与 AI 的连接中断。");
+                 const fallbackData = { scene_state: { background_prompt: "error background", visible_characters: [] }, dialogue_segments: [{ speaker: "系统", text: `抱歉，连接AI时出错：${error.message}`, emotion: null }], choices: ["[尝试继续]"] };
+                 conversationHistory.push({ role: "model", parts: [{ text: JSON.stringify(fallbackData) }], isErrorFallback: true }); return fallbackData;
+             }
+        }
+
+        // --- UI Update (Unchanged) ---
+        function updateDialogueUI(parsedData) { console.log("Updating dialogue UI with parsed data:", parsedData); clearGameError(); currentDialogueSegments = parsedData.dialogue_segments || []; currentTurnChoices = parsedData.choices || []; currentSegmentIndex = 0; if (currentDialogueSegments.length > 0) { displayCurrentSegment(); if (currentDialogueSegments.length === 1) { processChoicesAndButtonState(); console.log("Single dialogue segment, processing choices."); } else { nextButton.style.display = 'block'; nextButton.disabled = false; choicesContainer.innerHTML = ''; console.log("Multi-segment dialogue. Next button enabled."); } } else { console.warn("Parsed data has no dialogue segments. Proceeding to choices."); dialogueText.innerHTML = ""; speakerName.textContent = "旁白"; processChoicesAndButtonState(); } setLoading(false); }
+        function displayCurrentSegment() { if (!currentDialogueSegments || currentSegmentIndex >= currentDialogueSegments.length) { console.error("displayCurrentSegment called with invalid index or no segments."); processChoicesAndButtonState(); setLoading(false); return; } const segment = currentDialogueSegments[currentSegmentIndex]; console.log(`Displaying segment ${currentSegmentIndex + 1}/${currentDialogueSegments.length}:`, segment); speakerName.textContent = segment.speaker || "未知"; try { const cleanHtml = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(marked.parse(segment.text || "")) : marked.parse(segment.text || ""); dialogueText.innerHTML = cleanHtml; } catch (e) { console.error("Markdown parsing error for segment:", e); dialogueText.textContent = segment.text || ""; showGameError("对话片段格式解析出错。"); } dialogueBox.scrollTop = 0; choicesContainer.innerHTML = ''; nextButton.style.display = 'block'; const isLastSegment = currentSegmentIndex === currentDialogueSegments.length - 1; nextButton.disabled = isLastSegment; console.log(`Segment displayed. isLastSegment: ${isLastSegment}, nextButton disabled: ${nextButton.disabled}`); setLoading(false); }
+        function processChoicesAndButtonState() { choicesContainer.innerHTML = ''; if (currentTurnChoices && currentTurnChoices.length > 0) { console.log("Processing final choices:", currentTurnChoices); nextButton.style.display = 'none'; currentTurnChoices.forEach((choiceText) => { const button = document.createElement('button'); button.classList.add('choice-button'); button.textContent = choiceText.replace(/^\[|\]$/g, ''); button.onclick = () => handleChoice_Galgame(choiceText); button.disabled = isLoading; choicesContainer.appendChild(button); }); nextButton.disabled = true; } else { console.error("No choices available to display. Game cannot proceed."); nextButton.style.display = 'block'; nextButton.disabled = true; showGameError("AI 未提供任何选项，故事无法继续。"); } console.log("Choices processed and displayed."); setLoading(false); }
 
 
-        // --- Initial Load ---
-        loadConfig();
+        // --- Game Flow Functions (startGame_Galgame clears cache, proceedStory calls correct loadDynamicImage) ---
+        function startGame_Galgame() { // Clears cache
+            console.log("startGame_Galgame called");
+            if (!currentApiKey || !currentModel) { showGameError("请先完成并保存 API 配置！"); toggleConfigPanel(); return; }
+            isGameStarted = true; nextButton.textContent = '继续'; toggleHistoryBtn.disabled = false; conversationHistory = []; playerBaseAppearancePrompt = ''; aiBaseAppearancePrompt = ''; currentDialogueSegments = []; currentSegmentIndex = 0; currentTurnChoices = []; currentTurnParsedData = null; speakerName.textContent = '旁白'; dialogueText.innerHTML = '';
+            spriteCache = {}; // <<< Clear sprite cache for new game
 
+             let initialSetupPrompt = "=== 游戏开始设定 ===\n"; // Instructions updated in callLLMApi_Galgame
+             initialSetupPrompt += `玩家名称: ${playerName || '玩家'}\n`;
+             if (playerPersona) { initialSetupPrompt += `玩家角色简介 (包含可选外貌线索): ${playerPersona}\n`; initialSetupPrompt += `任务1: 基于玩家简介，生成一个【极其详细且连贯】的玩家【基础外貌英文提示词】 (包括性别、大致身高/体型、发型、发色、瞳色、脸型、具体服装等)。如果简介中缺少细节，请合理补充。【禁止】包含 'same character/face/style' 等无效词语。\n`; } else { initialSetupPrompt += `玩家角色简介: (无，由你创造)\n`; initialSetupPrompt += `任务1: 创造一个合适的玩家角色，并生成一个【极其详细且连贯】的玩家【基础外貌英文提示词】 (包括性别、大致身高/体型、发型、发色、瞳色、脸型、具体服装等)。【禁止】包含 'same character/face/style' 等无效词语。\n`; }
+             if (currentAiPersona) { initialSetupPrompt += `AI对手角色设定 (包含可选外貌线索): ${currentAiPersona}\n`; initialSetupPrompt += `任务2: 基于AI角色设定，生成一个【极其详细且连贯】的AI角色【基础外貌英文提示词】。【禁止】包含 'same character/face/style' 等无效词语。\n`; } else { initialSetupPrompt += `AI对手角色设定: (无，由你创造)\n`; initialSetupPrompt += `任务2: 创造一个合适的AI对手角色，并生成一个【极其详细且连贯】的AI角色【基础外貌英文提示词】。【禁止】包含 'same character/face/style' 等无效词语。\n`; }
+             initialSetupPrompt += `期望开局: ${playerStart || '一个有趣或常见的日常场景。'}\n`; initialSetupPrompt += `游戏类型: 互动故事 (不限于特定类型)\n`; initialSetupPrompt += "=== 任务3 (生成首次响应) ===\n"; initialSetupPrompt += `请生成游戏的开场白、场景描述和第一个对话片段。请确保【首次响应】的JSON包含以下内容：\n`; initialSetupPrompt += `1.  \`initial_setup_details\` 对象，内含生成的 \`player_base_appearance_prompt\` 和 \`ai_base_appearance_prompt\`。\n`; initialSetupPrompt += `2.  \`scene_state\` 对象，包含 \`background_prompt\` 和 \`visible_characters\` 数组。\n`; initialSetupPrompt += `3.  \`dialogue_segments\` 数组。\n`; initialSetupPrompt += `4.  \`choices\` 数组。\n`; initialSetupPrompt += "请严格使用前面描述的新JSON格式输出。\n"; initialSetupPrompt += "=====================\n";
+
+            console.log("Initial Setup Prompt:", initialSetupPrompt);
+            conversationHistory.push({ role: 'user', parts: [{ text: initialSetupPrompt }], isSetup: true });
+            proceedStory_Galgame();
+        }
+
+        async function proceedStory_Galgame(userChoice = null) { // Calls loadDynamicImage correctly
+            if (userChoice) { console.log("proceedStory_Galgame called with choice:", userChoice); }
+            else { console.log("proceedStory_Galgame called for initial setup or next segment"); }
+
+            setLoading(true); clearGameError(); currentTurnParsedData = null;
+            aiCharacterSprite.classList.add('hidden'); playerCharacterSprite.classList.add('hidden');
+
+            try {
+                const parsedData = await callLLMApi_Galgame(conversationHistory);
+                currentTurnParsedData = parsedData;
+
+                if (parsedData.initial_setup_details) {
+                    playerBaseAppearancePrompt = parsedData.initial_setup_details.player_base_appearance_prompt || '';
+                    aiBaseAppearancePrompt = parsedData.initial_setup_details.ai_base_appearance_prompt || '';
+                    console.log("Stored Player Base Appearance:", playerBaseAppearancePrompt);
+                    console.log("Stored AI Base Appearance:", aiBaseAppearancePrompt);
+                }
+
+                updateDialogueUI(parsedData);
+
+                const imagePromises = [];
+                const sceneState = parsedData.scene_state || {};
+                let playerShouldBeVisible = false; let aiShouldBeVisible = false;
+
+                imagePromises.push(loadDynamicImage(gameBackground, sceneState.background_prompt || "default anime background", 'background'));
+
+                const visibleCharacters = sceneState.visible_characters || [];
+                visibleCharacters.forEach(charInfo => {
+                    let basePrompt = ''; let imgElement = null; let altText = '';
+                    if (charInfo.character_id === 'player' && playerBaseAppearancePrompt) { basePrompt = playerBaseAppearancePrompt; imgElement = playerCharacterSprite; altText = playerName || "玩家角色"; playerShouldBeVisible = true; }
+                    else if (charInfo.character_id === 'ai' && aiBaseAppearancePrompt) { basePrompt = aiBaseAppearancePrompt; imgElement = aiCharacterSprite; const aiNameMatch = currentAiPersona.match(/\[([^\]]+)\]/); altText = aiNameMatch ? aiNameMatch[1] : "AI角色"; aiShouldBeVisible = true; }
+
+                    if (imgElement && basePrompt) {
+                        let characterDetails = basePrompt; // Start with base
+                        if (charInfo.emotion && typeof charInfo.emotion === 'string' && charInfo.emotion.trim() !== "") {
+                            characterDetails += `, ${charInfo.emotion.trim()}`; // Add emotion modifier
+                        }
+                        imgElement.alt = altText;
+                        // Pass only the character details (base + emotion) to loadDynamicImage
+                        // The fixed style and background keywords are added *inside* loadDynamicImage
+                        imagePromises.push(loadDynamicImage(imgElement, characterDetails, 'character'));
+                    }
+                });
+
+                console.log("Waiting for image loading promises...");
+                await Promise.allSettled(imagePromises);
+                console.log("Image promises settled.");
+
+                // Visibility management (Unchanged)
+                 if (!playerShouldBeVisible) { playerCharacterSprite.classList.add('hidden'); console.log("Ensuring player sprite is hidden based on visibility flag."); }
+                 else if (playerCharacterSprite.classList.contains('hidden') && playerShouldBeVisible) { playerCharacterSprite.classList.remove('hidden'); playerCharacterSprite.style.opacity = 1; console.log("Ensuring player sprite is SHOWN based on visibility flag.");}
+                 if (!aiShouldBeVisible) { aiCharacterSprite.classList.add('hidden'); console.log("Ensuring AI sprite is hidden based on visibility flag."); }
+                 else if (aiCharacterSprite.classList.contains('hidden') && aiShouldBeVisible) { aiCharacterSprite.classList.remove('hidden'); aiCharacterSprite.style.opacity = 1; console.log("Ensuring AI sprite is SHOWN based on visibility flag.");}
+
+            } catch (error) {
+                console.error("Error proceeding Galgame story:", error); showGameError(`处理故事时发生错误: ${error.message}`); setLoading(false);
+            }
+        }
+
+        // --- handleNext_Galgame, handleChoice_Galgame (Unchanged) ---
+        function handleNext_Galgame() {
+             console.log("handleNext_Galgame called."); if (isLoading || !isGameStarted) return;
+             if (currentDialogueSegments && currentSegmentIndex < currentDialogueSegments.length - 1) {
+                 currentSegmentIndex++; setLoading(true); displayCurrentSegment();
+                 if (currentSegmentIndex === currentDialogueSegments.length - 1) { console.log("Last segment reached via Next, processing choices."); processChoicesAndButtonState(); }
+             } else { console.warn("handleNext_Galgame called unexpectedly."); nextButton.disabled = true; setLoading(false); }
+        }
+        function handleChoice_Galgame(choiceText) {
+            console.log("handleChoice_Galgame called with:", choiceText, "isLoading:", isLoading); if (isLoading) return; console.log("Galgame User chose:", choiceText);
+            choicesContainer.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            conversationHistory.push({ role: 'user', parts: [{ text: choiceText }], isSetup: false });
+            currentDialogueSegments = []; currentSegmentIndex = 0; currentTurnChoices = []; currentTurnParsedData = null;
+            console.log(">>> About to call proceedStory_Galgame from handleChoice");
+            proceedStory_Galgame();
+            console.log("<<< Call to proceedStory_Galgame finished (in handleChoice_Galgame)");
+        }
+
+        // --- Event Listeners (Unchanged) ---
+        document.addEventListener('DOMContentLoaded', () => {
+             console.log("DOM Content Loaded. Attaching listeners."); loadConfig(); if (toggleConfigBtn) toggleConfigBtn.addEventListener('click', toggleConfigPanel); if (closeConfigBtn) closeConfigBtn.addEventListener('click', toggleConfigPanel); if (saveConfigBtn) { saveConfigBtn.addEventListener('click', () => { saveConfig(); configPanel.classList.remove('visible'); console.log("Config panel closed via Save button."); }); } if (fetchModelsBtn) fetchModelsBtn.addEventListener('click', fetchLLMModels); const testKeyButtonElement = document.getElementById('test-key-btn'); if (testKeyButtonElement) { testKeyButtonElement.addEventListener('click', testApiKey); } if (toggleApiKeyVisibilityBtn && apiKeyInput) { toggleApiKeyVisibilityBtn.addEventListener('click', () => { const isP = apiKeyInput.type === 'password'; apiKeyInput.type = isP ? 'text':'password'; toggleApiKeyVisibilityBtn.textContent = isP ? '👁️‍🗨️':'👁️'; }); } if(modelSelect) modelSelect.addEventListener('change', saveConfig); if(aiPersonaInput) aiPersonaInput.addEventListener('input', saveConfig); if(apiKeyInput) apiKeyInput.addEventListener('input', saveConfig); if(apiUrlInput) apiUrlInput.addEventListener('input', saveConfig); if(playerNameInput) playerNameInput.addEventListener('input', saveConfig); if(playerPersonaInput) playerPersonaInput.addEventListener('input', saveConfig); if(playerStartInput) playerStartInput.addEventListener('input', saveConfig); if (nextButton) { nextButton.addEventListener('click', () => { if (!isGameStarted) { startGame_Galgame(); } else { handleNext_Galgame(); } }); } if (toggleHistoryBtn) toggleHistoryBtn.addEventListener('click', toggleHistoryPanel); if (closeHistoryBtn) closeHistoryBtn.addEventListener('click', toggleHistoryPanel); console.log("All listeners attached.");
+        });
 
     </script>
-
-</body>
-</html>
+    </body>
+    </html>

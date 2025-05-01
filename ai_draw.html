@@ -187,13 +187,49 @@
              text-align: left; /* Align text left within its block */
              padding-left: 2px; /* Small padding if needed */
          }
+         .hidden {
+            display: none;
+        }
+        .worker-settings {
+            border: 1px dashed var(--border-color-input);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            background: rgba(200, 200, 255, 0.1); /* Slight highlight */
+        }
+        body.theme-dark .worker-settings {
+            background: rgba(100, 100, 150, 0.1);
+        }
+        .worker-settings label {
+            font-weight: bold;
+            color: var(--text-color-light);
+        }
+         #text-info-container {
+             margin-bottom: 20px;
+             padding: 15px;
+             background: rgba(0,0,0,0.03); /* Light background for text */
+             border-radius: 5px;
+             text-align: left;
+             font-size: 0.9em;
+             white-space: pre-wrap; /* Preserve line breaks */
+             line-height: 1.5;
+             color: var(--text-color-light);
+             display: none; /* Hide initially */
+         }
+         body.theme-dark #text-info-container {
+             background: rgba(255,255,255,0.04);
+         }
+        /* Adjust image result container for text */
+        #image-result-container {
+            flex-direction: column; /* Stack text and image */
+            align-items: center; /* Center items */
+        }
 
     </style>
 </head>
 <body>
-    <!-- 背景容器 -->
+    <!-- Background, Sidebar, Toggle Button -->
     <div class="background"></div>
-    <!-- 侧边栏 -->
     <div id="sidebar">
         <nav id="sidebar-nav">
             <a href="index.html">🏠 主页</a>
@@ -202,24 +238,21 @@
             <a href="contact.html">💌 联系我</a>
             <a href="download.html">📁 文件下载</a>
             <a href="ai_draw.html">🎨 AI 作画</a>
-            <a href="tno_generator.html">📜 TNO事件生成</a> <!-- Added Link -->
+            <a href="tno_generator.html">📜 TNO事件生成</a>
+            <a href="if_game.html">🌌 AI 互动小说</a>
+            <a href="ai_rpg.html">💖 AI Galgame</a>
         </nav>
-
-        <!-- Theme Switcher Added Here -->
         <div class="theme-switcher">
             <h4>切换主题:</h4>
             <div class="theme-buttons-container">
                 <button data-theme="pastel" class="theme-button">🌸 粉彩梦境</button>
                 <button data-theme="dark" class="theme-button">🌙 午夜樱落</button>
-                <!-- Add more buttons here if you create more themes -->
             </div>
         </div>
-        <!-- End of Theme Switcher -->
     </div>
-    <!-- 切换按钮 -->
     <button id="toggle-btn">☰</button>
 
-    <!-- 页面内容 -->
+    <!-- Page Content -->
     <div class="content scroll-container">
         <header>
             <h1>AI 绘画实验室</h1>
@@ -230,14 +263,13 @@
                 <h2>输入你的奇思妙想吧！✨</h2>
 
                 <div class="form-group">
-                    <label for="prompt">绘画提示词 (Prompt - 英文):</label>
-                    <textarea id="prompt" name="prompt" rows="3" placeholder="e.g., anime girl, magical forest, glowing mushrooms, detailed illustration, cinematic lighting" required></textarea>
+                    <label for="prompt">绘画提示词 (Prompt - Worker模型支持中文):</label>
+                    <textarea id="prompt" name="prompt" rows="3" placeholder="e.g., anime girl, magical forest, glowing mushrooms or 正在研究滑动窗口的魔法少女" required></textarea>
                 </div>
 
                  <div class="form-group">
                     <label>预设尺寸 (点击自动填充):</label>
                     <div class="aspect-ratio-buttons">
-                        <!-- Removed onclick, added data-ratio -->
                         <button data-ratio="16:9">16:9 (宽屏)</button>
                         <button data-ratio="4:3">4:3 (标准)</button>
                         <button data-ratio="1:1">1:1 (方形)</button>
@@ -246,27 +278,41 @@
                     </div>
                 </div>
 
-
                 <div class="dimension-inputs form-group">
                      <div class="form-group">
                         <label for="width">宽度 (Width - px):</label>
-                        <input type="number" id="width" name="width" min="64" step="8" value="768" required>
+                        <input type="number" id="width" name="width" min="64" step="8" value="1024" required> <!-- Default to 1024 -->
                     </div>
                     <div class="form-group">
                         <label for="height">高度 (Height - px):</label>
-                        <input type="number" id="height" name="height" min="64" step="8" value="768" required>
+                        <input type="number" id="height" name="height" min="64" step="8" value="1024" required> <!-- Default to 1024 -->
                     </div>
                  </div>
-                 <div class="pixel-hint">总像素数 (宽 × 高) 不能超过 1024 × 1024 ≈ 104万像素。系统会尽量接近该限制计算。</div>
-
+                 <div class="pixel-hint">总像素数 (宽 × 高) 不能超过 1048576 (1024x1024)。当前: ...</div>
 
                 <div class="form-group">
                     <label for="model">选择模型 (Model):</label>
-                    <select id="model" name="model">
-                        <option value="flux" selected>Flux (效果更好, 稍慢)</option>
-                        <option value="turbo">Turbo (速度更快)</option>
-                    </select>
+                    <div class="select-wrapper">
+                        <select id="model" name="model">
+                            <option value="flux">Flux (Pollinations, 英文提示词)</option>
+                            <option value="turbo">Turbo (Pollinations, 英文提示词)</option>
+                            <option value="flux-schnell-worker">Flux Schnell (Worker, 支持中文提示词)</option> <!-- New Option -->
+                        </select>
+                    </div>
                 </div>
+
+                <!-- Worker Specific Settings (Initially Hidden) -->
+                <div id="worker-specific-settings" class="worker-settings hidden">
+                    <div class="form-group">
+                        <label for="worker-base-url">Worker 基础 URL:</label>
+                        <input type="url" id="worker-base-url" placeholder="例如: https://your-worker-subdomain.workers.dev">
+                    </div>
+                    <div class="form-group">
+                         <label for="worker-api-key">Worker API Key (可选):</label>
+                         <input type="password" id="worker-api-key" placeholder="如果你的 Worker 需要认证">
+                    </div>
+                </div>
+                <!-- End Worker Specific Settings -->
 
                 <div class="form-group">
                     <label for="seed">种子 (Seed - 可选, 留空则随机):</label>
@@ -277,7 +323,9 @@
                 <div id="error-message"></div> <!-- 用于显示错误信息 -->
 
                 <div id="image-result-container">
-                    <span id="loading-indicator">正在努力绘画中... 请稍候... <br> (首次生成或复杂提示词可能需要几十秒)</span>
+                    <!-- New container for text info -->
+                    <div id="text-info-container"></div>
+                    <span id="loading-indicator">正在努力绘画中... 请稍候... <br> (Worker 或 Flux 模型可能需要更长时间)</span>
                     <img id="generated-image" src="#" alt="AI 生成的图片">
                 </div>
 
@@ -285,18 +333,16 @@
         </main>
 
         <footer>
-            <p>© 2024 MOLIFULAN's Blog | AI Image Generation via Pollinations.ai</p>
+            <p>© 2024 MOLIFULAN's Blog | AI Image Generation</p>
         </footer>
     </div>
 
-    <!-- JS 文件 -->
+    <!-- JS Files -->
     <script src="js/script.js"></script>
-    <!-- Add specific JS for this page -->
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
         // --- AI Draw Page Specific JS ---
 
-        // Get references only once DOM is ready
         const promptInput = document.getElementById('prompt');
         const widthInput = document.getElementById('width');
         const heightInput = document.getElementById('height');
@@ -309,43 +355,38 @@
         const errorMessage = document.getElementById('error-message');
         const aspectRatioButtonsContainer = document.querySelector('.aspect-ratio-buttons');
         const hintElement = document.querySelector('.pixel-hint');
+        const workerSettingsDiv = document.getElementById('worker-specific-settings');
+        const workerBaseUrlInput = document.getElementById('worker-base-url');
+        const workerApiKeyInput = document.getElementById('worker-api-key');
+        const textInfoContainer = document.getElementById('text-info-container');
 
-        // Check if all essential elements were found
-        if (!promptInput || !widthInput || !heightInput || !modelSelect || !seedInput || !generateBtn || !imageResultContainer || !generatedImage || !loadingIndicator || !errorMessage || !aspectRatioButtonsContainer || !hintElement) {
-            console.error("One or more essential elements for the AI Draw page were not found. Functionality might be limited.");
-            // Optionally display an error to the user here
-             if(errorMessage){
-                 errorMessage.textContent = "页面初始化错误，部分功能可能无法使用。请尝试刷新。";
-                 errorMessage.style.display = 'block';
-             }
-            return; // Stop script execution if critical elements are missing
+        // Check essential elements
+        if (!promptInput || !widthInput || !heightInput || !modelSelect || !seedInput || !generateBtn || !imageResultContainer || !generatedImage || !loadingIndicator || !errorMessage || !aspectRatioButtonsContainer || !hintElement || !workerSettingsDiv || !workerBaseUrlInput || !workerApiKeyInput || !textInfoContainer) {
+            console.error("One or more essential elements for the AI Draw page were not found.");
+            if(errorMessage){ errorMessage.textContent = "页面初始化错误。请尝试刷新。"; errorMessage.style.display = 'block'; }
+            return;
         }
 
-
-        const MAX_PIXELS = 1024 * 1024; // 1048576
+        const MAX_PIXELS = 1024 * 1024;
 
         function calculateDimensions(aspectRatioString) {
             try {
                 const [wRatio, hRatio] = aspectRatioString.split(':').map(Number);
-                if (isNaN(wRatio) || isNaN(hRatio) || wRatio <= 0 || hRatio <= 0) {
-                    console.error("Invalid aspect ratio format:", aspectRatioString); return null;
-                }
+                if (isNaN(wRatio) || isNaN(hRatio) || wRatio <= 0 || hRatio <= 0) { console.error("Invalid ratio:", aspectRatioString); return null; }
                 let width = Math.round(Math.sqrt(MAX_PIXELS * wRatio / hRatio) / 8) * 8;
                 let height = Math.round(Math.sqrt(MAX_PIXELS * hRatio / wRatio) / 8) * 8;
-                while (width * height > MAX_PIXELS) {
-                    width -= 8; height = Math.round(width * hRatio / wRatio / 8) * 8;
-                }
-                if (height < 64) height = 64;
-                width = Math.round(height * wRatio / hRatio / 8) * 8;
-                while (width * height > MAX_PIXELS) {
-                    height -= 8; width = Math.round(height * wRatio / hRatio / 8) * 8;
-                }
+                while (width * height > MAX_PIXELS) { width -= 8; height = Math.round(width * hRatio / wRatio / 8) * 8; }
+                if (height < 64) height = 64; width = Math.round(height * wRatio / hRatio / 8) * 8;
+                while (width * height > MAX_PIXELS) { height -= 8; width = Math.round(height * wRatio / hRatio / 8) * 8; }
                  if (width < 64) width = 64;
-                if(width > 1024) width = 1024; if(height > 1024) height = 1024;
-                height = Math.round(width * hRatio / wRatio / 8) * 8;
-                 while (width * height > MAX_PIXELS) {
-                    width -= 8; height = Math.round(width * hRatio / wRatio / 8) * 8;
-                 }
+                 if (width > 1024) width = 1024; if (height > 1024) height = 1024;
+                 if (wRatio / hRatio > 1 && width === 1024) height = Math.round(width * hRatio / wRatio / 8) * 8;
+                 else if (wRatio / hRatio < 1 && height === 1024) width = Math.round(height * wRatio / hRatio / 8) * 8;
+                 else if (wRatio === hRatio) { width=1024; height=1024;}
+                 // Ensure final height is multiple of 8 after capping width
+                 height = Math.round(height / 8) * 8;
+                 if (height < 64) height = 64;
+
                 return { width, height };
             } catch (e) { console.error("Error calculating dimensions:", e); return null; }
         }
@@ -365,6 +406,11 @@
         function showError(message) {
             errorMessage.textContent = message;
             errorMessage.style.display = 'block';
+            loadingIndicator.style.display = 'none';
+            generatedImage.style.display = 'none';
+            textInfoContainer.style.display = 'none';
+            generateBtn.disabled = false;
+            generateBtn.textContent = '开始作画!';
         }
         function hideError() {
              errorMessage.style.display = 'none';
@@ -376,20 +422,22 @@
             const h = parseInt(heightInput.value, 10) || 0;
             const currentPixels = w * h;
             let message = `总像素数 (宽 × 高) 不能超过 ${MAX_PIXELS}。当前: ${currentPixels}`;
-            if (currentPixels > MAX_PIXELS) {
-                message += " (已超限!)";
-                hintElement.style.color = '#dc3545';
-            } else {
-                hintElement.style.color = '#777';
-            }
+            if (currentPixels > MAX_PIXELS) { message += " (已超限!)"; hintElement.style.color = '#dc3545'; }
+            else { hintElement.style.color = 'var(--text-color-lighter)'; }
             hintElement.textContent = message;
         }
 
-        // --- Add Event Listeners ---
+         function toggleWorkerSettingsVisibility() {
+             const selectedModel = modelSelect.value;
+             workerSettingsDiv.classList.toggle('hidden', selectedModel !== 'flux-schnell-worker');
+         }
+
+        // --- Event Listeners ---
         widthInput.addEventListener('input', updatePixelHint);
         heightInput.addEventListener('input', updatePixelHint);
+        modelSelect.addEventListener('change', toggleWorkerSettingsVisibility);
 
-        generateBtn.addEventListener('click', () => {
+        generateBtn.addEventListener('click', async () => {
             const prompt = promptInput.value.trim();
             const width = parseInt(widthInput.value, 10);
             const height = parseInt(heightInput.value, 10);
@@ -397,56 +445,146 @@
             const seed = seedInput.value.trim();
 
             hideError();
+            textInfoContainer.style.display = 'none'; textInfoContainer.textContent = '';
+            generatedImage.style.display = 'none'; generatedImage.src = '#';
 
+            // --- Basic Validation ---
             if (!prompt) { showError('提示词不能为空哦！'); promptInput.focus(); return; }
-            if (/[^\x00-\x7F]/.test(prompt)) { showError('提示词目前只支持英文呢...'); promptInput.focus(); return; }
             if (isNaN(width) || isNaN(height) || width < 64 || height < 64) { showError('宽度和高度必须是大于等于 64 的数字。'); return; }
-            if (width * height > MAX_PIXELS) { showError(`总像素数 (${width * height}) 不能超过 ${MAX_PIXELS} (约 1024x1024)。请调小宽度或高度。`); return; }
-            if (seed && isNaN(parseInt(seed, 10))) { showError('种子 (Seed) 如果填写，必须是一个数字。'); seedInput.focus(); return; }
+            if (width * height > MAX_PIXELS) { showError(`总像素数 (${width * height}) 超限。`); return; }
+            if (seed && isNaN(parseInt(seed, 10))) { showError('种子 (Seed) 必须是数字。'); seedInput.focus(); return; }
 
             generateBtn.disabled = true;
             generateBtn.textContent = '正在生成...';
             loadingIndicator.style.display = 'block';
-            generatedImage.style.display = 'none';
-            generatedImage.src = '#';
 
-            const encodedPrompt = encodeURIComponent(prompt);
-            let apiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&model=${model}&nologo=true`;
-            const finalSeed = seed ? seed : Math.floor(Math.random() * 10000000);
-            apiUrl += `&seed=${finalSeed}`;
+            // --- Choose Generation Path ---
+            if (model === 'flux-schnell-worker') {
+                // --- Worker Flow (OpenAI Compatible) ---
+                const baseUrl = workerBaseUrlInput.value.trim();
+                const apiKey = workerApiKeyInput.value.trim(); // Get Worker API Key
 
-            console.log("Generating image with URL:", apiUrl);
+                if (!baseUrl) { showError('请输入 Worker 基础 URL。'); workerBaseUrlInput.focus(); setLoading(false); return; }
 
-             generatedImage.onload = () => {
-                 console.log("Image loaded successfully!");
-                 loadingIndicator.style.display = 'none';
-                 generatedImage.style.display = 'block';
-                 generateBtn.disabled = false;
-                 generateBtn.textContent = '开始作画!';
-             };
-             generatedImage.onerror = (e) => {
-                 console.error("Error loading image:", e);
-                 loadingIndicator.style.display = 'none';
-                 showError('图片生成失败 QAQ 请检查提示词、尺寸或网络连接，然后重试。 (提示: Flux模型有时较慢或不稳定)');
-                 generateBtn.disabled = false;
-                 generateBtn.textContent = '开始作画!';
-             };
-            generatedImage.src = apiUrl;
+                // Construct the full API endpoint
+                const workerApiUrl = `${baseUrl.replace(/\/$/, '')}/v1/chat/completions`; // Append the path
+                console.log("Calling Worker (OpenAI Compatible):", workerApiUrl);
+
+                // Prepare request body
+                const requestBody = {
+                    // The worker might ignore the model name, but it's standard to send it
+                    model: "flux-schnell-worker", // Or maybe let the user specify if worker handles multiple?
+                    messages: [
+                        // You could add a system prompt if your worker utilizes it
+                        // { role: "system", content: "You are an image generation assistant." },
+                        { role: "user", content: prompt }
+                    ],
+                    // Add other parameters if your worker supports them (e.g., stream=false)
+                    // stream: false
+                };
+                 // Include width, height, seed in the prompt or as separate fields if worker supports them
+                 // Option 1: Append to prompt (simple)
+                 // requestBody.messages[0].content += ` (Dimensions: ${width}x${height}${seed ? `, Seed: ${seed}` : ''})`;
+                 // Option 2: Add as separate fields (IF worker supports it)
+                 // requestBody.width = width;
+                 // requestBody.height = height;
+                 // if (seed) requestBody.seed = parseInt(seed, 10);
+                 // Let's assume for now the worker takes dimensions/seed from the prompt, or uses defaults.
+                 // If specific fields are needed, modify the requestBody object here.
+
+                try {
+                    const headers = { 'Content-Type': 'application/json' };
+                     if (apiKey) {
+                         headers['Authorization'] = `Bearer ${apiKey}`; // Common for OpenAI compatible
+                     }
+
+                    const response = await fetch(workerApiUrl, {
+                        method: 'POST', // Use POST
+                        headers: headers,
+                        body: JSON.stringify(requestBody) // Send JSON body
+                    });
+
+                    if (!response.ok) {
+                        let errorText = `Worker 请求失败: ${response.status} ${response.statusText}`;
+                        try { const errorBody = await response.json(); errorText += `\nDetails: ${errorBody?.error?.message || JSON.stringify(errorBody)}`; }
+                        catch (_) { try { errorText += `\nDetails: ${await response.text()}`; } catch (e) {} }
+                        throw new Error(errorText);
+                    }
+
+                    const data = await response.json();
+                    console.log("Worker Response JSON:", data);
+
+                    // --- Parse OpenAI Compatible Response ---
+                    let responseText = '';
+                    if (data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
+                        responseText = data.choices[0].message.content;
+                    } else {
+                        throw new Error("Worker 响应格式不正确，缺少 choices[0].message.content。");
+                    }
+                    console.log("Worker Response Content:", responseText);
+
+                    // --- Extract Image URL from Markdown ---
+                    const imgUrlMatch = responseText.match(/!\[.*?\]\((.*?)\)/);
+                    const imageUrl = imgUrlMatch ? imgUrlMatch[1] : null;
+
+                    // --- Display Results ---
+                    textInfoContainer.textContent = responseText; // Display the full text response
+                    textInfoContainer.style.display = 'block';
+
+                    if (imageUrl) {
+                         generatedImage.onload = () => {
+                             loadingIndicator.style.display = 'none';
+                             generatedImage.style.display = 'block';
+                             generateBtn.disabled = false; generateBtn.textContent = '开始作画!';
+                             console.log("Worker image loaded successfully!");
+                         };
+                         generatedImage.onerror = (e) => { console.error("Error loading worker image:", e); showError('Worker 图片加载失败，但文本信息已显示。'); };
+                        generatedImage.src = imageUrl;
+                    } else {
+                         loadingIndicator.style.display = 'none';
+                         console.warn("Worker response parsed, but no image URL found.");
+                         showError('从 Worker 响应中未找到图像 URL，但文本信息已显示。');
+                    }
+
+                } catch (error) {
+                    console.error("Worker Fetch Error:", error);
+                    showError(`Worker 请求出错: ${error.message}`);
+                }
+
+            } else {
+                // --- Pollinations Flow (Keep English check here) ---
+                 if (/[^\x00-\x7F]/.test(prompt)) { showError('Pollinations 模型目前只支持英文提示词。'); promptInput.focus(); generateBtn.disabled = false; generateBtn.textContent = '开始作画!'; loadingIndicator.style.display = 'none'; return; }
+
+                const encodedPrompt = encodeURIComponent(prompt);
+                let apiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&model=${model}&nologo=true`;
+                const finalSeed = seed ? seed : Math.floor(Math.random() * 10000000);
+                apiUrl += `&seed=${finalSeed}`;
+
+                console.log("Generating image with Pollinations URL:", apiUrl);
+
+                generatedImage.onload = () => {
+                    console.log("Pollinations Image loaded successfully!");
+                    loadingIndicator.style.display = 'none';
+                    generatedImage.style.display = 'block';
+                    generateBtn.disabled = false; generateBtn.textContent = '开始作画!';
+                };
+                generatedImage.onerror = (e) => { console.error("Error loading Pollinations image:", e); showError('Pollinations 图片生成失败 QAQ 请重试。'); };
+                generatedImage.src = apiUrl;
+            }
         });
 
         aspectRatioButtonsContainer.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON') {
                 const ratio = event.target.dataset.ratio;
-                if (ratio) {
-                    setAspectRatio(ratio);
-                }
+                if (ratio) { setAspectRatio(ratio); }
             }
         });
 
         // --- Initial Setup Calls ---
-        updatePixelHint(); // Initial call
+        updatePixelHint();
+        toggleWorkerSettingsVisibility();
 
-    }); // End of DOMContentLoaded listener
+    }); // End DOMContentLoaded
     </script>
 
 </body>

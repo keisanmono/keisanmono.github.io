@@ -130,11 +130,7 @@
             transform: translateY(-2px);
             color: #0056b3;
         }
-         .choice-button:disabled {
-             background: #ddd; color: #888; cursor: not-allowed; box-shadow: none; transform: none;
-         }
-
-        /* Start Button Style */
+        .choice-button:disabled { background: var(--text-color-lighter); color: var(--text-color); opacity: 0.6; box-shadow: none; transform: none; }
         #start-game-btn { /* Reusing generate button style */
             padding: 12px 25px; border: none; border-radius: 25px;
             background: linear-gradient(135deg, #90ee90, #3cb371); /* Green gradient */
@@ -142,25 +138,40 @@
             transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(60, 179, 113, 0.4);
             margin-top: 10px; display: block; width: 100%;
         }
-        #start-game-btn:hover {
-            background: linear-gradient(135deg, #3cb371, #90ee90);
-            box-shadow: 0 8px 20px rgba(60, 179, 113, 0.6);
-            transform: translateY(-3px);
+        #start-game-btn:hover { background: linear-gradient(135deg, #3cb371, #90ee90); box-shadow: 0 8px 20px rgba(60, 179, 113, 0.6); transform: translateY(-3px); }
+        #start-game-btn:disabled { background: var(--text-color-lighter); cursor: not-allowed; box-shadow: none; transform: none; opacity: 0.7; }
+        #error-message-if { display: none; color: #dc3545; font-weight: bold; margin-top: 15px; text-align: center; background: rgba(255, 220, 220, 0.7); padding: 10px; border-radius: 5px; }
+        body.theme-dark #error-message-if { color: #f5c6cb; background: rgba(248, 215, 218, 0.1); }
+        /* Styles copied/adapted from tno_generator.html for config */
+        .config-section { border: 1px dashed var(--border-color-input); padding: 20px; margin-bottom: 25px; border-radius: 8px; background: rgba(200, 200, 255, 0.05); }
+        body.theme-dark .config-section { background: rgba(100, 100, 150, 0.05); }
+        .config-section h3 { margin-top: 0; margin-bottom: 15px; color: var(--heading-color-tertiary); font-size: 1.2em; }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .form-group { margin-bottom: 0; }
+        .form-group label { color: var(--text-color-light); }
+        .form-group input[type="text"], .form-group input[type="url"],
+        .form-group input[type="password"], .form-group textarea, .form-group select {
+            /* Uses general input styles from style.css now */
         }
-         #start-game-btn:disabled {
-             background: #ccc; cursor: not-allowed; box-shadow: none; transform: none;
-         }
-
-         /* Error message specific for IF game */
-         #error-message-if {
-             display: none; color: #dc3545; font-weight: bold; margin-top: 15px;
-             text-align: center; background: rgba(255, 220, 220, 0.7); padding: 10px; border-radius: 5px;
-         }
-
-        /* Animation for story text appearing (optional) */
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        #story-text { animation: fadeIn 0.5s ease-in-out; }
-
+        .api-key-wrapper { position: relative; display: flex; align-items: center; }
+        .api-key-wrapper input { padding-right: 45px; flex-grow: 1; }
+        #toggle-api-key-visibility { /* Uses general styles, can keep for specificity */
+             position: absolute; right: 1px; top: 50%; transform: translateY(-50%); background: none; border: none;
+             cursor: pointer; padding: 10px; color: var(--text-color-lighter); font-size: 1.2em; line-height: 1; opacity: 0.7; transition: opacity 0.2s;
+        }
+        #toggle-api-key-visibility:hover { opacity: 1; color: var(--text-color); }
+        .api-url-wrapper { display: flex; gap: 0; align-items: stretch; }
+        .api-url-wrapper input[type="url"] { flex-grow: 1; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; }
+        #fetch-models-btn { /* Uses general button styles now, specific style for background below */
+             flex-shrink: 0; padding: 10px 18px; border: 1px solid var(--border-color-input); border-left: none;
+             border-top-left-radius: 0; border-bottom-left-radius: 0;
+             background: var(--tno-fetch-btn-bg); /* Reuse TNO style */ color: var(--tno-fetch-btn-color);
+             cursor: pointer; font-weight: 500; font-size: 0.95em; transition: all 0.3s ease; height: auto;
+        }
+        #fetch-models-btn:hover { background: var(--tno-fetch-btn-hover-bg); color: var(--tno-fetch-btn-hover-color); }
+        #fetch-models-btn:disabled { background: rgba(0,0,0,0.1); color: var(--text-color-lighter); box-shadow: none; opacity: 0.5; }
+        #model-loading-indicator { margin-left: 8px; color: var(--text-color-light); font-size: 1.2em; vertical-align: middle; display: none; }
+        .form-group .input-hint { font-size: 0.85em; color: var(--text-color-lighter); display:block; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -174,19 +185,17 @@
             <a href="contact.html">💌 联系我</a>
             <a href="download.html">📁 文件下载</a>
             <a href="ai_draw.html">🎨 AI 作画</a>
-            <a href="tno_generator.html">📜 TNO事件生成</a> <!-- Added Link -->
+            <a href="tno_generator.html">📜 TNO事件生成</a>
+            <a href="if_game.html">🌌 AI 互动小说</a>
+            <a href="ai_rpg.html">💖 AI Galgame</a>
         </nav>
-
-        <!-- Theme Switcher Added Here -->
         <div class="theme-switcher">
             <h4>切换主题:</h4>
             <div class="theme-buttons-container">
                 <button data-theme="pastel" class="theme-button">🌸 粉彩梦境</button>
                 <button data-theme="dark" class="theme-button">🌙 午夜樱落</button>
-                <!-- Add more buttons here if you create more themes -->
             </div>
         </div>
-        <!-- End of Theme Switcher -->
     </div>
     <button id="toggle-btn">☰</button>
 
@@ -198,21 +207,46 @@
 
         <main>
             <div class="if-container">
+                <h2>开始你的冒险！</h2>
 
-                <!-- Setup Area (Initial Screen) -->
-                <div id="setup-area">
-                    <h2>开始你的冒险！</h2>
-                    <div class="form-group">
-                        <label for="gemini-api-key">Gemini API 密钥:</label>
-                        <input type="password" id="gemini-api-key" placeholder="输入你的 Google AI Studio API Key">
-                        <p class="api-key-warning">注意: API 密钥仅在你的浏览器本地使用，不会被发送到服务器。但请勿在公共或不信任的计算机上使用此功能。</p>
+                <!-- Configuration Section -->
+                <div class="config-section">
+                    <h3>API 设置</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="llm-api-key">API 密钥:</label>
+                            <div class="api-key-wrapper">
+                                <input type="password" id="llm-api-key" placeholder="输入 API Key (例如 Gemini)">
+                                <button id="toggle-api-key-visibility" title="切换可见性">👁️</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="llm-api-url">API 基础地址:</label>
+                            <div class="api-url-wrapper">
+                                <input type="url" id="llm-api-url" placeholder="例如: https://generativelanguage.googleapis.com" value="https://generativelanguage.googleapis.com">
+                                <button id="fetch-models-btn" title="获取可用模型列表">获取列表</button>
+                            </div>
+                             <small class="input-hint">(Google: 留空或填 ...googleapis.com; OpenAI兼容: 填到 /v1/ 结尾)</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="llm-model-select">选择 LLM 模型:</label>
+                             <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="select-wrapper" style="flex-grow: 1;">
+                                    <select id="llm-model-select" disabled>
+                                        <option value="" disabled selected>-- 请先获取模型列表 --</option>
+                                    </select>
+                                </div>
+                                <span id="model-loading-indicator" title="正在加载模型...">🔄</span>
+                             </div>
+                        </div>
+                         <div class="form-group">
+                            <label for="initial-prompt">故事开端/设定:</label>
+                             <textarea id="initial-prompt" rows="4" placeholder="描述你想开始的故事场景、角色或主题..."></textarea>
+                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="initial-prompt">故事开端/设定:</label>
-                        <textarea id="initial-prompt" rows="4" placeholder="描述你想开始的故事场景、角色或主题，例如：我在一个漂浮在空中的魔法图书馆醒来，周围是低语的书籍..."></textarea>
-                    </div>
-                    <button id="start-game-btn">开启故事</button>
+                    <button id="start-game-btn" disabled>开启故事 (请先配置API)</button>
                 </div>
+                <!-- End Configuration Section -->
 
                 <!-- Game Display Area (Hidden initially) -->
                 <div id="game-area">
@@ -220,24 +254,20 @@
                         <span id="loading-image">🖼️ 场景加载中...</span>
                         <img id="story-image" src="#" alt="故事场景插画">
                     </div>
-
                     <div id="story-text-container">
                          <span id="loading-text">✍️ AI 正在构思故事...</span>
                         <div id="story-text"></div>
                     </div>
-
                     <div id="choices-container">
                         <!-- Choice buttons will be added here by JS -->
                     </div>
                 </div>
-
                  <div id="error-message-if"></div> <!-- Error display for IF -->
-
             </div>
         </main>
 
         <footer>
-            <p>© 2024 MOLIFULAN's Blog | Interactive Fiction powered by Gemini & Pollinations.ai</p>
+            <p>© 2024 MOLIFULAN's Blog | Interactive Fiction powered by AI</p>
         </footer>
     </div>
 
@@ -247,12 +277,17 @@
     document.addEventListener('DOMContentLoaded', () => {
         // --- IF Game Specific JS ---
 
-        const setupArea = document.getElementById('setup-area');
+        // --- DOM Element References ---
+        const configSection = document.querySelector('.config-section');
         const gameArea = document.getElementById('game-area');
-        const apiKeyInput = document.getElementById('gemini-api-key');
+        const apiKeyInput = document.getElementById('llm-api-key');
+        const apiUrlInput = document.getElementById('llm-api-url');
+        const fetchModelsBtn = document.getElementById('fetch-models-btn');
+        const modelSelect = document.getElementById('llm-model-select');
+        const modelLoadingIndicator = document.getElementById('model-loading-indicator');
+        const toggleApiKeyVisibilityBtn = document.getElementById('toggle-api-key-visibility');
         const initialPromptInput = document.getElementById('initial-prompt');
         const startGameBtn = document.getElementById('start-game-btn');
-
         const imageDisplay = document.getElementById('image-display');
         const storyImage = document.getElementById('story-image');
         const loadingImage = document.getElementById('loading-image');
@@ -262,277 +297,241 @@
         const choicesContainer = document.getElementById('choices-container');
         const errorMessageDiv = document.getElementById('error-message-if');
 
-        let geminiApiKey = null;
-        let storyHistory = []; // Array to store conversation history [{role: "user", parts: "..."}, {role: "model", parts: "..."}]
-        let isGenerating = false; // Prevent multiple simultaneous requests
+        // --- State Variables ---
+        let currentApiKey = null;
+        let currentApiUrl = null;
+        let currentModel = null;
+        let storyHistory = [];
+        let isGenerating = false;
+        const IF_GAME_STORAGE_PREFIX = 'ifGame_';
 
-        // Check if essential elements exist
-         if (!setupArea || !gameArea || !apiKeyInput || !initialPromptInput || !startGameBtn || !imageDisplay || !storyImage || !loadingImage || !storyTextContainer || !storyTextDiv || !loadingText || !choicesContainer || !errorMessageDiv) {
-             console.error("Essential IF game elements not found!");
-             alert("互动小说界面加载失败，请刷新页面。");
-             return;
+        // --- Error & Loading UI ---
+        function showError(message) { /* ... (Keep existing implementation) ... */
+             errorMessageDiv.textContent = `错误：${message}`;
+             errorMessageDiv.style.display = 'block';
+             loadingText.style.display = 'none';
+             loadingImage.style.display = 'none';
+             isGenerating = false;
+             startGameBtn.disabled = !(currentApiKey && currentModel);
          }
+        function hideError() { /* ... (Keep existing implementation) ... */
+             errorMessageDiv.style.display = 'none'; errorMessageDiv.textContent = '';
+        }
+        function showLoading(type) { /* ... (Keep existing implementation) ... */
+             if (type === 'text') { loadingText.style.display = 'block'; storyTextDiv.textContent = ''; choicesContainer.innerHTML = ''; }
+             else if (type === 'image') { loadingImage.style.display = 'block'; storyImage.style.display = 'none'; storyImage.src = '#'; }
+         }
+        function hideLoading(type) { /* ... (Keep existing implementation) ... */
+            if (type === 'text') loadingText.style.display = 'none';
+            if (type === 'image') loadingImage.style.display = 'none';
+        }
 
-        // --- UI Update Functions ---
-        function showLoading(type) {
-            if (type === 'text') {
-                loadingText.style.display = 'block';
-                storyTextDiv.textContent = ''; // Clear previous text
-                 choicesContainer.innerHTML = ''; // Clear choices
-            } else if (type === 'image') {
-                loadingImage.style.display = 'block';
-                storyImage.style.display = 'none'; // Hide previous image
-                storyImage.src = '#'; // Clear src
+        // --- Configuration Logic (Keep existing) ---
+        function saveConfig() { /* ... */
+            const apiKey = apiKeyInput.value.trim();
+            const apiUrl = apiUrlInput.value.trim() || 'https://generativelanguage.googleapis.com';
+            const model = modelSelect.value;
+            if (!apiKey || !model) { showError("请填写 API Key 并选择模型。"); return; }
+            localStorage.setItem(IF_GAME_STORAGE_PREFIX + 'apiKey', apiKey);
+            localStorage.setItem(IF_GAME_STORAGE_PREFIX + 'apiUrl', apiUrl);
+            localStorage.setItem(IF_GAME_STORAGE_PREFIX + 'model', model);
+            currentApiKey = apiKey; currentApiUrl = apiUrl; currentModel = model;
+            startGameBtn.disabled = false; startGameBtn.textContent = '开启故事';
+            alert("设置已保存！"); console.log("IF Config saved:", { currentApiKey, currentApiUrl, currentModel });
+        }
+        function loadConfig() { /* ... */
+            currentApiKey = localStorage.getItem(IF_GAME_STORAGE_PREFIX + 'apiKey') || '';
+            currentApiUrl = localStorage.getItem(IF_GAME_STORAGE_PREFIX + 'apiUrl') || 'https://generativelanguage.googleapis.com';
+            currentModel = localStorage.getItem(IF_GAME_STORAGE_PREFIX + 'model') || '';
+            apiKeyInput.value = currentApiKey;
+            apiUrlInput.value = currentApiUrl === 'https://generativelanguage.googleapis.com' ? '' : currentApiUrl;
+            modelSelect.innerHTML = '<option value="" disabled selected>-- 获取或选择模型 --</option>';
+            if(currentModel) {
+                 const tempOption = document.createElement('option'); tempOption.value = currentModel;
+                 tempOption.textContent = currentModel + " (已保存)"; tempOption.selected = true;
+                 modelSelect.appendChild(tempOption); modelSelect.disabled = false;
+            } else { modelSelect.disabled = true; }
+            startGameBtn.disabled = !(currentApiKey && currentModel);
+            startGameBtn.textContent = (currentApiKey && currentModel) ? '开启故事' : '开启故事 (请先配置API)';
+            console.log("IF Config loaded:", { currentApiKey, currentApiUrl, currentModel });
+        }
+        async function fetchLLMModels() { /* ... (Keep existing implementation) ... */
+             const apiKey = apiKeyInput.value.trim(); const baseApiUrl = apiUrlInput.value.trim() || 'https://generativelanguage.googleapis.com';
+             if (!apiKey) { showError('请先填写 API 密钥。'); return; }
+             hideError(); modelLoadingIndicator.style.display = 'inline-block';
+             fetchModelsBtn.disabled = true; modelSelect.disabled = true;
+             modelSelect.innerHTML = '<option value="" disabled selected>-- 正在获取... --</option>';
+             let modelListUrl = ''; let headers = { 'Content-Type': 'application/json' }; let method = 'GET';
+             try {
+                 if (baseApiUrl.includes('generativelanguage.googleapis.com')) { modelListUrl = baseApiUrl.replace(/\/$/, '') + `/v1beta/models?key=${apiKey}&pageSize=1000`; }
+                 else if (baseApiUrl.includes('/v1')) { headers['Authorization'] = `Bearer ${apiKey}`; modelListUrl = baseApiUrl.replace(/\/v1\/?$/, '') + '/v1/models'; }
+                 else { console.warn("未知地址格式，尝试 /v1/models"); headers['Authorization'] = `Bearer ${apiKey}`; modelListUrl = baseApiUrl.replace(/\/$/, '') + '/v1/models'; }
+                 const response = await fetch(modelListUrl, { method, headers });
+                 if (!response.ok) { const e = await response.text(); throw new Error(`获取失败: ${response.status}. ${e.substring(0,100)}`); }
+                 const data = await response.json(); let modelNames = [];
+                 if (data.models?.length) modelNames = data.models.map(m => m.name?.replace(/^models\//, '')).filter(Boolean).filter(name => !/embed|vision|instruct|text-|aqa/i.test(name)).sort();
+                 else if (data.data?.length) modelNames = data.data.map(m => m.id).filter(Boolean).filter(id => !/embed|vision|instruct|text-|whisper|tts|davinci|babbage|curie|ada/i.test(id)).sort();
+                 else throw new Error("无法识别的模型列表格式。");
+                 if (modelNames.length === 0) throw new Error("未找到可用聊天模型。");
+                 const previouslySelected = currentModel || modelSelect.value;
+                 modelSelect.innerHTML = '<option value="" disabled>-- 请选择一个模型 --</option>'; let foundPrevious = false;
+                 modelNames.forEach(name => { const o=document.createElement('option'); o.value=name; o.textContent=name; if(name === previouslySelected) { o.selected = true; foundPrevious = true; } modelSelect.appendChild(o); });
+                 if (!foundPrevious && modelSelect.options.length > 1) { modelSelect.selectedIndex = 1; } else if (!foundPrevious && modelSelect.options.length === 1) { modelSelect.selectedIndex = 0; }
+                 currentModel = modelSelect.value; modelSelect.disabled = false; hideError();
+             } catch (error) { console.error("获取模型出错:", error); showError(error.message || "获取模型时出错。");
+             } finally { modelLoadingIndicator.style.display = 'none'; fetchModelsBtn.disabled = false; }
+        }
+        // API Key visibility toggle
+        if (toggleApiKeyVisibilityBtn && apiKeyInput) { toggleApiKeyVisibilityBtn.addEventListener('click', () => { const isPassword = apiKeyInput.type === 'password'; apiKeyInput.type = isPassword ? 'text' : 'password'; toggleApiKeyVisibilityBtn.textContent = isPassword ? '👁️‍🗨️' : '👁️'; }); }
+
+        // --- API Call Function (MODIFIED) ---
+        async function callLLMApi(promptHistory) {
+            if (!currentApiKey || !currentModel || !currentApiUrl) { throw new Error("API 配置不完整！请检查设置。"); }
+            if (isGenerating) return null;
+            isGenerating = true;
+            hideError();
+            showLoading('text');
+
+            let finalApiUrl = currentApiUrl.trim();
+            let requestBody;
+            let headers = { 'Content-Type': 'application/json' };
+
+            const systemInstruction = `你是一个互动小说引擎。根据用户提供的历史记录和最新选择，继续故事。\n你的回答必须是 JSON 格式，包含以下字段：\n1. "story_text": (string) 故事的下一部分，生动描述当前场景和事件。使用 Markdown 格式化，例如用 *斜体* 表示想法。\n2. "image_prompt": (string) 一个简洁的【英文】提示词 (少于25词)，用于 AI 绘画，概括 story_text 中的视觉场景。\n3. "choices": (array of strings) 2到4个供用户选择的下一步行动选项。如果故事自然结束，可以返回空数组 []。`;
+
+            try {
+                // Determine API type and construct request (Keep existing logic)
+                if (finalApiUrl.includes('generativelanguage.googleapis.com')) {
+                     if (!finalApiUrl.includes('/v1beta/models')) { finalApiUrl = finalApiUrl.replace(/\/$/, '') + `/v1beta/models/${currentModel}:generateContent?key=${currentApiKey}`; }
+                     else { finalApiUrl = finalApiUrl.replace(/\/$/, '') + `?key=${currentApiKey}`; }
+                     requestBody = JSON.stringify({ contents: [ ...promptHistory, { role: "user", parts: [{ text: systemInstruction + `\n\n请根据以上历史生成下一步的JSON响应。用户的最后输入/选择是: "${promptHistory[promptHistory.length - 1].parts[0].text}"` }] } ], generationConfig: { responseMimeType: "application/json" } });
+                     headers = { 'Content-Type': 'application/json' };
+                 } else if (finalApiUrl.includes('/v1')) {
+                     headers['Authorization'] = `Bearer ${currentApiKey}`;
+                     if (!finalApiUrl.includes('/chat/completions')) { finalApiUrl = finalApiUrl.replace(/\/v1\/?$/, '') + '/v1/chat/completions'; }
+                     requestBody = JSON.stringify({ model: currentModel, messages: [ { role: "system", content: systemInstruction }, ...promptHistory.map(h => ({ role: h.role, content: h.parts[0].text })) ], response_format: { type: "json_object" } });
+                 } else { throw new Error("无法识别的 API 基础地址格式。"); }
+
+                console.log("Calling LLM API:", finalApiUrl);
+                const response = await fetch(finalApiUrl, { method: 'POST', headers, body: requestBody });
+
+                if (!response.ok) {
+                    let errorText = `API 请求失败: ${response.status} ${response.statusText}`;
+                    try { const errorBody = await response.json(); errorText += `\nDetails: ${errorBody?.error?.message || JSON.stringify(errorBody)}`; } catch (_) { try { errorText += `\nDetails: ${await response.text()}`; } catch (e) {} }
+                    throw new Error(errorText);
+                }
+
+                const data = await response.json();
+                console.log("LLM Raw Response:", data);
+
+                let responseText;
+                if (data.candidates?.[0]?.content?.parts?.[0]?.text) { responseText = data.candidates[0].content.parts[0].text; }
+                else if (data.choices?.[0]?.message?.content) { responseText = data.choices[0].message.content; }
+                else { throw new Error("无法从 API 响应中提取有效文本。"); }
+                console.log("Extracted Response Text:", responseText);
+
+                // --- *** NEW CODE: Clean the response text *** ---
+                const cleanedText = responseText.replace(/^```json\s*|```$/gs, '').trim();
+                console.log("Cleaned Text for Parsing:", cleanedText);
+                // --- *** END NEW CODE *** ---
+
+                let parsedResponse;
+                try {
+                    // --- *** MODIFIED CODE: Parse the cleaned text *** ---
+                    parsedResponse = JSON.parse(cleanedText);
+                    if (!parsedResponse.story_text || !parsedResponse.image_prompt || !Array.isArray(parsedResponse.choices)) {
+                        console.error("Parsed JSON is missing required fields:", parsedResponse)
+                        throw new Error("JSON 响应缺少必要的字段 (story_text, image_prompt, choices)。");
+                    }
+                } catch (parseError) {
+                    console.error("Failed to parse cleaned LLM JSON response:", parseError);
+                    console.error("Received raw text:", responseText); // Log original raw text
+                    console.error("Attempted to parse:", cleanedText); // Log the text we tried to parse
+                    // Display the *cleaned* text in the error fallback
+                    storyHistory.push({ role: "model", parts: [{ text: `(AI返回格式错误):\n${cleanedText}` }] });
+                    displayStory(`(AI返回格式错误，无法解析JSON):\n${cleanedText}`); // Show cleaned text
+                    displayChoices([]);
+                    callPollinationsAPI("error message, sad anime character");
+                    return null;
+                }
+
+                storyHistory.push({ role: "model", parts: [{ text: cleanedText }] }); // Store cleaned JSON text
+                return parsedResponse;
+
+            } catch (error) {
+                console.error("调用 LLM API 时出错:", error);
+                showError(error.message || "与 AI 的连接中断。");
+                if (storyHistory.length > 0 && storyHistory[storyHistory.length-1].role === 'user') {
+                    storyHistory.pop(); // Remove last user prompt on error
+                }
+                return null;
+            } finally {
+                 isGenerating = false;
+                 // hideLoading('text'); // Let displayStory handle this
             }
         }
 
-        function hideLoading(type) {
-             if (type === 'text') loadingText.style.display = 'none';
-             if (type === 'image') loadingImage.style.display = 'none';
+        // --- Pollinations API (Keep existing) ---
+        function callPollinationsAPI(imagePrompt) { /* ... */
+             if (!imagePrompt) return; showLoading('image');
+             const encodedPrompt = encodeURIComponent(imagePrompt.trim());
+             const width = 512; const height = 512; const model = 'turbo';
+             const seed = Math.floor(Math.random() * 1e7);
+             const apiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&model=${model}&seed=${seed}&nologo=true`;
+             console.log("Requesting image:", apiUrl); displayImage(apiUrl);
         }
 
-        function showError(message) {
-            errorMessageDiv.textContent = `错误：${message}`;
-            errorMessageDiv.style.display = 'block';
-             // Also hide loading indicators on error
-            hideLoading('text');
-            hideLoading('image');
-            isGenerating = false; // Allow retrying
-            startGameBtn.disabled = false; // Re-enable start if error occurred during start
-            // Re-enable choice buttons if needed (though they are cleared)
+        // --- UI Update Functions (Keep existing) ---
+        function displayStory(text) { /* ... */
+             hideLoading('text'); storyTextDiv.textContent = text;
         }
-
-        function hideError() {
-            errorMessageDiv.style.display = 'none';
-        }
-
-        function displayStory(text) {
-             hideLoading('text');
-             storyTextDiv.textContent = text; // Use textContent for security
-        }
-
-        function displayImage(imageUrl) {
-             storyImage.onload = () => {
-                 hideLoading('image');
-                 storyImage.style.display = 'block';
-             };
-             storyImage.onerror = () => {
-                 hideLoading('image');
-                 console.warn("Pollinations image failed to load:", imageUrl);
-                 // Don't show a fatal error, just skip the image for now
-                 storyImage.style.display = 'none'; // Keep it hidden
-             };
+        function displayImage(imageUrl) { /* ... */
+             storyImage.onload = () => { hideLoading('image'); storyImage.style.display = 'block'; };
+             storyImage.onerror = () => { hideLoading('image'); console.warn("Pollinations image failed:", imageUrl); storyImage.style.display = 'none'; };
              storyImage.src = imageUrl;
         }
+        function displayChoices(choices) { /* ... */
+             choicesContainer.innerHTML = '';
+             if (!choices || choices.length === 0) { const endMsg=document.createElement('p'); endMsg.textContent="故事似乎到了一个节点..."; endMsg.style.fontStyle='italic'; endMsg.style.textAlign='center'; choicesContainer.appendChild(endMsg); return; }
+             choices.forEach(choiceText => { const btn=document.createElement('button'); btn.textContent=choiceText; btn.className='choice-button'; btn.onclick=()=>handleChoice(choiceText); choicesContainer.appendChild(btn); });
+         }
 
-        function displayChoices(choices) {
-            choicesContainer.innerHTML = ''; // Clear old choices
-            if (!choices || choices.length === 0) {
-                // End of story or AI didn't provide choices
-                const endMessage = document.createElement('p');
-                endMessage.textContent = "故事似乎到了一个节点...";
-                endMessage.style.fontStyle = 'italic';
-                endMessage.style.textAlign = 'center';
-                choicesContainer.appendChild(endMessage);
-                return;
-            }
-
-            choices.forEach(choiceText => {
-                const button = document.createElement('button');
-                button.textContent = choiceText;
-                button.className = 'choice-button';
-                button.onclick = () => handleChoice(choiceText); // Add click handler
-                choicesContainer.appendChild(button);
-            });
-        }
-
-        // --- API Call Functions ---
-
-        async function callGeminiAPI(userPromptText) {
-             if (!geminiApiKey) {
-                 showError("未设置 Gemini API Key。");
-                 return null;
-             }
-             if (isGenerating) return null; // Don't make concurrent calls
-
-             isGenerating = true;
-             hideError();
-             showLoading('text'); // Show text loading indicator
-
-            // Add user prompt to history before the call
-            storyHistory.push({ role: "user", parts: [{ text: userPromptText }] });
-
-
-             // Construct the prompt for Gemini
-             // We need to carefully craft this to get JSON output
-             const systemInstruction = `你是一个互动小说引擎。根据用户提供的历史记录和最新选择，继续故事。
-             你的回答必须是 JSON 格式，包含以下字段：
-             1. "story_text": (string) 故事的下一部分，生动描述当前场景和事件。
-             2. "image_prompt": (string) 一个简洁的英文提示词 (少于20词)，用于 AI 绘画，概括 story_text 中的视觉场景。
-             3. "choices": (array of strings) 2到4个供用户选择的下一步行动选项。
-
-             这是之前的对话历史:
-             ${JSON.stringify(storyHistory.slice(0, -1))}
-
-             用户刚刚选择了（或者是故事的开端）: "${userPromptText}"
-
-             现在，请生成 JSON 格式的下一部分故事。`;
-
-            // Use a simpler history model for the actual API call payload
-            const messagesForAPI = [
-                 ...storyHistory.slice(0,-1), // Previous turns
-                 { role: "user", parts: [{ text: systemInstruction }] } // Combine system + latest user into one user turn for the API
-            ];
-
-
-             const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
-
-             try {
-                 const response = await fetch(API_URL, {
-                     method: 'POST',
-                     headers: { 'Content-Type': 'application/json' },
-                     body: JSON.stringify({
-                         // contents: messagesForAPI, // Using full history might exceed limits fast
-                          contents: [ { role: "user", parts: [{text: systemInstruction}]} ], // Send only the combined instruction prompt
-                          generationConfig: {
-                            //  temperature: 0.7, // Adjust creativity
-                             responseMimeType: "application/json", // Request JSON directly
-                         },
-                         // safetySettings: [...] // Add safety settings if needed
-                     })
-                 });
-
-                 if (!response.ok) {
-                     const errorData = await response.json().catch(()=> ({})); // Try to get error details
-                     console.error("Gemini API Error Response:", errorData);
-                     throw new Error(`Gemini API 请求失败: ${response.status} ${response.statusText}. ${errorData.error?.message || ''}`);
-                 }
-
-                 const data = await response.json();
-
-                // --- Process Gemini Response ---
-                 if (!data.candidates || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0].text) {
-                     console.error("Invalid Gemini Response:", data);
-                     throw new Error("Gemini 返回了无效或空的响应。");
-                 }
-
-                 const responseText = data.candidates[0].content.parts[0].text;
-                 // console.log("Raw Gemini Response:", responseText);
-
-                 // Try parsing the JSON response
-                 let parsedResponse;
-                 try {
-                      parsedResponse = JSON.parse(responseText);
-                      // Validate expected fields
-                     if (!parsedResponse.story_text || !parsedResponse.image_prompt || !Array.isArray(parsedResponse.choices)) {
-                         throw new Error("JSON 响应缺少必要的字段 (story_text, image_prompt, choices)。");
-                     }
-
-                 } catch (parseError) {
-                      console.error("Failed to parse Gemini JSON response:", parseError);
-                      console.error("Received text:", responseText); // Log what was received
-                      throw new Error("无法解析 Gemini 的响应。AI 可能未按预期格式返回 JSON。");
-                 }
-
-
-                 // Add model response to history *after* successful processing
-                 storyHistory.push({ role: "model", parts: [{ text: responseText }] }); // Store the raw JSON text from model
-
-                 return parsedResponse; // Return the parsed { story_text, image_prompt, choices }
-
-             } catch (error) {
-                 console.error("调用 Gemini API 时出错:", error);
-                 showError(error.message || "与 Gemini 的连接中断。");
-                 // Remove the last user prompt from history if the call failed
-                 storyHistory.pop();
-                 return null; // Indicate failure
-             } finally {
-                  isGenerating = false;
-                  // Don't hide text loading here, wait for displayStory
-             }
-        }
-
-        function callPollinationsAPI(imagePrompt) {
-            if (!imagePrompt) return; // No prompt provided
-
-            showLoading('image');
-
-             // Simple prompt cleaning (replace spaces, basic chars)
-            const encodedPrompt = encodeURIComponent(imagePrompt.trim());
-            const width = 512; // Fixed size for IF images, adjust as needed
-            const height = 512;
-            const model = 'turbo'; // Use turbo for faster images in IF
-            const seed = Math.floor(Math.random() * 10000000);
-            const apiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&model=${model}&seed=${seed}&nologo=true`;
-
-            console.log("Requesting image:", apiUrl);
-            displayImage(apiUrl); // This function handles onload/onerror
-        }
-
-        // --- Game Flow Functions ---
-
-        function startGame() {
-            geminiApiKey = apiKeyInput.value.trim();
+        // --- Game Flow Functions (Keep existing) ---
+        function startGame() { /* ... */
+            if (!currentApiKey || !currentModel) { showError("请先完成并保存 API 配置！"); return; }
             const initialUserPrompt = initialPromptInput.value.trim();
-
-            if (!geminiApiKey) {
-                showError("请输入你的 Gemini API Key。");
-                apiKeyInput.focus();
-                return;
-            }
-            if (!initialUserPrompt) {
-                showError("请输入故事的开端或设定。");
-                initialPromptInput.focus();
-                return;
-            }
-
-            hideError();
-            setupArea.style.display = 'none'; // Hide setup
-            gameArea.style.display = 'block'; // Show game
-            startGameBtn.disabled = true; // Disable after start
-
-            storyHistory = []; // Reset history for new game
-
-            // Initial call
+            if (!initialUserPrompt) { showError("请输入故事的开端或设定。"); initialPromptInput.focus(); return; }
+            hideError(); configSection.style.display = 'none'; gameArea.style.display = 'block'; startGameBtn.disabled = true;
+            storyHistory = []; // Reset history
+            storyHistory.push({ role: "user", parts: [{ text: initialUserPrompt }] });
             advanceStory(initialUserPrompt);
         }
-
-        async function advanceStory(userChoiceOrPrompt) {
-             // Call Gemini
-             const result = await callGeminiAPI(userChoiceOrPrompt);
-
+        async function advanceStory(userChoiceOrPrompt) { /* ... */
+            // Note: userChoiceOrPrompt is now added to history *before* calling callLLMApi
+            const result = await callLLMApi(storyHistory); // Pass entire history
              if (result) {
-                 // Update UI
                  displayStory(result.story_text);
                  displayChoices(result.choices);
-
-                 // Call Pollinations (async, don't wait for it to finish text display)
                  callPollinationsAPI(result.image_prompt);
-             } else {
-                 // Error handling is done within callGeminiAPI
-                 // Maybe re-enable choices if needed, but they are cleared anyway
-                 choicesContainer.innerHTML = '<p style="text-align:center; font-style:italic;">发生错误，无法继续故事。</p>';
-             }
+             } else { choicesContainer.innerHTML = '<p style="text-align:center; font-style:italic;">发生错误，无法继续故事。</p>'; }
+        }
+        function handleChoice(choiceText) { /* ... */
+            if (isGenerating) return; console.log("User chose:", choiceText);
+            const buttons = choicesContainer.querySelectorAll('button'); buttons.forEach(btn => btn.disabled = true);
+            storyHistory.push({ role: "user", parts: [{ text: choiceText }] });
+            advanceStory(choiceText);
         }
 
-        function handleChoice(choiceText) {
-             console.log("User chose:", choiceText);
-              // Disable buttons while processing
-             const buttons = choicesContainer.querySelectorAll('button');
-             buttons.forEach(btn => btn.disabled = true);
-
-            // Add choice to story text visually (optional)
-            // storyTextDiv.textContent += `\n\n> ${choiceText}\n\n`;
-
-             // Advance the story
-             advanceStory(choiceText);
-        }
-
-        // --- Event Listeners ---
+        // --- Event Listeners (Keep existing) ---
         startGameBtn.addEventListener('click', startGame);
+        fetchModelsBtn.addEventListener('click', fetchLLMModels);
+        modelSelect.addEventListener('change', saveConfig); // Save on model change
+        apiKeyInput.addEventListener('change', saveConfig); // Optional save
+        apiUrlInput.addEventListener('change', saveConfig); // Optional save
+
+        // --- Initial Load ---
+        loadConfig();
 
     }); // End DOMContentLoaded
     </script>
-
 </body>
 </html>
