@@ -11,7 +11,85 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.10/purify.min.js"></script>
 
     <style>
-        /* --- Galgame Specific Styles (Unchanged from previous version) --- */
+        /* --- Galgame Specific Styles (Additions/Modifications Highlighted) --- */
+        /* ... (Keep all previous styles for galgame-container, dialogue-box, controls, etc.) ... */
+
+        /* Config Panel Enhancements for Image Upload */
+        #config-panel {
+            /* ... (keep existing styles) ... */
+            max-height: 90vh; /* Allow more height for images */
+        }
+         .image-upload-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+            border: 1px solid var(--galgame-config-input-border);
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(0,0,0,0.1);
+         }
+         body.theme-dark .image-upload-section { background: rgba(255,255,255,0.05); }
+
+         .image-upload-section input[type="file"] {
+            /* Basic file input styling override */
+            padding: 5px; /* Smaller padding */
+            font-size: 0.9em;
+            background: rgba(255,255,255,0.1);
+            border: 1px dashed var(--galgame-config-input-border);
+            flex-grow: 1; /* Allow input to take space */
+            cursor: pointer;
+            color: var(--galgame-config-label-color);
+         }
+        /* Hide default file input text */
+         .image-upload-section input[type="file"]::file-selector-button {
+            padding: 6px 10px;
+            border: none;
+            background-color: var(--galgame-control-btn-bg);
+            color: var(--galgame-control-btn-color);
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease;
+         }
+         .image-upload-section input[type="file"]::file-selector-button:hover {
+            background-color: var(--galgame-control-btn-hover-bg);
+         }
+
+
+         .image-preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+         }
+
+         .image-preview {
+            max-width: 80px;
+            max-height: 80px;
+            height: auto;
+            width: auto;
+            border-radius: 4px;
+            border: 1px solid var(--galgame-config-input-border);
+            object-fit: cover;
+            display: none; /* Hidden by default */
+         }
+         .clear-image-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 8px;
+            font-size: 0.8em;
+            cursor: pointer;
+            display: none; /* Hidden by default */
+         }
+         .clear-image-btn:hover { background: #5a6268; }
+
+        /* --- End Image Upload Styles --- */
+
+
         /* Main container */
         #galgame-container {
             position: relative;
@@ -259,6 +337,8 @@
              #history-panel { width: 90%; height: 75%; }
              #config-panel { width: 90%; max-width: 350px; right: 50%; transform: translateX(50%); top: 5%; }
              #toggle-config-btn { top: 10px; right: 10px; width: 35px; height: 35px; font-size: 18px;}
+             .image-upload-section { flex-direction: column; align-items: stretch; } /* Stack upload elements */
+             .image-preview { max-width: 60px; max-height: 60px; }
          }
          @media (max-width: 480px) {
              .character-area { height: 50%; max-width: 55%; } /* Further adjust width */
@@ -269,11 +349,12 @@
              .control-button { padding: 6px 12px; font-size: 0.85em; }
              #history-panel { width: 95%; height: 80%; padding: 15px; }
              #config-panel { padding: 15px; width: 95%; }
+             .image-preview { max-width: 50px; max-height: 50px; }
          }
     </style>
 </head>
 <body>
-    <!-- Background, Sidebar, Toggle Button (Keep as before) -->
+    <!-- Background, Sidebar, Toggle Button -->
     <div class="background"></div>
     <div id="sidebar">
         <nav id="sidebar-nav">
@@ -285,7 +366,7 @@
             <a href="ai_draw.html">🎨 AI 作画</a>
             <a href="tno_generator.html">📜 TNO事件生成</a>
             <a href="if_game.html">🌌 AI 互动小说</a>
-            <a href="ai_rpg.html">💖 AI Galgame</a> <!-- Link Added -->
+            <a href="ai_rpg.html">💖 AI Galgame</a>
         </nav>
         <div class="theme-switcher">
             <h4>切换主题:</h4>
@@ -305,7 +386,7 @@
         </header>
 
         <main>
-            <!-- Configuration Panel (HTML unchanged from previous version) -->
+            <!-- Configuration Panel (MODIFIED for Image Upload) -->
             <div id="config-panel">
                 <!-- Player Settings Section -->
                 <div class="config-section">
@@ -315,14 +396,24 @@
                         <input type="text" id="player-name-input" placeholder="输入你想使用的名字">
                     </div>
                     <div class="form-group">
-                        <label for="player-persona-input">你的角色简介:</label>
-                        <textarea id="player-persona-input" rows="3" placeholder="简单描述你的角色 (例如：一个有点内向但善良的高中生，喜欢读书和音乐)"></textarea>
-                        <small class="input-hint">AI会基于此进行扩充并生成立绘提示词。</small>
+                        <label for="player-persona-input">你的角色简介 (可选，若上传图片则优先使用图片):</label>
+                        <textarea id="player-persona-input" rows="2" placeholder="简单描述你的角色 (例如：一个有点内向但善良的高中生)"></textarea>
                     </div>
+                    <!-- Player Image Upload -->
+                    <div class="form-group">
+                         <label for="player-image-upload">上传你的角色图片 (可选):</label>
+                         <div class="image-upload-section">
+                             <input type="file" id="player-image-upload" accept="image/png, image/jpeg, image/webp">
+                             <div class="image-preview-container">
+                                 <img id="player-image-preview" class="image-preview" src="#" alt="玩家图片预览">
+                                 <button id="clear-player-image-btn" class="clear-image-btn">清除</button>
+                             </div>
+                         </div>
+                         <small class="input-hint">上传图片后，AI会尝试根据图片生成外貌描述。</small>
+                     </div>
                      <div class="form-group">
                         <label for="player-start-input">期望的开局:</label>
-                        <textarea id="player-start-input" rows="3" placeholder="描述你想要的开局场景或剧情引入点 (例如：在新学校的第一天迷路了；在图书馆偶然发现一本神秘的书；收到一封奇怪的匿名信)"></textarea>
-                        <small class="input-hint">AI会基于此设定展开故事，不限于校园恋爱。</small>
+                        <textarea id="player-start-input" rows="2" placeholder="描述你想要的开局场景 (例如：在新学校的第一天迷路了)"></textarea>
                     </div>
                 </div>
 
@@ -330,7 +421,24 @@
                 <div class="config-section">
                      <h4>AI & API 设置</h4>
                      <div class="form-grid">
-                        <div class="form-group">
+                         <div class="form-group">
+                            <label for="galgame-persona">AI 对手角色设定 (可选，若上传图片则优先使用图片):</label>
+                            <textarea id="galgame-persona" rows="2" placeholder="你希望AI扮演什么角色？(例如：一个傲娇的同班同学，名叫[亚里沙]...)"></textarea>
+                         </div>
+                         <!-- AI Image Upload -->
+                         <div class="form-group">
+                              <label for="ai-image-upload">上传AI角色图片 (可选):</label>
+                              <div class="image-upload-section">
+                                  <input type="file" id="ai-image-upload" accept="image/png, image/jpeg, image/webp">
+                                  <div class="image-preview-container">
+                                      <img id="ai-image-preview" class="image-preview" src="#" alt="AI图片预览">
+                                      <button id="clear-ai-image-btn" class="clear-image-btn">清除</button>
+                                  </div>
+                              </div>
+                              <small class="input-hint">上传图片后，AI会尝试根据图片生成该角色的外貌描述。</small>
+                          </div>
+                          <!-- API Key, URL, Model (Keep as before) -->
+                          <div class="form-group">
                             <label for="llm-api-key">API 密钥:</label>
                             <div class="api-key-wrapper">
                                 <input type="password" id="llm-api-key" placeholder="输入 API Key (例如 Gemini)">
@@ -358,11 +466,6 @@
                                 <span id="model-loading-indicator" title="正在加载模型...">🔄</span>
                              </div>
                         </div>
-                        <div class="form-group">
-                            <label for="galgame-persona">AI 对手角色设定 (可选):</label>
-                            <textarea id="galgame-persona" rows="3" placeholder="你希望AI扮演什么角色？(例如：一个傲娇的同班同学，名叫[亚里沙]...)"></textarea>
-                             <small class="input-hint">在[]中包含角色名，用于AI立绘和对话。</small>
-                        </div>
                      </div>
                  </div>
 
@@ -372,7 +475,7 @@
                 </div>
             </div>
 
-            <!-- Galgame UI Container (HTML unchanged) -->
+            <!-- Galgame UI Container (Unchanged) -->
             <div id="galgame-container">
                 <div id="game-background"></div>
                 <div id="player-character-area" class="character-area">
@@ -394,7 +497,7 @@
                  <div id="game-error-message"></div>
             </div>
 
-             <!-- History Panel (HTML unchanged) -->
+             <!-- History Panel (Unchanged) -->
              <div id="history-panel">
                  <h3>对话历史记录</h3>
                  <div id="history-content"></div>
@@ -410,9 +513,9 @@
     <!-- JS Files -->
     <script src="js/script.js"></script> <!-- Main site script -->
     <script>
-        // --- Galgame Specific JS (v3 - Style/Consistency Focus) ---
+        // --- Galgame Specific JS (v4 - Image Upload Support) ---
 
-        // --- DOM Element References (Unchanged) ---
+        // --- DOM Element References (Additions Highlighted) ---
         const configPanel = document.getElementById('config-panel');
         const toggleConfigBtn = document.getElementById('toggle-config-btn');
         const saveConfigBtn = document.getElementById('save-config-btn');
@@ -442,12 +545,19 @@
         const gameBackground = document.getElementById('game-background');
         const aiCharacterSprite = document.getElementById('ai-character-sprite');
         const playerCharacterSprite = document.getElementById('player-character-sprite');
+        // Image Upload Elements
+        const playerImageUpload = document.getElementById('player-image-upload');
+        const playerImagePreview = document.getElementById('player-image-preview');
+        const clearPlayerImageBtn = document.getElementById('clear-player-image-btn');
+        const aiImageUpload = document.getElementById('ai-image-upload');
+        const aiImagePreview = document.getElementById('ai-image-preview');
+        const clearAiImageBtn = document.getElementById('clear-ai-image-btn');
+
 
         // --- Constants ---
-        // Style prompt placed first, more specific, no "same character", added anti-chibi hints
-        const FIXED_STYLE_PROMPT = "masterpiece, best quality, highres, japanese anime art style, visual novel character sprite, full body sprite, detailed face, proportional body, clean lines, vibrant colors, flat colors, (not chibi), (not Q version)";
-        // Stronger keywords for guaranteed white background
+        const FIXED_STYLE_PROMPT = "masterpiece, best quality, highres, japanese anime art style, visual novel character sprite, full body sprite, detailed face, proportional body, clean lines, vibrant colors, flat colors";
         const SPRITE_BACKGROUND_KEYWORDS = "plain white background, solid white background, simple white, isolated on white, no background elements, no shadows on background, pure white background";
+        const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
         // --- State Variables ---
         // API & AI
@@ -459,20 +569,88 @@
         let playerName = '';
         let playerPersona = '';
         let playerStart = '';
+        // Image Data (Base64 Strings) - Not saved in localStorage
+        let playerImageBase64 = null;
+        let aiImageBase64 = null;
         // Character Appearance
-        let playerBaseAppearancePrompt = ''; // 存储玩家基础外观
-        let aiBaseAppearancePrompt = '';     // 存储AI基础外观
-        let spriteCache = {}; // Add cache object
+        let playerBaseAppearancePrompt = '';
+        let aiBaseAppearancePrompt = '';
+        let spriteCache = {};
         // Game State
         let conversationHistory = [];
         let isGameStarted = false;
         let isLoading = false;
         const GALGAME_STORAGE_PREFIX = 'galGame_';
         const DEFAULT_API_URL_GALGAME = 'https://generativelanguage.googleapis.com';
-        let currentDialogueSegments = []; // 当前回合的对话片段数组
+        let currentDialogueSegments = [];
         let currentSegmentIndex = 0;
         let currentTurnChoices = [];
-        let currentTurnParsedData = null; // 当前回合解析后的完整JSON
+        let currentTurnParsedData = null;
+
+        // --- Helper Functions ---
+        // Extracts mime type and base64 data from a data URL
+        function getImageDataFromBase64(base64String) {
+            if (!base64String || !base64String.startsWith('data:image')) {
+                return null;
+            }
+            const parts = base64String.split(',');
+            if (parts.length !== 2) return null;
+            const mimeMatch = parts[0].match(/:(.*?);/);
+            if (!mimeMatch || mimeMatch.length < 2) return null;
+            return {
+                mimeType: mimeMatch[1],
+                data: parts[1]
+            };
+        }
+
+        // Reads a file input and converts to Base64
+        function handleImageUpload(fileInput, previewElement, clearButton, stateVariableSetter) {
+            const file = fileInput.files[0];
+            if (!file) {
+                stateVariableSetter(null); // Clear state if no file selected
+                previewElement.style.display = 'none';
+                clearButton.style.display = 'none';
+                return;
+            }
+
+            if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+                showGameError(`不支持的文件类型: ${file.type}. 请上传 JPG, PNG, 或 WebP 格式图片.`);
+                fileInput.value = null; // Clear the input
+                stateVariableSetter(null);
+                previewElement.style.display = 'none';
+                clearButton.style.display = 'none';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                stateVariableSetter(e.target.result); // Store Base64 string
+                previewElement.src = e.target.result;
+                previewElement.style.display = 'block';
+                clearButton.style.display = 'inline-block';
+                console.log(`Image loaded and stored for ${fileInput.id}`);
+            };
+            reader.onerror = (e) => {
+                showGameError("读取图片文件时出错.");
+                console.error("FileReader error:", e);
+                fileInput.value = null;
+                stateVariableSetter(null);
+                previewElement.style.display = 'none';
+                clearButton.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Clears an image upload field
+        function clearImageUpload(fileInput, previewElement, clearButton, stateVariableSetter) {
+            fileInput.value = null;
+            stateVariableSetter(null);
+            previewElement.src = '#'; // Reset src
+            previewElement.style.display = 'none';
+            clearButton.style.display = 'none';
+            console.log(`Image cleared for ${fileInput.id}`);
+        }
+
 
         // --- Error & Loading UI (Unchanged) ---
         function showGameError(message) { console.error("Game Error:", message); gameErrorMessage.textContent = message; gameErrorMessage.style.display = 'block'; setTimeout(() => { clearGameError(); }, 7000); setLoading(false); }
@@ -490,14 +668,22 @@
              document.querySelectorAll('.choice-button').forEach(btn => btn.disabled = loading);
          }
 
-        // --- Configuration Logic (Unchanged) ---
+        // --- Configuration Logic (Save/Load don't handle images directly) ---
         function saveConfig() {
-            const apiKey = apiKeyInput.value.trim(); const apiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL_GALGAME; const model = modelSelect.value; const aiPersona = aiPersonaInput.value.trim(); const pName = playerNameInput.value.trim(); const pPersona = playerPersonaInput.value.trim(); const pStart = playerStartInput.value.trim(); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'apiKey', apiKey); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'apiUrl', apiUrl); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'model', model); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'aiPersona', aiPersona); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'playerName', pName); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'playerPersona', pPersona); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'playerStart', pStart); currentApiKey = apiKey; currentApiUrl = apiUrl; currentModel = model; currentAiPersona = aiPersona; playerName = pName; playerPersona = pPersona; playerStart = pStart; console.log("Galgame Config saved (state updated):", { currentApiKey, currentApiUrl, currentModel, currentAiPersona, playerName, playerPersona, playerStart }); const canStart = currentApiKey && currentModel; nextButton.textContent = isGameStarted ? '继续' : (canStart ? '开始' : '开始 (请先设置API)'); nextButton.disabled = isLoading || !canStart; toggleHistoryBtn.disabled = isLoading || !canStart || !isGameStarted; if (!isGameStarted) { if (canStart) { let info = "API 设置已加载。\n"; if (playerName) info += `玩家名称: ${playerName}\n`; if (playerPersona) info += `玩家设定: ${playerPersona.substring(0, 50)}...\n`; if (playerStart) info += `开局提示: ${playerStart.substring(0, 50)}...\n`; if (currentAiPersona) info += `AI 角色: ${currentAiPersona.substring(0, 50)}...\n`; info += "点击“开始”进入故事。"; dialogueText.innerHTML = marked.parse(info); } else { dialogueText.innerHTML = marked.parse("欢迎来到 AI Galgame 互动故事！\n请点击右上角的 **⚙** 设置你的 API Key，并选择一个模型。\n（可选）设置玩家名称、设定和期望开局。\n准备好后，点击“开始”按钮。"); } }
+            // Image Base64 is not saved to localStorage
+            const apiKey = apiKeyInput.value.trim(); const apiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL_GALGAME; const model = modelSelect.value; const aiPersona = aiPersonaInput.value.trim(); const pName = playerNameInput.value.trim(); const pPersona = playerPersonaInput.value.trim(); const pStart = playerStartInput.value.trim(); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'apiKey', apiKey); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'apiUrl', apiUrl); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'model', model); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'aiPersona', aiPersona); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'playerName', pName); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'playerPersona', pPersona); localStorage.setItem(GALGAME_STORAGE_PREFIX + 'playerStart', pStart); currentApiKey = apiKey; currentApiUrl = apiUrl; currentModel = model; currentAiPersona = aiPersona; playerName = pName; playerPersona = pPersona; playerStart = pStart; console.log("Galgame Config saved (state updated, images not persisted):", { currentApiKey, currentApiUrl, currentModel, currentAiPersona, playerName, playerPersona, playerStart }); const canStart = currentApiKey && currentModel; nextButton.textContent = isGameStarted ? '继续' : (canStart ? '开始' : '开始 (请先设置API)'); nextButton.disabled = isLoading || !canStart; toggleHistoryBtn.disabled = isLoading || !canStart || !isGameStarted; if (!isGameStarted) { if (canStart) { let info = "API 设置已加载。\n"; if (playerName) info += `玩家名称: ${playerName}\n`; if (playerPersona || playerImageBase64) info += `玩家设定: ${playerImageBase64 ? '使用上传图片' : playerPersona.substring(0, 50)+'...'}\n`; if (currentAiPersona || aiImageBase64) info += `AI 角色: ${aiImageBase64 ? '使用上传图片' : currentAiPersona.substring(0, 50)+'...'}\n`; if (playerStart) info += `开局提示: ${playerStart.substring(0, 50)}...\n`; info += "点击“开始”进入故事。"; dialogueText.innerHTML = marked.parse(info); } else { dialogueText.innerHTML = marked.parse("欢迎来到 AI Galgame 互动故事！\n请点击右上角的 **⚙** 设置你的 API Key，并选择一个模型。\n（可选）设置玩家名称、设定和期望开局。\n准备好后，点击“开始”按钮。"); } }
         }
-        function loadConfig() { currentApiKey = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'apiKey') || ''; currentApiUrl = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'apiUrl') || DEFAULT_API_URL_GALGAME; currentModel = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'model') || ''; currentAiPersona = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'aiPersona') || ''; playerName = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'playerName') || ''; playerPersona = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'playerPersona') || ''; playerStart = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'playerStart') || ''; apiKeyInput.value = currentApiKey; apiUrlInput.value = currentApiUrl === DEFAULT_API_URL_GALGAME ? '' : currentApiUrl; aiPersonaInput.value = currentAiPersona; playerNameInput.value = playerName; playerPersonaInput.value = playerPersona; playerStartInput.value = playerStart; modelSelect.innerHTML = '<option value="" disabled selected>-- 获取或选择模型 --</option>'; if (currentModel) { const o = document.createElement('option'); o.value = currentModel; o.textContent = currentModel + " (已保存)"; o.selected = true; modelSelect.appendChild(o); modelSelect.disabled = false; } else { modelSelect.disabled = true; } keyStatusSpan.textContent = ''; keyStatusSpan.className = ''; console.log("Galgame Config loaded:", { currentApiKey, currentApiUrl, currentModel, currentAiPersona, playerName, playerPersona, playerStart }); const canConfigure = currentApiKey && currentModel; isGameStarted = false; if (!canConfigure) { dialogueText.innerHTML = marked.parse("欢迎来到 AI Galgame 互动故事！\n请点击右上角的 **⚙** 设置你的 API Key，并选择一个模型。\n（可选）设置玩家名称、设定和期望开局。\n准备好后，点击“开始”按钮。"); nextButton.textContent = "开始 (请先设置API)"; nextButton.disabled = true; toggleHistoryBtn.disabled = true; } else { let info = "API 设置已加载。\n"; if (playerName) info += `玩家名称: ${playerName}\n`; if (playerPersona) info += `玩家设定: ${playerPersona.substring(0, 50)}...\n`; if (playerStart) info += `开局提示: ${playerStart.substring(0, 50)}...\n`; if (currentAiPersona) info += `AI 角色: ${currentAiPersona.substring(0, 50)}...\n`; info += "点击“开始”进入故事。"; dialogueText.innerHTML = marked.parse(info); nextButton.textContent = "开始"; nextButton.disabled = isLoading || !canConfigure; toggleHistoryBtn.disabled = true; } aiCharacterSprite.classList.add('hidden'); playerCharacterSprite.classList.add('hidden'); }
+        function loadConfig() {
+            // Load text configs from localStorage
+            currentApiKey = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'apiKey') || ''; currentApiUrl = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'apiUrl') || DEFAULT_API_URL_GALGAME; currentModel = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'model') || ''; currentAiPersona = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'aiPersona') || ''; playerName = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'playerName') || ''; playerPersona = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'playerPersona') || ''; playerStart = localStorage.getItem(GALGAME_STORAGE_PREFIX + 'playerStart') || ''; apiKeyInput.value = currentApiKey; apiUrlInput.value = currentApiUrl === DEFAULT_API_URL_GALGAME ? '' : currentApiUrl; aiPersonaInput.value = currentAiPersona; playerNameInput.value = playerName; playerPersonaInput.value = playerPersona; playerStartInput.value = playerStart; modelSelect.innerHTML = '<option value="" disabled selected>-- 获取或选择模型 --</option>'; if (currentModel) { const o = document.createElement('option'); o.value = currentModel; o.textContent = currentModel + " (已保存)"; o.selected = true; modelSelect.appendChild(o); modelSelect.disabled = false; } else { modelSelect.disabled = true; } keyStatusSpan.textContent = ''; keyStatusSpan.className = '';
+            // Reset image uploads on load
+            clearImageUpload(playerImageUpload, playerImagePreview, clearPlayerImageBtn, (val) => playerImageBase64 = val);
+            clearImageUpload(aiImageUpload, aiImagePreview, clearAiImageBtn, (val) => aiImageBase64 = val);
+
+            console.log("Galgame Config loaded (Images reset):", { currentApiKey, currentApiUrl, currentModel, currentAiPersona, playerName, playerPersona, playerStart }); const canConfigure = currentApiKey && currentModel; isGameStarted = false; if (!canConfigure) { dialogueText.innerHTML = marked.parse("欢迎来到 AI Galgame 互动故事！\n请点击右上角的 **⚙** 设置你的 API Key，并选择一个模型。\n（可选）设置玩家名称、设定、上传图片和期望开局。\n准备好后，点击“开始”按钮。"); nextButton.textContent = "开始 (请先设置API)"; nextButton.disabled = true; toggleHistoryBtn.disabled = true; } else { let info = "API 设置已加载。\n"; if (playerName) info += `玩家名称: ${playerName}\n`; if (playerPersona || playerImageBase64) info += `玩家设定: ${playerImageBase64 ? '待上传图片' : playerPersona.substring(0, 50)+'...'}\n`; if (currentAiPersona || aiImageBase64) info += `AI 角色: ${aiImageBase64 ? '待上传图片' : currentAiPersona.substring(0, 50)+'...'}\n`; if (playerStart) info += `开局提示: ${playerStart.substring(0, 50)}...\n`; info += "点击“开始”进入故事。"; dialogueText.innerHTML = marked.parse(info); nextButton.textContent = "开始"; nextButton.disabled = isLoading || !canConfigure; toggleHistoryBtn.disabled = true; } aiCharacterSprite.classList.add('hidden'); playerCharacterSprite.classList.add('hidden'); }
         function toggleConfigPanel() { configPanel.classList.toggle('visible'); }
-        async function fetchLLMModels() { const apiKey = apiKeyInput.value.trim(); const baseApiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL_GALGAME; if (!apiKey) { showGameError('请先填写 API 密钥。'); return; } keyStatusSpan.textContent = ''; keyStatusSpan.className = ''; modelLoadingIndicator.style.display = 'inline-block'; fetchModelsBtn.disabled = true; modelSelect.disabled = true; modelSelect.innerHTML = '<option value="" disabled selected>-- 正在获取... --</option>'; let modelListUrl = ''; let headers = { 'Content-Type': 'application/json' }; let method = 'GET'; try { if (baseApiUrl.includes('generativelanguage.googleapis.com')) { modelListUrl = baseApiUrl.replace(/\/$/, '') + `/v1beta/models?key=${apiKey}&pageSize=1000`; } else if (baseApiUrl.includes('/v1')) { headers['Authorization'] = `Bearer ${apiKey}`; modelListUrl = baseApiUrl.replace(/\/v1\/?$/, '') + '/v1/models'; } else { console.warn("未知地址格式，尝试 /v1/models"); headers['Authorization'] = `Bearer ${apiKey}`; modelListUrl = baseApiUrl.replace(/\/$/, '') + '/v1/models'; } console.log("Fetching models from:", modelListUrl); const response = await fetch(modelListUrl, { method, headers }); if (!response.ok) { const e = await response.text(); throw new Error(`获取失败: ${response.status} ${response.statusText}. ${e.substring(0,100)}`); } const data = await response.json(); console.log("Model List Raw:", data); let modelNames = []; if (data.models?.length) { modelNames = data.models.map(m => m.name?.replace(/^models\//, '')).filter(Boolean).filter(name => !/embed|vision|instruct|text-|aqa|diffusion|image/i.test(name)).sort(); } else if (data.data?.length) { modelNames = data.data.map(m => m.id).filter(Boolean).filter(id => !/embed|vision|instruct|text-|whisper|tts|davinci|babbage|curie|ada|image|diffusion/i.test(id)).sort(); } else { throw new Error("无法识别的模型列表格式。"); } if (modelNames.length === 0) { throw new Error("在此 API 地址未找到可用的聊天模型。"); } const previouslySelected = currentModel || modelSelect.value; modelSelect.innerHTML = '<option value="" disabled>-- 请选择一个模型 --</option>'; let foundPrevious = false; modelNames.forEach(name => { const o=document.createElement('option'); o.value=name; o.textContent=name; if(name === previouslySelected) { o.selected = true; foundPrevious = true; } modelSelect.appendChild(o); }); if (!foundPrevious && modelSelect.options.length > 1) { modelSelect.selectedIndex = 1; } else if (!foundPrevious && modelSelect.options.length <= 1) { modelSelect.selectedIndex = 0; } currentModel = modelSelect.value; modelSelect.disabled = !currentModel; clearGameError(); } catch (error) { console.error("获取模型出错:", error); showGameError(error.message || "获取模型列表时出错。"); modelSelect.innerHTML = '<option value="" disabled selected>-- 获取失败 --</option>'; modelSelect.disabled = true; } finally { modelLoadingIndicator.style.display = 'none'; fetchModelsBtn.disabled = false; modelSelect.disabled = modelSelect.options.length <= 1 || !modelSelect.value; saveConfig(); } }
-        async function testApiKey() { const testKeyButtonElement = document.getElementById('test-key-btn'); const apiKey = apiKeyInput.value.trim(); const baseApiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL_GALGAME; if (!apiKey) { keyStatusSpan.textContent = '请输入 API Key'; keyStatusSpan.className = 'invalid'; return; } if (!testKeyButtonElement) { console.error("无法找到测试按钮元素!"); keyStatusSpan.textContent = '页面错误'; keyStatusSpan.className = 'error'; return; } keyStatusSpan.textContent = '正在测试...'; keyStatusSpan.className = 'testing'; testKeyButtonElement.disabled = true; let testUrl = ''; let headers = {}; let method = 'GET'; try { if (baseApiUrl.includes('generativelanguage.googleapis.com')) { testUrl = baseApiUrl.replace(/\/$/, '') + `/v1beta/models?key=${apiKey}`; } else if (baseApiUrl.includes('/v1')) { headers['Authorization'] = `Bearer ${apiKey}`; testUrl = baseApiUrl.replace(/\/v1\/?$/, '') + '/v1/models'; } else { throw new Error("无法确定测试 URL 格式"); } console.log("Testing API Key with URL:", testUrl); const response = await fetch(testUrl, { method, headers }); if (response.ok) { keyStatusSpan.textContent = '✅ Key 有效'; keyStatusSpan.className = 'valid'; } else { let errorMsg = `❌ Key 无效或URL错误 (${response.status})`; try{ const errData = await response.json(); if(errData?.error?.message) errorMsg += `: ${errData.error.message}`; } catch(e){} keyStatusSpan.textContent = errorMsg; keyStatusSpan.className = 'invalid'; } } catch (error) { keyStatusSpan.textContent = '⚠️ 测试出错 (网络/URL?)'; keyStatusSpan.className = 'error'; console.error("Key test error:", error); } finally { testKeyButtonElement.disabled = false; } }
+        async function fetchLLMModels() { /* Unchanged */ const apiKey = apiKeyInput.value.trim(); const baseApiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL_GALGAME; if (!apiKey) { showGameError('请先填写 API 密钥。'); return; } keyStatusSpan.textContent = ''; keyStatusSpan.className = ''; modelLoadingIndicator.style.display = 'inline-block'; fetchModelsBtn.disabled = true; modelSelect.disabled = true; modelSelect.innerHTML = '<option value="" disabled selected>-- 正在获取... --</option>'; let modelListUrl = ''; let headers = { 'Content-Type': 'application/json' }; let method = 'GET'; try { if (baseApiUrl.includes('generativelanguage.googleapis.com')) { modelListUrl = baseApiUrl.replace(/\/$/, '') + `/v1beta/models?key=${apiKey}&pageSize=1000`; } else if (baseApiUrl.includes('/v1')) { headers['Authorization'] = `Bearer ${apiKey}`; modelListUrl = baseApiUrl.replace(/\/v1\/?$/, '') + '/v1/models'; } else { console.warn("未知地址格式，尝试 /v1/models"); headers['Authorization'] = `Bearer ${apiKey}`; modelListUrl = baseApiUrl.replace(/\/$/, '') + '/v1/models'; } console.log("Fetching models from:", modelListUrl); const response = await fetch(modelListUrl, { method, headers }); if (!response.ok) { const e = await response.text(); throw new Error(`获取失败: ${response.status} ${response.statusText}. ${e.substring(0,100)}`); } const data = await response.json(); console.log("Model List Raw:", data); let modelNames = []; if (data.models?.length) { modelNames = data.models.map(m => m.name?.replace(/^models\//, '')).filter(Boolean).filter(name => !/embed|vision|instruct|text-|aqa|diffusion|image/i.test(name)).sort(); } else if (data.data?.length) { modelNames = data.data.map(m => m.id).filter(Boolean).filter(id => !/embed|vision|instruct|text-|whisper|tts|davinci|babbage|curie|ada|image|diffusion/i.test(id)).sort(); } else { throw new Error("无法识别的模型列表格式。"); } if (modelNames.length === 0) { throw new Error("在此 API 地址未找到可用的聊天模型。"); } const previouslySelected = currentModel || modelSelect.value; modelSelect.innerHTML = '<option value="" disabled>-- 请选择一个模型 --</option>'; let foundPrevious = false; modelNames.forEach(name => { const o=document.createElement('option'); o.value=name; o.textContent=name; if(name === previouslySelected) { o.selected = true; foundPrevious = true; } modelSelect.appendChild(o); }); if (!foundPrevious && modelSelect.options.length > 1) { modelSelect.selectedIndex = 1; } else if (!foundPrevious && modelSelect.options.length <= 1) { modelSelect.selectedIndex = 0; } currentModel = modelSelect.value; modelSelect.disabled = !currentModel; clearGameError(); } catch (error) { console.error("获取模型出错:", error); showGameError(error.message || "获取模型列表时出错。"); modelSelect.innerHTML = '<option value="" disabled selected>-- 获取失败 --</option>'; modelSelect.disabled = true; } finally { modelLoadingIndicator.style.display = 'none'; fetchModelsBtn.disabled = false; modelSelect.disabled = modelSelect.options.length <= 1 || !modelSelect.value; saveConfig(); } }
+        async function testApiKey() { /* Unchanged */ const testKeyButtonElement = document.getElementById('test-key-btn'); const apiKey = apiKeyInput.value.trim(); const baseApiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL_GALGAME; if (!apiKey) { keyStatusSpan.textContent = '请输入 API Key'; keyStatusSpan.className = 'invalid'; return; } if (!testKeyButtonElement) { console.error("无法找到测试按钮元素!"); keyStatusSpan.textContent = '页面错误'; keyStatusSpan.className = 'error'; return; } keyStatusSpan.textContent = '正在测试...'; keyStatusSpan.className = 'testing'; testKeyButtonElement.disabled = true; let testUrl = ''; let headers = {}; let method = 'GET'; try { if (baseApiUrl.includes('generativelanguage.googleapis.com')) { testUrl = baseApiUrl.replace(/\/$/, '') + `/v1beta/models?key=${apiKey}`; } else if (baseApiUrl.includes('/v1')) { headers['Authorization'] = `Bearer ${apiKey}`; testUrl = baseApiUrl.replace(/\/v1\/?$/, '') + '/v1/models'; } else { throw new Error("无法确定测试 URL 格式"); } console.log("Testing API Key with URL:", testUrl); const response = await fetch(testUrl, { method, headers }); if (response.ok) { keyStatusSpan.textContent = '✅ Key 有效'; keyStatusSpan.className = 'valid'; } else { let errorMsg = `❌ Key 无效或URL错误 (${response.status})`; try{ const errData = await response.json(); if(errData?.error?.message) errorMsg += `: ${errData.error.message}`; } catch(e){} keyStatusSpan.textContent = errorMsg; keyStatusSpan.className = 'invalid'; } } catch (error) { keyStatusSpan.textContent = '⚠️ 测试出错 (网络/URL?)'; keyStatusSpan.className = 'error'; console.error("Key test error:", error); } finally { testKeyButtonElement.disabled = false; } }
 
         // --- History Panel Logic (Unchanged) ---
         function toggleHistoryPanel() { console.log("toggleHistoryPanel called. isLoading:", isLoading, "isGameStarted:", isGameStarted); if (isLoading) return; if (!isGameStarted || !currentApiKey || !currentModel) { showGameError("请先开始游戏以查看历史记录。"); return; } if (historyPanel.classList.contains('visible')) { historyPanel.classList.remove('visible'); } else { displayHistory(); historyPanel.classList.add('visible'); } }
@@ -508,155 +694,159 @@
              return new Promise((resolve, reject) => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                const width = img.naturalWidth;
-                const height = img.naturalHeight;
-                 if (width === 0 || height === 0) {
-                     console.warn("Image has zero dimensions, cannot process.");
-                     resolve(img.src); // Return original source if dimensions are invalid
-                     return;
-                 }
-                canvas.width = width;
-                canvas.height = height;
-
+                const width = img.naturalWidth; const height = img.naturalHeight;
+                 if (width === 0 || height === 0) { console.warn("Image has zero dimensions, cannot process."); resolve(img.src); return; }
+                canvas.width = width; canvas.height = height;
                 try {
-                    ctx.drawImage(img, 0, 0);
-                    const imageData = ctx.getImageData(0, 0, width, height);
-                    const data = imageData.data;
-                    const visited = new Uint8Array(width * height);
-                    const whiteThreshold = 248;
-                    const tolerance = 7;
-                    const effectiveThreshold = whiteThreshold - tolerance;
-
-                    function isNearWhite(index) {
-                        if (index < 0 || index >= data.length || data[index+3] < 128) return false;
-                        const r = data[index]; const g = data[index + 1]; const b = data[index + 2];
-                        return r >= effectiveThreshold && g >= effectiveThreshold && b >= effectiveThreshold;
-                    }
-
-                    function getIndex(x, y) { return (y * width + x) * 4; }
-                    function getVisitedIndex(x, y) { return y * width + x; }
-                    const queue = [];
-
+                    ctx.drawImage(img, 0, 0); const imageData = ctx.getImageData(0, 0, width, height); const data = imageData.data; const visited = new Uint8Array(width * height); const whiteThreshold = 248; const tolerance = 7; const effectiveThreshold = whiteThreshold - tolerance;
+                    function isNearWhite(index) { if (index < 0 || index >= data.length || data[index+3] < 128) return false; const r = data[index]; const g = data[index + 1]; const b = data[index + 2]; return r >= effectiveThreshold && g >= effectiveThreshold && b >= effectiveThreshold; }
+                    function getIndex(x, y) { return (y * width + x) * 4; } function getVisitedIndex(x, y) { return y * width + x; } const queue = [];
                     for (let y = 0; y < height; y++) { for (let x = 0; x < width; x++) { if (y === 0 || y === height - 1 || x === 0 || x === width - 1) { const index = getIndex(x, y); const visitedIndex = getVisitedIndex(x,y); if (isNearWhite(index) && !visited[visitedIndex]) { queue.push({ x, y }); visited[visitedIndex] = 1; } } } }
-                    console.log("Starting flood fill. Queue:", queue.length, "Threshold:", whiteThreshold, "Tolerance:", tolerance);
-
-                    let processedPixelCount = 0;
-                    while (queue.length > 0) {
-                        const { x, y } = queue.shift(); const index = getIndex(x, y); if (data[index + 3] > 0) { data[index + 3] = 0; processedPixelCount++; }
-                        const neighbors = [ { nx: x + 1, ny: y }, { nx: x - 1, ny: y }, { nx: x, ny: y + 1 }, { nx: x, ny: y - 1 } ];
-                        for (const {nx, ny} of neighbors) { if (nx >= 0 && nx < width && ny >= 0 && ny < height) { const neighborIndex = getIndex(nx, ny); const visitedIndex = getVisitedIndex(nx, ny); if (isNearWhite(neighborIndex) && !visited[visitedIndex]) { visited[visitedIndex] = 1; queue.push({ x: nx, y: ny }); } } }
-                    }
-                    console.log(`Flood fill finished. ${processedPixelCount} pixels made transparent.`);
-                    ctx.putImageData(imageData, 0, 0); resolve(canvas.toDataURL('image/png'));
-                } catch (error) {
-                    if (error.name === 'SecurityError') { console.error("Canvas processing error (likely CORS): Cannot process image from different origin without CORS headers.", error); resolve(img.src); } else { console.error("Canvas processing error in removeEdgeWhiteBackground:", error); resolve(img.src); }
-                }
+                    console.log("Starting flood fill. Queue:", queue.length, "Threshold:", whiteThreshold, "Tolerance:", tolerance); let processedPixelCount = 0;
+                    while (queue.length > 0) { const { x, y } = queue.shift(); const index = getIndex(x, y); if (data[index + 3] > 0) { data[index + 3] = 0; processedPixelCount++; } const neighbors = [ { nx: x + 1, ny: y }, { nx: x - 1, ny: y }, { nx: x, ny: y + 1 }, { nx: x, ny: y - 1 } ]; for (const {nx, ny} of neighbors) { if (nx >= 0 && nx < width && ny >= 0 && ny < height) { const neighborIndex = getIndex(nx, ny); const visitedIndex = getVisitedIndex(nx, ny); if (isNearWhite(neighborIndex) && !visited[visitedIndex]) { visited[visitedIndex] = 1; queue.push({ x: nx, y: ny }); } } } }
+                    console.log(`Flood fill finished. ${processedPixelCount} pixels made transparent.`); ctx.putImageData(imageData, 0, 0); resolve(canvas.toDataURL('image/png'));
+                } catch (error) { if (error.name === 'SecurityError') { console.error("Canvas processing error (likely CORS): Cannot process image from different origin without CORS headers.", error); resolve(img.src); } else { console.error("Canvas processing error in removeEdgeWhiteBackground:", error); resolve(img.src); } }
             });
         }
 
-        // --- Image Loading (Prompt Order Adjusted) ---
-        async function loadDynamicImage(element, prompt, imageType = "background", nologo = true, seed = null) { // Seed param kept but unused now
-             if (!prompt || !element) {
-                 console.warn(`Skipping ${imageType} image: No prompt or element.`);
-                 if (imageType === 'character') { element.classList.add('hidden'); }
-                 return Promise.resolve();
-             }
-             const baseCharacterPrompt = prompt; // Rename for clarity
-             console.log(`Attempting to load ${imageType} image with base prompt: ${baseCharacterPrompt}`);
-             let width = 1024, height = 576, extraParams = "", finalPromptString = '';
-
+        // --- Image Loading (Unchanged from previous version) ---
+        async function loadDynamicImage(element, prompt, imageType = "background", nologo = true, seed = null) {
+             if (!prompt || !element) { console.warn(`Skipping ${imageType} image: No prompt or element.`); if (imageType === 'character') { element.classList.add('hidden'); } return Promise.resolve(); }
+             const baseCharacterPrompt = prompt; console.log(`Attempting to load ${imageType} image with base prompt: ${baseCharacterPrompt}`); let width = 1024, height = 576, extraParams = "", finalPromptString = '';
              if (imageType === 'character') {
                  width = 512; height = 768; extraParams = "&nofeed=true";
-                 // Assemble the final prompt: Style -> Character Details -> Background
-                 finalPromptString = `${FIXED_STYLE_PROMPT}, ${baseCharacterPrompt}, ${SPRITE_BACKGROUND_KEYWORDS}`;
-
-                 console.log("Final Character Prompt:", finalPromptString);
-
-                 // --- Caching Logic Start (Unchanged) ---
-                 if (spriteCache[finalPromptString]) {
-                     console.log(`Cache hit for character prompt: ${finalPromptString.substring(0, 100)}...`);
-                     element.src = spriteCache[finalPromptString];
-                     element.classList.remove('hidden');
-                     element.style.opacity = 1;
-                     return Promise.resolve();
-                 }
+                 finalPromptString = `${FIXED_STYLE_PROMPT}, ${baseCharacterPrompt}, ${SPRITE_BACKGROUND_KEYWORDS}`; console.log("Final Character Prompt:", finalPromptString);
+                 if (spriteCache[finalPromptString]) { console.log(`Cache hit for character prompt: ${finalPromptString.substring(0, 100)}...`); element.src = spriteCache[finalPromptString]; element.classList.remove('hidden'); element.style.opacity = 1; return Promise.resolve(); }
                  element.classList.add('hidden');
-                 // --- Caching Logic End ---
-
-             } else if (imageType === 'background') {
-                 // Keep background prompt separate
-                 finalPromptString = `${baseCharacterPrompt}, anime style, visual novel background, detailed illustration, high quality`;
-                 width = 1024; height = 576;
-             }
-
-             const nologoValue = nologo ? 'true' : 'false';
-             let finalUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPromptString)}?width=${width}&height=${height}&model=flux&nologo=${nologoValue}${extraParams}`;
-             finalUrl += `&seed=${Math.floor(Math.random()*1e7)}`; // Use random seed
-             const url = finalUrl;
-             console.log(`Loading ${imageType} image URL:`, url);
-
-             return new Promise((resolve) => { // Rest of the promise logic unchanged
-                 const img = new Image();
-                 img.crossOrigin = "Anonymous";
-
-                 img.onload = async () => {
-                     console.log(`${imageType} image preloaded/loaded successfully.`);
-                     if (imageType === 'background') {
-                         element.style.backgroundImage = `url('${url}')`;
-                         console.log(`Background image set for element:`, element);
-                         resolve();
-                     } else { // Character sprite processing
-                         try {
-                             console.log(`Attempting white background removal for ${element.id}...`);
-                             const processedUrl = await removeEdgeWhiteBackground(img);
-                             element.src = processedUrl;
-                             spriteCache[finalPromptString] = processedUrl; // Cache processed URL
-                             element.classList.remove('hidden');
-                             element.style.opacity = 1; console.log(`White background removal finished for ${element.id}.`);
-                         } catch (error) {
-                             console.error(`Using original URL due to background removal error for ${element.id}:`, error);
-                             element.src = url; // Fallback
-                             spriteCache[finalPromptString] = url; // Cache original URL on error
-                             element.classList.remove('hidden');
-                             element.style.opacity = 1; showGameError(`处理 ${element.alt} 背景时出错。`);
-                         } finally { resolve(); }
-                     }
-                 };
-
-                 img.onerror = (e) => {
-                    console.error(`Error loading ${imageType} image:`, e, url);
-                    showGameError(`${imageType === 'character' ? element.alt : '背景'} 加载失败。`);
-                    if (imageType === 'character') {
-                        element.classList.add('hidden');
-                    }
-                    resolve();
-                 };
-
-                 img.src = url;
+             } else if (imageType === 'background') { finalPromptString = `${baseCharacterPrompt}, anime style, visual novel background, detailed illustration, high quality`; width = 1024; height = 576; }
+             const nologoValue = nologo ? 'true' : 'false'; let finalUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPromptString)}?width=${width}&height=${height}&model=flux&nologo=${nologoValue}${extraParams}`; finalUrl += `&seed=${Math.floor(Math.random()*1e7)}`; const url = finalUrl; console.log(`Loading ${imageType} image URL:`, url);
+             return new Promise((resolve) => { const img = new Image(); img.crossOrigin = "Anonymous";
+                 img.onload = async () => { console.log(`${imageType} image preloaded/loaded successfully.`); if (imageType === 'background') { element.style.backgroundImage = `url('${url}')`; console.log(`Background image set for element:`, element); resolve(); } else { try { console.log(`Attempting white background removal for ${element.id}...`); const processedUrl = await removeEdgeWhiteBackground(img); element.src = processedUrl; spriteCache[finalPromptString] = processedUrl; element.classList.remove('hidden'); element.style.opacity = 1; console.log(`White background removal finished for ${element.id}.`); } catch (error) { console.error(`Using original URL due to background removal error for ${element.id}:`, error); element.src = url; spriteCache[finalPromptString] = url; element.classList.remove('hidden'); element.style.opacity = 1; showGameError(`处理 ${element.alt} 背景时出错。`); } finally { resolve(); } } };
+                 img.onerror = (e) => { console.error(`Error loading ${imageType} image:`, e, url); showGameError(`${imageType === 'character' ? element.alt : '背景'} 加载失败。`); if (imageType === 'character') { element.classList.add('hidden'); } resolve(); }; img.src = url;
              });
          }
 
 
-        // --- LLM API Call (Instructions against "same") ---
+        // --- LLM API Call (MODIFIED for Image Input) ---
         async function callLLMApi_Galgame(promptHistory) {
-            console.log("callLLMApi_Galgame initiated."); if (!currentApiKey || !currentModel || !currentApiUrl) { showGameError("API 配置不完整！请检查设置。"); return null; } clearGameError(); let finalApiUrl = currentApiUrl.trim(); let requestBody; let headers = { 'Content-Type': 'application/json' };
+            console.log("callLLMApi_Galgame initiated.");
+            if (!currentApiKey || !currentModel || !currentApiUrl) {
+                showGameError("API 配置不完整！请检查设置。");
+                // Return fallback on config error
+                 const fallbackData = { scene_state: { background_prompt: "error config", visible_characters: [] }, dialogue_segments: [{ speaker: "系统", text: "API 配置不完整！请检查设置。", emotion: null }], choices: ["[关闭]"] };
+                 return fallbackData;
+            }
+            clearGameError();
+            let finalApiUrl = currentApiUrl.trim();
+            let requestBody;
+            let headers = { 'Content-Type': 'application/json' };
+            const isFirstCall = promptHistory.length === 1 && promptHistory[0].isSetup;
+            let userPromptText = isFirstCall ? promptHistory[0].parts[0].text : promptHistory[promptHistory.length - 1].parts[0].text;
 
-            // Updated System Instruction with stricter rules against "same..." and for concise emotion
-            const systemInstruction = `你现在是一个 Galgame (视觉小说) 引擎。你的任务是与玩家 (${playerName || '玩家'}) 互动，并生成游戏内容。\n玩家基础外貌提示词(由你生成或完善): ${playerBaseAppearancePrompt || '(尚未生成)'}\nAI角色基础外貌提示词(由你生成或完善): ${aiBaseAppearancePrompt || '(尚未生成)'}\n${currentAiPersona ? `AI 角色设定: ${currentAiPersona}\n` : ''}请**严格**按照以下 JSON 格式生成响应，不要包含任何额外的解释或 Markdown 标记包裹 JSON 本身：\n\`\`\`json\n{\n  "scene_state": {\n    "background_prompt": "String (场景的英文描述, 这是游戏背景图, 不是角色立绘背景!)",\n    "visible_characters": [\n      {\n        "character_id": "'player' or 'ai'",\n        "emotion": "String or Null (角色【当前】的表情/动作/细微变化, e.g., 'smiling slightly', 'surprised face', 'holding a pen', 'adjusting glasses')"\n      }\n      // ... 可能包含 'player' 和/或 'ai'\n    ]\n  },\n  "dialogue_segments": [\n    {\n      "speaker": "String (AI角色名, ${playerName ? "'" + playerName + "'" : "'玩家'"}, '旁白', '内心想法')",\n      "emotion": "String or Null (说话者表情/动作, 对应此【对话】内容)",\n      "text": "String (该片段的对话/旁白文本, 支持Markdown)"\n    }\n    // ... more segments\n  ],\n  "choices": [\n    "String (选项1)", \n    "String (选项2)"\n  ],\n  "initial_setup_details": { \n     // !!! 这个字段【只在】响应第一个设置请求时出现 !!!\n     // **要求：生成【极其详细且连贯】、包含具体特征(发型/发色/瞳色/身材/脸型)和【具体服装】描述的基础提示词。**【禁止】**包含 'same character', 'same face', 'same style' 等无效词语。**\n     "player_base_appearance_prompt": "String (生成【极其详细、连贯】的玩家基础外貌英文提示词, e.g., '1girl, teenage girl, medium height, slim build, long wavy bright pink hair tied in high twin tails with red ribbons, large sparkling emerald green eyes, fair skin, wearing a standard white short-sleeve sailor school uniform with navy blue collar and cuffs, red necktie, navy blue pleated skirt, white knee-high socks, brown loafers')",\n     "ai_base_appearance_prompt": "String (生成【极其详细、连贯】的AI角色基础外貌英文提示词, 同上要求)"\n  }\n}\n\`\`\`\n*   **scene_state**: 描述当前场景视觉状态。\n    *   **background_prompt**: 当前场景的【游戏背景图】提示词。\n    *   **visible_characters**: 数组包含当前屏幕上可见的角色。每个对象指定 \`character_id\` ('player' 或 'ai') 和 \`emotion\`。 \`emotion\` 必须是【极其简洁地描述当前表情、动作或非常小的临时物品】，例如 'smiling', 'sad', 'surprised', 'holding a book', 'waving hand', 'blushing', 'looking down shyly'。**【绝对禁止】** 在 \`emotion\` 字段中重新描述角色的核心特征（如发型、发色、瞳色）、主要服装或整体艺术风格，也**【绝对禁止】**包含 'same character/face/style/clothing' 等词语。客户端会强制应用一致的日式二次元画风和纯白背景。\n*   **dialogue_segments**: 对话内容数组。\n*   **choices**: 玩家选项数组。\n*   **initial_setup_details**: 【只在首次响应时提供】，包含你生成的【极其详细、连贯且不含无效重复词】的基础外貌提示词。\n*   **风格和立绘背景**: 客户端会强制使用固定的【日式二次元视觉小说立绘风格】和【纯白背景】来生成角色立绘。你的任务是提供详细的基础描述和简洁的状态变化，并避免无效关键词。
+            // --- System Instruction (Instructions against "same..." kept) ---
+             const systemInstruction = `你现在是一个 Galgame (视觉小说) 引擎。你的任务是与玩家 (${playerName || '玩家'}) 互动，并生成游戏内容。\n玩家基础外貌提示词(由你生成或完善): ${playerBaseAppearancePrompt || '(尚未生成)'}\nAI角色基础外貌提示词(由你生成或完善): ${aiBaseAppearancePrompt || '(尚未生成)'}\n${currentAiPersona ? `AI 角色设定: ${currentAiPersona}\n` : ''}请**严格**按照以下 JSON 格式生成响应，不要包含任何额外的解释或 Markdown 标记包裹 JSON 本身：\n\`\`\`json\n{\n  "scene_state": {\n    "background_prompt": "String (场景的英文描述, 这是游戏背景图, 不是角色立绘背景!)",\n    "visible_characters": [\n      {\n        "character_id": "'player' or 'ai'",\n        "emotion": "String or Null (角色【当前】的表情/动作/细微变化, e.g., 'smiling slightly', 'surprised face', 'holding a pen', 'adjusting glasses')"\n      }\n      // ... 可能包含 'player' 和/或 'ai'\n    ]\n  },\n  "dialogue_segments": [\n    {\n      "speaker": "String (AI角色名, ${playerName ? "'" + playerName + "'" : "'玩家'"}, '旁白', '内心想法')",\n      "emotion": "String or Null (说话者表情/动作, 对应此【对话】内容)",\n      "text": "String (该片段的对话/旁白文本, 支持Markdown)"\n    }\n    // ... more segments\n  ],\n  "choices": [\n    "String (选项1)", \n    "String (选项2)"\n  ],\n  "initial_setup_details": { \n     // !!! 这个字段【只在】响应第一个设置请求时出现 !!!\n     // **要求：生成【极其详细且连贯】、包含具体特征(发型/发色/瞳色/身材/脸型)和【具体服装】描述的基础提示词。**【禁止】**包含 'same character', 'same face', 'same style' 等无效词语。**\n     "player_base_appearance_prompt": "String (生成【极其详细、连贯】的玩家基础外貌英文提示词, e.g., '1girl, teenage girl, medium height, slim build, long wavy bright pink hair tied in high twin tails with red ribbons, large sparkling emerald green eyes, fair skin, wearing a standard white short-sleeve sailor school uniform with navy blue collar and cuffs, red necktie, navy blue pleated skirt, white knee-high socks, brown loafers')",\n     "ai_base_appearance_prompt": "String (生成【极其详细、连贯】的AI角色基础外貌英文提示词, 同上要求)"\n  }\n}\n\`\`\`\n*   **scene_state**: 描述当前场景视觉状态。\n    *   **background_prompt**: 当前场景的【游戏背景图】提示词。\n    *   **visible_characters**: 数组包含当前屏幕上可见的角色。每个对象指定 \`character_id\` ('player' 或 'ai') 和 \`emotion\`。 \`emotion\` 必须是【极其简洁地描述当前表情、动作或非常小的临时物品】，例如 'smiling', 'sad', 'surprised', 'holding a book', 'waving hand', 'blushing', 'looking down shyly'。**【绝对禁止】** 在 \`emotion\` 字段中重新描述角色的核心特征（如发型、发色、瞳色）、主要服装或整体艺术风格，也**【绝对禁止】**包含 'same character/face/style/clothing' 等词语。客户端会强制应用一致的日式二次元画风和纯白背景。\n*   **dialogue_segments**: 对话内容数组。\n*   **choices**: 玩家选项数组。\n*   **initial_setup_details**: 【只在首次响应时提供】，包含你生成的【极其详细、连贯且不含无效重复词】的基础外貌提示词。\n*   **风格和立绘背景**: 客户端会强制使用固定的【日式二次元视觉小说立绘风格】和【纯白背景】来生成角色立绘。你的任务是提供详细的基础描述和简洁的状态变化，并避免无效关键词。
 
-这是之前的对话历史（最近几条）：\n${JSON.stringify(promptHistory.slice(-6, -1).map(h => `${h.role === 'user' ? (playerName || '玩家') : 'AI Response (Segments)'}: ${h.role === 'user' ? h.parts[0].text : '(...)'}`)).substring(0, 1000)}...\n\n用户的最新输入/选择是: "${promptHistory[promptHistory.length - 1].parts[0].text}"\n\n请生成 JSON 格式的响应。`;
+这是之前的对话历史（最近几条）：\n${JSON.stringify(promptHistory.slice(-6, -1).map(h => `${h.role === 'user' ? (playerName || '玩家') : 'AI Response (Segments)'}: ${h.role === 'user' ? h.parts[0].text : '(...)'}`)).substring(0, 1000)}...\n\n用户的最新输入/选择是: "${userPromptText}"\n\n请生成 JSON 格式的响应。`;
 
-             // --- Rest of the API call logic (unchanged) ---
-             try {
-                 let messagesForApi = [];
-                 if (promptHistory.length === 1 && promptHistory[0].isSetup) { messagesForApi = [ { "role": "system", "content": systemInstruction }, { "role": "user", "content": promptHistory[0].parts[0].text } ]; }
-                 else { messagesForApi = [ { "role": "system", "content": systemInstruction }, ...promptHistory.slice(-7).map(h => ({ role: h.role === 'model' ? 'assistant' : 'user', content: h.parts[0].text })) ]; }
 
-                 if (finalApiUrl.includes('generativelanguage.googleapis.com')) { if (!finalApiUrl.includes('/v1beta/models')) { finalApiUrl = finalApiUrl.replace(/\/$/, '') + `/v1beta/models/${currentModel}:generateContent?key=${currentApiKey}`; } else { finalApiUrl = finalApiUrl.replace(/\/$/, '') + `?key=${currentApiKey}`; } let geminiContents = []; messagesForApi.forEach(msg => { if (msg.role === 'system') return; const role = (msg.role === 'assistant' ? 'model' : 'user'); if (geminiContents.length > 0 && geminiContents[geminiContents.length - 1].role === role) { console.warn(`Skipping message due to non-alternating roles for Gemini: ${JSON.stringify(msg)}`); return; } geminiContents.push({ role: role, parts: [{ text: msg.content }] }); }); requestBody = JSON.stringify({ contents: geminiContents, generationConfig: { responseMimeType: "application/json" } }); }
-                 else if (finalApiUrl.includes('/v1')) { headers['Authorization'] = `Bearer ${currentApiKey}`; if (!finalApiUrl.includes('/chat/completions')) { finalApiUrl = finalApiUrl.replace(/\/v1\/?$/, '') + '/v1/chat/completions'; } requestBody = JSON.stringify({ model: currentModel, messages: messagesForApi, response_format: { type: "json_object" } }); }
-                 else { throw new Error("无法识别的 API 基础地址格式。"); }
+            try {
+                 // --- API Request Body Construction (Conditional based on Image & API type) ---
+                 if (finalApiUrl.includes('generativelanguage.googleapis.com')) {
+                     // Gemini API Structure
+                     if (!finalApiUrl.includes('/v1beta/models')) { finalApiUrl = finalApiUrl.replace(/\/$/, '') + `/v1beta/models/${currentModel}:generateContent?key=${currentApiKey}`; }
+                     else { finalApiUrl += `?key=${currentApiKey}`; } // Assumes URL already points to model
+
+                     let geminiContents = [];
+                     // Add previous history (excluding the current setup prompt if it exists)
+                      promptHistory.slice(0, isFirstCall ? -1 : undefined) // Exclude the setup prompt itself from history
+                          .slice(-7) // Limit history length
+                          .forEach(h => {
+                          const role = (h.role === 'model' ? 'model' : 'user');
+                          // Basic alternating role check for Gemini
+                           if (geminiContents.length > 0 && geminiContents[geminiContents.length - 1].role === role) {
+                               if (role === 'model') geminiContents.push({ role: 'user', parts: [{ text: "(Continue...)" }] }); // Add dummy user turn if needed
+                               else geminiContents.push({ role: 'model', parts: [{ text: "{}" }] }); // Add dummy model turn if needed
+                           }
+                           geminiContents.push({ role: role, parts: [{ text: h.parts[0].text }] });
+                       });
+
+                     // Construct current user turn (potentially with images)
+                     let currentUserParts = [];
+                     if (isFirstCall) {
+                         // Add Player Image if exists
+                         const playerData = getImageDataFromBase64(playerImageBase64);
+                         if (playerData) {
+                             currentUserParts.push({ inline_data: { mime_type: playerData.mimeType, data: playerData.data } });
+                             console.log("Adding player image to Gemini request");
+                         }
+                         // Add AI Image if exists
+                         const aiData = getImageDataFromBase64(aiImageBase64);
+                         if (aiData) {
+                             currentUserParts.push({ inline_data: { mime_type: aiData.mimeType, data: aiData.data } });
+                              console.log("Adding AI image to Gemini request");
+                         }
+                     }
+                     // Add the text prompt last
+                     currentUserParts.push({ text: userPromptText });
+
+                     // Ensure the last turn added is 'user' if history was empty or ended on 'user'
+                     if(geminiContents.length === 0 || geminiContents[geminiContents.length - 1].role === 'model') {
+                        geminiContents.push({ role: 'user', parts: currentUserParts });
+                     } else {
+                        // If last history entry was user, merge? Or replace? Let's append as new user turn for simplicity.
+                        // This might violate strict alternation if the *actual* last turn was user.
+                        // A more robust history management might be needed for complex scenarios.
+                        console.warn("Potentially non-alternating turn structure for Gemini.");
+                        geminiContents.push({ role: 'user', parts: currentUserParts });
+                     }
+
+
+                     requestBody = JSON.stringify({ contents: geminiContents, generationConfig: { responseMimeType: "application/json" } });
+
+                 } else if (finalApiUrl.includes('/v1')) {
+                     // OpenAI Compatible API Structure
+                     headers['Authorization'] = `Bearer ${currentApiKey}`;
+                     if (!finalApiUrl.includes('/chat/completions')) { finalApiUrl = finalApiUrl.replace(/\/v1\/?$/, '') + '/v1/chat/completions'; }
+
+                     let openAiMessages = [];
+                     // Add system message
+                     openAiMessages.push({ "role": "system", "content": systemInstruction });
+
+                     // Add history (excluding current setup prompt)
+                     promptHistory.slice(0, isFirstCall ? -1 : undefined)
+                        .slice(-7) // Limit history
+                        .forEach(h => {
+                            openAiMessages.push({ role: h.role === 'model' ? 'assistant' : 'user', content: h.parts[0].text });
+                     });
+
+                     // Construct current user message (potentially with images)
+                     let currentUserContent = [];
+                      // Text part first for OpenAI vision
+                     currentUserContent.push({ type: "text", text: userPromptText });
+
+                     if (isFirstCall) {
+                         // Add Player Image if exists
+                         if (playerImageBase64) {
+                             currentUserContent.push({ type: "image_url", image_url: { url: playerImageBase64 } });
+                              console.log("Adding player image to OpenAI request");
+                         }
+                         // Add AI Image if exists
+                         if (aiImageBase64) {
+                             currentUserContent.push({ type: "image_url", image_url: { url: aiImageBase64 } });
+                              console.log("Adding AI image to OpenAI request");
+                         }
+                     }
+                     openAiMessages.push({ role: "user", content: currentUserContent });
+
+                     requestBody = JSON.stringify({ model: currentModel, messages: openAiMessages, max_tokens: 2048, response_format: { type: "json_object" } });
+
+                 } else {
+                     throw new Error("无法识别的 API 基础地址格式。");
+                 }
+
 
                  console.log("Calling Galgame LLM API:", finalApiUrl);
+                 // console.log("Request Body:", requestBody); // Careful logging Base64
                  const response = await fetch(finalApiUrl, { method: 'POST', headers, body: requestBody });
                  console.log("LLM API Response Status:", response.status);
                  if (!response.ok) { let errorText = `API 请求失败: ${response.status} ${response.statusText}`; try { const errorBody = await response.json(); errorText += `\nDetails: ${errorBody?.error?.message || JSON.stringify(errorBody)}`; } catch (_) { try { errorText += `\nDetails: ${await response.text()}`; } catch (e) {} } throw new Error(errorText); }
@@ -665,9 +855,8 @@
                  console.log("Extracted Response Content (before parsing):", responseContent);
 
                  let parsedData;
-                 try {
+                 try { // Validation and Parsing (Unchanged from previous version)
                      const cleanedText = responseContent.replace(/^```json\s*|```$/gs, '').trim(); parsedData = JSON.parse(cleanedText);
-                     // Validation (Unchanged from previous version)
                      if (!parsedData || typeof parsedData !== 'object') throw new Error("Parsed data is not an object.");
                      if (!parsedData.scene_state || typeof parsedData.scene_state !== 'object') throw new Error("Missing or invalid scene_state.");
                      if (typeof parsedData.scene_state.background_prompt !== 'string') throw new Error("Invalid background_prompt type.");
@@ -677,7 +866,7 @@
                      if (parsedData.dialogue_segments.length === 0) { console.warn("AI provided zero dialogue segments. Adding placeholder."); parsedData.dialogue_segments.push({speaker: "旁白", text:"(AI未返回对话内容)", emotion: null}); } else { for(const segment of parsedData.dialogue_segments) { if (typeof segment !== 'object' || segment === null) throw new Error("Invalid item in dialogue_segments array."); if (typeof segment.speaker !== 'string') throw new Error("Invalid speaker type in dialogue_segments."); if (typeof segment.text !== 'string') throw new Error("Invalid text type in dialogue_segments."); segment.emotion = segment.emotion || null; } }
                      if (!Array.isArray(parsedData.choices)) throw new Error("Invalid choices type.");
                       if (parsedData.choices.length === 0) { console.warn("AI provided zero choices. Adding default."); parsedData.choices = ["[继续...]"]; } else { for(let i = 0; i < parsedData.choices.length; i++) { if (typeof parsedData.choices[i] !== 'string') throw new Error(`Invalid choice type at index ${i}.`); } }
-                     if (promptHistory.length === 1 && promptHistory[0].isSetup) { if (!parsedData.initial_setup_details || typeof parsedData.initial_setup_details !== 'object') throw new Error("Initial setup response missing valid initial_setup_details object."); if (typeof parsedData.initial_setup_details.player_base_appearance_prompt !== 'string' || !parsedData.initial_setup_details.player_base_appearance_prompt.trim()) throw new Error("Initial setup missing valid player_base_appearance_prompt."); if (typeof parsedData.initial_setup_details.ai_base_appearance_prompt !== 'string' || !parsedData.initial_setup_details.ai_base_appearance_prompt.trim()) throw new Error("Initial setup missing valid ai_base_appearance_prompt."); console.log("Initial setup details received and validated."); }
+                     if (isFirstCall) { if (!parsedData.initial_setup_details || typeof parsedData.initial_setup_details !== 'object') throw new Error("Initial setup response missing valid initial_setup_details object."); if (typeof parsedData.initial_setup_details.player_base_appearance_prompt !== 'string' || !parsedData.initial_setup_details.player_base_appearance_prompt.trim()) throw new Error("Initial setup missing valid player_base_appearance_prompt."); if (typeof parsedData.initial_setup_details.ai_base_appearance_prompt !== 'string' || !parsedData.initial_setup_details.ai_base_appearance_prompt.trim()) throw new Error("Initial setup missing valid ai_base_appearance_prompt."); console.log("Initial setup details received and validated."); }
                      else if (parsedData.initial_setup_details) { console.warn("AI incorrectly included initial_setup_details on a non-first turn. Ignoring it."); delete parsedData.initial_setup_details; }
                  } catch (parseError) {
                      console.error("Failed to parse or validate LLM JSON response:", parseError); console.error("Received content:", responseContent);
@@ -691,9 +880,14 @@
              } catch (error) {
                  console.error("调用 Galgame LLM API 时出错:", error); showGameError(error.message || "与 AI 的连接中断。");
                  const fallbackData = { scene_state: { background_prompt: "error background", visible_characters: [] }, dialogue_segments: [{ speaker: "系统", text: `抱歉，连接AI时出错：${error.message}`, emotion: null }], choices: ["[尝试继续]"] };
-                 conversationHistory.push({ role: "model", parts: [{ text: JSON.stringify(fallbackData) }], isErrorFallback: true }); return fallbackData;
+                 // Avoid adding duplicate error messages if already added in parse try/catch
+                 if (!conversationHistory.length || !conversationHistory[conversationHistory.length - 1].isErrorFallback) {
+                    conversationHistory.push({ role: "model", parts: [{ text: JSON.stringify(fallbackData) }], isErrorFallback: true });
+                 }
+                 return fallbackData;
              }
         }
+
 
         // --- UI Update (Unchanged) ---
         function updateDialogueUI(parsedData) { console.log("Updating dialogue UI with parsed data:", parsedData); clearGameError(); currentDialogueSegments = parsedData.dialogue_segments || []; currentTurnChoices = parsedData.choices || []; currentSegmentIndex = 0; if (currentDialogueSegments.length > 0) { displayCurrentSegment(); if (currentDialogueSegments.length === 1) { processChoicesAndButtonState(); console.log("Single dialogue segment, processing choices."); } else { nextButton.style.display = 'block'; nextButton.disabled = false; choicesContainer.innerHTML = ''; console.log("Multi-segment dialogue. Next button enabled."); } } else { console.warn("Parsed data has no dialogue segments. Proceeding to choices."); dialogueText.innerHTML = ""; speakerName.textContent = "旁白"; processChoicesAndButtonState(); } setLoading(false); }
@@ -701,25 +895,58 @@
         function processChoicesAndButtonState() { choicesContainer.innerHTML = ''; if (currentTurnChoices && currentTurnChoices.length > 0) { console.log("Processing final choices:", currentTurnChoices); nextButton.style.display = 'none'; currentTurnChoices.forEach((choiceText) => { const button = document.createElement('button'); button.classList.add('choice-button'); button.textContent = choiceText.replace(/^\[|\]$/g, ''); button.onclick = () => handleChoice_Galgame(choiceText); button.disabled = isLoading; choicesContainer.appendChild(button); }); nextButton.disabled = true; } else { console.error("No choices available to display. Game cannot proceed."); nextButton.style.display = 'block'; nextButton.disabled = true; showGameError("AI 未提供任何选项，故事无法继续。"); } console.log("Choices processed and displayed."); setLoading(false); }
 
 
-        // --- Game Flow Functions (startGame_Galgame clears cache, proceedStory calls correct loadDynamicImage) ---
-        function startGame_Galgame() { // Clears cache
+        // --- Game Flow Functions (startGame MODIFIED for new prompt logic) ---
+        function startGame_Galgame() {
             console.log("startGame_Galgame called");
             if (!currentApiKey || !currentModel) { showGameError("请先完成并保存 API 配置！"); toggleConfigPanel(); return; }
-            isGameStarted = true; nextButton.textContent = '继续'; toggleHistoryBtn.disabled = false; conversationHistory = []; playerBaseAppearancePrompt = ''; aiBaseAppearancePrompt = ''; currentDialogueSegments = []; currentSegmentIndex = 0; currentTurnChoices = []; currentTurnParsedData = null; speakerName.textContent = '旁白'; dialogueText.innerHTML = '';
-            spriteCache = {}; // <<< Clear sprite cache for new game
 
-             let initialSetupPrompt = "=== 游戏开始设定 ===\n"; // Instructions updated in callLLMApi_Galgame
-             initialSetupPrompt += `玩家名称: ${playerName || '玩家'}\n`;
-             if (playerPersona) { initialSetupPrompt += `玩家角色简介 (包含可选外貌线索): ${playerPersona}\n`; initialSetupPrompt += `任务1: 基于玩家简介，生成一个【极其详细且连贯】的玩家【基础外貌英文提示词】 (包括性别、大致身高/体型、发型、发色、瞳色、脸型、具体服装等)。如果简介中缺少细节，请合理补充。【禁止】包含 'same character/face/style' 等无效词语。\n`; } else { initialSetupPrompt += `玩家角色简介: (无，由你创造)\n`; initialSetupPrompt += `任务1: 创造一个合适的玩家角色，并生成一个【极其详细且连贯】的玩家【基础外貌英文提示词】 (包括性别、大致身高/体型、发型、发色、瞳色、脸型、具体服装等)。【禁止】包含 'same character/face/style' 等无效词语。\n`; }
-             if (currentAiPersona) { initialSetupPrompt += `AI对手角色设定 (包含可选外貌线索): ${currentAiPersona}\n`; initialSetupPrompt += `任务2: 基于AI角色设定，生成一个【极其详细且连贯】的AI角色【基础外貌英文提示词】。【禁止】包含 'same character/face/style' 等无效词语。\n`; } else { initialSetupPrompt += `AI对手角色设定: (无，由你创造)\n`; initialSetupPrompt += `任务2: 创造一个合适的AI对手角色，并生成一个【极其详细且连贯】的AI角色【基础外貌英文提示词】。【禁止】包含 'same character/face/style' 等无效词语。\n`; }
-             initialSetupPrompt += `期望开局: ${playerStart || '一个有趣或常见的日常场景。'}\n`; initialSetupPrompt += `游戏类型: 互动故事 (不限于特定类型)\n`; initialSetupPrompt += "=== 任务3 (生成首次响应) ===\n"; initialSetupPrompt += `请生成游戏的开场白、场景描述和第一个对话片段。请确保【首次响应】的JSON包含以下内容：\n`; initialSetupPrompt += `1.  \`initial_setup_details\` 对象，内含生成的 \`player_base_appearance_prompt\` 和 \`ai_base_appearance_prompt\`。\n`; initialSetupPrompt += `2.  \`scene_state\` 对象，包含 \`background_prompt\` 和 \`visible_characters\` 数组。\n`; initialSetupPrompt += `3.  \`dialogue_segments\` 数组。\n`; initialSetupPrompt += `4.  \`choices\` 数组。\n`; initialSetupPrompt += "请严格使用前面描述的新JSON格式输出。\n"; initialSetupPrompt += "=====================\n";
+            isGameStarted = true; nextButton.textContent = '继续'; toggleHistoryBtn.disabled = false; conversationHistory = []; playerBaseAppearancePrompt = ''; aiBaseAppearancePrompt = ''; currentDialogueSegments = []; currentSegmentIndex = 0; currentTurnChoices = []; currentTurnParsedData = null; speakerName.textContent = '旁白'; dialogueText.innerHTML = ''; spriteCache = {}; // Clear cache
 
-            console.log("Initial Setup Prompt:", initialSetupPrompt);
-            conversationHistory.push({ role: 'user', parts: [{ text: initialSetupPrompt }], isSetup: true });
+             // --- Construct Initial Setup Prompt based on Image Uploads ---
+            let initialSetupText = "=== 游戏开始设定 ===\n";
+            initialSetupText += `玩家名称: ${playerName || '玩家'}\n`;
+
+             // Player Setup Instruction
+             if (playerImageBase64) {
+                 initialSetupText += `任务1: 根据【第一张】提供的玩家图片，生成一个【极其详细且连贯】的玩家【基础外貌英文提示词】(包括图片中可见的性别、体型、发型/色、瞳色、脸型、具体服装等)。【禁止】包含 'same character/face/style' 等无效词语。\n`;
+             } else if (playerPersona) {
+                 initialSetupText += `玩家角色简介: ${playerPersona}\n`;
+                 initialSetupText += `任务1: 基于玩家简介，生成一个【极其详细且连贯】的玩家【基础外貌英文提示词】 (包括性别、大致身高/体型、发型、发色、瞳色、脸型、具体服装等)。如果简介中缺少细节，请合理补充。【禁止】包含 'same character/face/style' 等无效词语。\n`;
+             } else {
+                 initialSetupText += `玩家角色简介: (无，由你创造)\n`;
+                 initialSetupText += `任务1: 创造一个合适的玩家角色，并生成一个【极其详细且连贯】的玩家【基础外貌英文提示词】 (包括性别、大致身高/体型、发型、发色、瞳色、脸型、具体服装等)。【禁止】包含 'same character/face/style' 等无效词语。\n`;
+             }
+
+             // AI Setup Instruction
+             if (aiImageBase64) {
+                 const imageIndexText = playerImageBase64 ? "【第二张】" : "【第一张】"; // Adjust index based on player image presence
+                 initialSetupText += `任务2: 根据${imageIndexText}提供的AI角色图片，生成一个【极其详细且连贯】的AI角色【基础外貌英文提示词】(同上要求)。【禁止】包含 'same character/face/style' 等无效词语。\n`;
+             } else if (currentAiPersona) {
+                 initialSetupText += `AI对手角色设定: ${currentAiPersona}\n`;
+                 initialSetupText += `任务2: 基于AI角色设定，生成一个【极其详细且连贯】的AI角色【基础外貌英文提示词】。【禁止】包含 'same character/face/style' 等无效词语。\n`;
+             } else {
+                 initialSetupText += `AI对手角色设定: (无，由你创造)\n`;
+                 initialSetupText += `任务2: 创造一个合适的AI对手角色，并生成一个【极其详细且连贯】的AI角色【基础外貌英文提示词】。【禁止】包含 'same character/face/style' 等无效词语。\n`;
+             }
+
+            initialSetupText += `期望开局: ${playerStart || '一个有趣或常见的日常场景。'}\n`;
+            initialSetupText += `游戏类型: 互动故事 (不限于特定类型)\n`;
+            initialSetupText += "=== 任务3 (生成首次响应) ===\n";
+            initialSetupText += `请生成游戏的开场白、场景描述和第一个对话片段。请确保【首次响应】的JSON包含以下内容：\n`;
+            initialSetupText += `1.  \`initial_setup_details\` 对象，内含生成的 \`player_base_appearance_prompt\` 和 \`ai_base_appearance_prompt\`。\n`;
+            initialSetupText += `2.  \`scene_state\` 对象，包含 \`background_prompt\` 和 \`visible_characters\` 数组。\n`;
+            initialSetupText += `3.  \`dialogue_segments\` 数组。\n`;
+            initialSetupText += `4.  \`choices\` 数组。\n`;
+            initialSetupText += "请严格使用前面描述的新JSON格式输出。\n";
+            initialSetupText += "=====================\n";
+
+            console.log("Initial Setup Text Prompt:", initialSetupText);
+            // The actual API request construction (including images) happens in callLLMApi_Galgame
+            conversationHistory.push({ role: 'user', parts: [{ text: initialSetupText }], isSetup: true });
             proceedStory_Galgame();
         }
 
-        async function proceedStory_Galgame(userChoice = null) { // Calls loadDynamicImage correctly
+        async function proceedStory_Galgame(userChoice = null) { // Unchanged logic for subsequent calls
             if (userChoice) { console.log("proceedStory_Galgame called with choice:", userChoice); }
             else { console.log("proceedStory_Galgame called for initial setup or next segment"); }
 
@@ -730,7 +957,7 @@
                 const parsedData = await callLLMApi_Galgame(conversationHistory);
                 currentTurnParsedData = parsedData;
 
-                if (parsedData.initial_setup_details) {
+                if (parsedData.initial_setup_details) { // Only store on first successful call with details
                     playerBaseAppearancePrompt = parsedData.initial_setup_details.player_base_appearance_prompt || '';
                     aiBaseAppearancePrompt = parsedData.initial_setup_details.ai_base_appearance_prompt || '';
                     console.log("Stored Player Base Appearance:", playerBaseAppearancePrompt);
@@ -739,66 +966,68 @@
 
                 updateDialogueUI(parsedData);
 
-                const imagePromises = [];
-                const sceneState = parsedData.scene_state || {};
-                let playerShouldBeVisible = false; let aiShouldBeVisible = false;
-
+                const imagePromises = []; const sceneState = parsedData.scene_state || {}; let playerShouldBeVisible = false; let aiShouldBeVisible = false;
                 imagePromises.push(loadDynamicImage(gameBackground, sceneState.background_prompt || "default anime background", 'background'));
-
                 const visibleCharacters = sceneState.visible_characters || [];
                 visibleCharacters.forEach(charInfo => {
                     let basePrompt = ''; let imgElement = null; let altText = '';
                     if (charInfo.character_id === 'player' && playerBaseAppearancePrompt) { basePrompt = playerBaseAppearancePrompt; imgElement = playerCharacterSprite; altText = playerName || "玩家角色"; playerShouldBeVisible = true; }
                     else if (charInfo.character_id === 'ai' && aiBaseAppearancePrompt) { basePrompt = aiBaseAppearancePrompt; imgElement = aiCharacterSprite; const aiNameMatch = currentAiPersona.match(/\[([^\]]+)\]/); altText = aiNameMatch ? aiNameMatch[1] : "AI角色"; aiShouldBeVisible = true; }
-
-                    if (imgElement && basePrompt) {
-                        let characterDetails = basePrompt; // Start with base
-                        if (charInfo.emotion && typeof charInfo.emotion === 'string' && charInfo.emotion.trim() !== "") {
-                            characterDetails += `, ${charInfo.emotion.trim()}`; // Add emotion modifier
-                        }
-                        imgElement.alt = altText;
-                        // Pass only the character details (base + emotion) to loadDynamicImage
-                        // The fixed style and background keywords are added *inside* loadDynamicImage
-                        imagePromises.push(loadDynamicImage(imgElement, characterDetails, 'character'));
-                    }
+                    if (imgElement && basePrompt) { let characterDetails = basePrompt; if (charInfo.emotion && typeof charInfo.emotion === 'string' && charInfo.emotion.trim() !== "") { characterDetails += `, ${charInfo.emotion.trim()}`; } imgElement.alt = altText; imagePromises.push(loadDynamicImage(imgElement, characterDetails, 'character')); }
                 });
 
-                console.log("Waiting for image loading promises...");
-                await Promise.allSettled(imagePromises);
-                console.log("Image promises settled.");
-
-                // Visibility management (Unchanged)
-                 if (!playerShouldBeVisible) { playerCharacterSprite.classList.add('hidden'); console.log("Ensuring player sprite is hidden based on visibility flag."); }
-                 else if (playerCharacterSprite.classList.contains('hidden') && playerShouldBeVisible) { playerCharacterSprite.classList.remove('hidden'); playerCharacterSprite.style.opacity = 1; console.log("Ensuring player sprite is SHOWN based on visibility flag.");}
-                 if (!aiShouldBeVisible) { aiCharacterSprite.classList.add('hidden'); console.log("Ensuring AI sprite is hidden based on visibility flag."); }
-                 else if (aiCharacterSprite.classList.contains('hidden') && aiShouldBeVisible) { aiCharacterSprite.classList.remove('hidden'); aiCharacterSprite.style.opacity = 1; console.log("Ensuring AI sprite is SHOWN based on visibility flag.");}
-
-            } catch (error) {
-                console.error("Error proceeding Galgame story:", error); showGameError(`处理故事时发生错误: ${error.message}`); setLoading(false);
-            }
+                console.log("Waiting for image loading promises..."); await Promise.allSettled(imagePromises); console.log("Image promises settled.");
+                 if (!playerShouldBeVisible) { playerCharacterSprite.classList.add('hidden'); console.log("Ensuring player sprite is hidden based on visibility flag."); } else if (playerCharacterSprite.classList.contains('hidden') && playerShouldBeVisible) { playerCharacterSprite.classList.remove('hidden'); playerCharacterSprite.style.opacity = 1; console.log("Ensuring player sprite is SHOWN based on visibility flag.");}
+                 if (!aiShouldBeVisible) { aiCharacterSprite.classList.add('hidden'); console.log("Ensuring AI sprite is hidden based on visibility flag."); } else if (aiCharacterSprite.classList.contains('hidden') && aiShouldBeVisible) { aiCharacterSprite.classList.remove('hidden'); aiCharacterSprite.style.opacity = 1; console.log("Ensuring AI sprite is SHOWN based on visibility flag.");}
+            } catch (error) { console.error("Error proceeding Galgame story:", error); showGameError(`处理故事时发生错误: ${error.message}`); setLoading(false); }
         }
 
         // --- handleNext_Galgame, handleChoice_Galgame (Unchanged) ---
-        function handleNext_Galgame() {
-             console.log("handleNext_Galgame called."); if (isLoading || !isGameStarted) return;
-             if (currentDialogueSegments && currentSegmentIndex < currentDialogueSegments.length - 1) {
-                 currentSegmentIndex++; setLoading(true); displayCurrentSegment();
-                 if (currentSegmentIndex === currentDialogueSegments.length - 1) { console.log("Last segment reached via Next, processing choices."); processChoicesAndButtonState(); }
-             } else { console.warn("handleNext_Galgame called unexpectedly."); nextButton.disabled = true; setLoading(false); }
-        }
-        function handleChoice_Galgame(choiceText) {
-            console.log("handleChoice_Galgame called with:", choiceText, "isLoading:", isLoading); if (isLoading) return; console.log("Galgame User chose:", choiceText);
-            choicesContainer.querySelectorAll('button').forEach(btn => btn.disabled = true);
-            conversationHistory.push({ role: 'user', parts: [{ text: choiceText }], isSetup: false });
-            currentDialogueSegments = []; currentSegmentIndex = 0; currentTurnChoices = []; currentTurnParsedData = null;
-            console.log(">>> About to call proceedStory_Galgame from handleChoice");
-            proceedStory_Galgame();
-            console.log("<<< Call to proceedStory_Galgame finished (in handleChoice_Galgame)");
-        }
+        function handleNext_Galgame() { console.log("handleNext_Galgame called."); if (isLoading || !isGameStarted) return; if (currentDialogueSegments && currentSegmentIndex < currentDialogueSegments.length - 1) { currentSegmentIndex++; setLoading(true); displayCurrentSegment(); if (currentSegmentIndex === currentDialogueSegments.length - 1) { console.log("Last segment reached via Next, processing choices."); processChoicesAndButtonState(); } } else { console.warn("handleNext_Galgame called unexpectedly."); nextButton.disabled = true; setLoading(false); } }
+        function handleChoice_Galgame(choiceText) { console.log("handleChoice_Galgame called with:", choiceText, "isLoading:", isLoading); if (isLoading) return; console.log("Galgame User chose:", choiceText); choicesContainer.querySelectorAll('button').forEach(btn => btn.disabled = true); conversationHistory.push({ role: 'user', parts: [{ text: choiceText }], isSetup: false }); currentDialogueSegments = []; currentSegmentIndex = 0; currentTurnChoices = []; currentTurnParsedData = null; console.log(">>> About to call proceedStory_Galgame from handleChoice"); proceedStory_Galgame(); console.log("<<< Call to proceedStory_Galgame finished (in handleChoice_Galgame)"); }
 
-        // --- Event Listeners (Unchanged) ---
+        // --- Event Listeners (MODIFIED for Image Uploads) ---
         document.addEventListener('DOMContentLoaded', () => {
-             console.log("DOM Content Loaded. Attaching listeners."); loadConfig(); if (toggleConfigBtn) toggleConfigBtn.addEventListener('click', toggleConfigPanel); if (closeConfigBtn) closeConfigBtn.addEventListener('click', toggleConfigPanel); if (saveConfigBtn) { saveConfigBtn.addEventListener('click', () => { saveConfig(); configPanel.classList.remove('visible'); console.log("Config panel closed via Save button."); }); } if (fetchModelsBtn) fetchModelsBtn.addEventListener('click', fetchLLMModels); const testKeyButtonElement = document.getElementById('test-key-btn'); if (testKeyButtonElement) { testKeyButtonElement.addEventListener('click', testApiKey); } if (toggleApiKeyVisibilityBtn && apiKeyInput) { toggleApiKeyVisibilityBtn.addEventListener('click', () => { const isP = apiKeyInput.type === 'password'; apiKeyInput.type = isP ? 'text':'password'; toggleApiKeyVisibilityBtn.textContent = isP ? '👁️‍🗨️':'👁️'; }); } if(modelSelect) modelSelect.addEventListener('change', saveConfig); if(aiPersonaInput) aiPersonaInput.addEventListener('input', saveConfig); if(apiKeyInput) apiKeyInput.addEventListener('input', saveConfig); if(apiUrlInput) apiUrlInput.addEventListener('input', saveConfig); if(playerNameInput) playerNameInput.addEventListener('input', saveConfig); if(playerPersonaInput) playerPersonaInput.addEventListener('input', saveConfig); if(playerStartInput) playerStartInput.addEventListener('input', saveConfig); if (nextButton) { nextButton.addEventListener('click', () => { if (!isGameStarted) { startGame_Galgame(); } else { handleNext_Galgame(); } }); } if (toggleHistoryBtn) toggleHistoryBtn.addEventListener('click', toggleHistoryPanel); if (closeHistoryBtn) closeHistoryBtn.addEventListener('click', toggleHistoryPanel); console.log("All listeners attached.");
+             console.log("DOM Content Loaded. Attaching listeners.");
+             loadConfig(); // Load text config, images reset
+
+             // Config panel listeners
+             if (toggleConfigBtn) toggleConfigBtn.addEventListener('click', toggleConfigPanel);
+             if (closeConfigBtn) closeConfigBtn.addEventListener('click', toggleConfigPanel);
+             if (saveConfigBtn) { saveConfigBtn.addEventListener('click', () => { saveConfig(); configPanel.classList.remove('visible'); console.log("Config panel closed via Save button."); }); }
+
+             // API listeners
+             if (fetchModelsBtn) fetchModelsBtn.addEventListener('click', fetchLLMModels);
+             const testKeyButtonElement = document.getElementById('test-key-btn');
+             if (testKeyButtonElement) { testKeyButtonElement.addEventListener('click', testApiKey); }
+             if (toggleApiKeyVisibilityBtn && apiKeyInput) { toggleApiKeyVisibilityBtn.addEventListener('click', () => { const isP = apiKeyInput.type === 'password'; apiKeyInput.type = isP ? 'text':'password'; toggleApiKeyVisibilityBtn.textContent = isP ? '👁️‍🗨️':'👁️'; }); }
+
+             // Config input listeners (saving state, but not images)
+             if(modelSelect) modelSelect.addEventListener('change', saveConfig);
+             if(aiPersonaInput) aiPersonaInput.addEventListener('input', saveConfig);
+             if(apiKeyInput) apiKeyInput.addEventListener('input', saveConfig);
+             if(apiUrlInput) apiUrlInput.addEventListener('input', saveConfig);
+             if(playerNameInput) playerNameInput.addEventListener('input', saveConfig);
+             if(playerPersonaInput) playerPersonaInput.addEventListener('input', saveConfig);
+             if(playerStartInput) playerStartInput.addEventListener('input', saveConfig);
+
+             // --- Image Upload Listeners ---
+             if (playerImageUpload && playerImagePreview && clearPlayerImageBtn) {
+                 playerImageUpload.addEventListener('change', () => handleImageUpload(playerImageUpload, playerImagePreview, clearPlayerImageBtn, (val) => playerImageBase64 = val));
+                 clearPlayerImageBtn.addEventListener('click', () => clearImageUpload(playerImageUpload, playerImagePreview, clearPlayerImageBtn, (val) => playerImageBase64 = val));
+             }
+              if (aiImageUpload && aiImagePreview && clearAiImageBtn) {
+                 aiImageUpload.addEventListener('change', () => handleImageUpload(aiImageUpload, aiImagePreview, clearAiImageBtn, (val) => aiImageBase64 = val));
+                 clearAiImageBtn.addEventListener('click', () => clearImageUpload(aiImageUpload, aiImagePreview, clearAiImageBtn, (val) => aiImageBase64 = val));
+             }
+             // --- End Image Upload Listeners ---
+
+             // Game control listeners
+             if (nextButton) { nextButton.addEventListener('click', () => { if (!isGameStarted) { startGame_Galgame(); } else { handleNext_Galgame(); } }); }
+             if (toggleHistoryBtn) toggleHistoryBtn.addEventListener('click', toggleHistoryPanel);
+             if (closeHistoryBtn) closeHistoryBtn.addEventListener('click', toggleHistoryPanel);
+
+             console.log("All listeners attached.");
         });
 
     </script>
