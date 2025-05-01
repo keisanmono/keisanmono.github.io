@@ -712,13 +712,13 @@
         // --- Image Loading (Unchanged from previous version) ---
         async function loadDynamicImage(element, prompt, imageType = "background", nologo = true, seed = null) {
              if (!prompt || !element) { console.warn(`Skipping ${imageType} image: No prompt or element.`); if (imageType === 'character') { element.classList.add('hidden'); } return Promise.resolve(); }
-             const baseCharacterPrompt = prompt; console.log(`Attempting to load ${imageType} image with base prompt: ${baseCharacterPrompt}`); let width = 1024, height = 576, extraParams = "", finalPromptString = '';
+             const baseCharacterPrompt = prompt; console.log(`Attempting to load ${imageType} image with base prompt: ${baseCharacterPrompt}`); let width = 1024, height = 1024, extraParams = "", finalPromptString = '';
              if (imageType === 'character') {
-                 width = 512; height = 768; extraParams = "&nofeed=true";
+                 width = 1024; height = 1024; extraParams = "&nofeed=true";
                  finalPromptString = `${FIXED_STYLE_PROMPT}, ${baseCharacterPrompt}, ${SPRITE_BACKGROUND_KEYWORDS}`; console.log("Final Character Prompt:", finalPromptString);
                  if (spriteCache[finalPromptString]) { console.log(`Cache hit for character prompt: ${finalPromptString.substring(0, 100)}...`); element.src = spriteCache[finalPromptString]; element.classList.remove('hidden'); element.style.opacity = 1; return Promise.resolve(); }
                  element.classList.add('hidden');
-             } else if (imageType === 'background') { finalPromptString = `${baseCharacterPrompt}, anime style, visual novel background, detailed illustration, high quality`; width = 1024; height = 576; }
+             } else if (imageType === 'background') { finalPromptString = `${baseCharacterPrompt}, anime style, visual novel background, detailed illustration, high quality`; width = 1024; height = 1024; }
              const nologoValue = nologo ? 'true' : 'false'; let finalUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPromptString)}?width=${width}&height=${height}&model=flux&nologo=${nologoValue}${extraParams}`; finalUrl += `&seed=${Math.floor(Math.random()*1e7)}`; const url = finalUrl; console.log(`Loading ${imageType} image URL:`, url);
              return new Promise((resolve) => { const img = new Image(); img.crossOrigin = "Anonymous";
                  img.onload = async () => { console.log(`${imageType} image preloaded/loaded successfully.`); if (imageType === 'background') { element.style.backgroundImage = `url('${url}')`; console.log(`Background image set for element:`, element); resolve(); } else { try { console.log(`Attempting white background removal for ${element.id}...`); const processedUrl = await removeEdgeWhiteBackground(img); element.src = processedUrl; spriteCache[finalPromptString] = processedUrl; element.classList.remove('hidden'); element.style.opacity = 1; console.log(`White background removal finished for ${element.id}.`); } catch (error) { console.error(`Using original URL due to background removal error for ${element.id}:`, error); element.src = url; spriteCache[finalPromptString] = url; element.classList.remove('hidden'); element.style.opacity = 1; showGameError(`处理 ${element.alt} 背景时出错。`); } finally { resolve(); } } };
@@ -946,40 +946,127 @@
             proceedStory_Galgame();
         }
 
-        async function proceedStory_Galgame(userChoice = null) { // Unchanged logic for subsequent calls
+        async function proceedStory_Galgame(userChoice = null) {
             if (userChoice) { console.log("proceedStory_Galgame called with choice:", userChoice); }
             else { console.log("proceedStory_Galgame called for initial setup or next segment"); }
 
-            setLoading(true); clearGameError(); currentTurnParsedData = null;
-            aiCharacterSprite.classList.add('hidden'); playerCharacterSprite.classList.add('hidden');
+            setLoading(true);
+            clearGameError();
+            currentTurnParsedData = null;
+
+            // --- FIX: Hide both sprites unconditionally at the start ---
+            aiCharacterSprite.classList.add('hidden');
+            playerCharacterSprite.classList.add('hidden');
+            console.log("Sprites hidden at start of proceedStory");
+            // --- END FIX ---
 
             try {
                 const parsedData = await callLLMApi_Galgame(conversationHistory);
                 currentTurnParsedData = parsedData;
 
-                if (parsedData.initial_setup_details) { // Only store on first successful call with details
+                if (parsedData.initial_setup_details) {
+                    console.log("--- 收到 Initial Setup Details ---"); // <<< 调试点 1
                     playerBaseAppearancePrompt = parsedData.initial_setup_details.player_base_appearance_prompt || '';
                     aiBaseAppearancePrompt = parsedData.initial_setup_details.ai_base_appearance_prompt || '';
-                    console.log("Stored Player Base Appearance:", playerBaseAppearancePrompt);
-                    console.log("Stored AI Base Appearance:", aiBaseAppearancePrompt);
+                    console.log("存储 Player Base Prompt:", playerBaseAppearancePrompt); // <<< 调试点 2
+                    console.log("存储 AI Base Prompt:", aiBaseAppearancePrompt); // <<< 调试点 3
+                     // Clear images after using them for initial prompt generation
+                     if (playerImageBase64) {
+                         console.log("Clearing player image data after initial setup.");
+                         clearImageUpload(playerImageUpload, playerImagePreview, clearPlayerImageBtn, (val) => playerImageBase64 = val);
+                     }
+                     if (aiImageBase64) {
+                         console.log("Clearing AI image data after initial setup.");
+                         clearImageUpload(aiImageUpload, aiImagePreview, clearAiImageBtn, (val) => aiImageBase64 = val);
+                     }
                 }
 
-                updateDialogueUI(parsedData);
+                updateDialogueUI(parsedData); // Display dialogue
 
-                const imagePromises = []; const sceneState = parsedData.scene_state || {}; let playerShouldBeVisible = false; let aiShouldBeVisible = false;
+                const imagePromises = [];
+                const sceneState = parsedData.scene_state || {};
+                let playerShouldBeVisible = false; // Reset visibility flags
+                let aiShouldBeVisible = false;
+
+                // Load background image
                 imagePromises.push(loadDynamicImage(gameBackground, sceneState.background_prompt || "default anime background", 'background'));
+
+                // Determine which characters should be visible and prepare their prompts
                 const visibleCharacters = sceneState.visible_characters || [];
+                console.log("--- 开始处理 Visible Characters ---"); // <<< 调试点 4
+                console.log("当前 Player Base Prompt:", playerBaseAppearancePrompt); // <<< 调试点 5
+                console.log("当前 AI Base Prompt:", aiBaseAppearancePrompt); // <<< 调试点 6
+                console.log("从 API 收到的 Visible Characters:", JSON.stringify(visibleCharacters)); // <<< 调试点 7
+
                 visibleCharacters.forEach(charInfo => {
                     let basePrompt = ''; let imgElement = null; let altText = '';
-                    if (charInfo.character_id === 'player' && playerBaseAppearancePrompt) { basePrompt = playerBaseAppearancePrompt; imgElement = playerCharacterSprite; altText = playerName || "玩家角色"; playerShouldBeVisible = true; }
-                    else if (charInfo.character_id === 'ai' && aiBaseAppearancePrompt) { basePrompt = aiBaseAppearancePrompt; imgElement = aiCharacterSprite; const aiNameMatch = currentAiPersona.match(/\[([^\]]+)\]/); altText = aiNameMatch ? aiNameMatch[1] : "AI角色"; aiShouldBeVisible = true; }
-                    if (imgElement && basePrompt) { let characterDetails = basePrompt; if (charInfo.emotion && typeof charInfo.emotion === 'string' && charInfo.emotion.trim() !== "") { characterDetails += `, ${charInfo.emotion.trim()}`; } imgElement.alt = altText; imagePromises.push(loadDynamicImage(imgElement, characterDetails, 'character')); }
+
+                    if (charInfo.character_id === 'player' && playerBaseAppearancePrompt) { // 检查这里
+                        console.log("匹配到 Player，准备设置可见"); // <<< 调试点 8
+                        basePrompt = playerBaseAppearancePrompt;
+                        imgElement = playerCharacterSprite;
+                        altText = playerName || "玩家角色";
+                        playerShouldBeVisible = true;
+                        console.log("playerShouldBeVisible 已设为:", playerShouldBeVisible); // <<< 调试点 9
+                    } else if (charInfo.character_id === 'ai' && aiBaseAppearancePrompt) { // 检查这里
+                        console.log("匹配到 AI，准备设置可见"); // <<< 调试点 10
+                        basePrompt = aiBaseAppearancePrompt;
+                        imgElement = aiCharacterSprite;
+                        const aiNameMatch = currentAiPersona.match(/\[([^\]]+)\]/);
+                        altText = aiNameMatch ? aiNameMatch[1] : "AI角色";
+                        aiShouldBeVisible = true;
+                         console.log("aiShouldBeVisible 已设为:", aiShouldBeVisible); // <<< 调试点 11
+                    }
+
+                    if (imgElement && basePrompt) {
+                        let characterDetails = basePrompt;
+                        if (charInfo.emotion && typeof charInfo.emotion === 'string' && charInfo.emotion.trim() !== "") {
+                            characterDetails += `, ${charInfo.emotion.trim()}`;
+                        }
+                        imgElement.alt = altText;
+                        imagePromises.push(loadDynamicImage(imgElement, characterDetails, 'character'));
+                    } else {
+                         console.warn(`无法加载角色 '${charInfo.character_id}' 的图片。是否有 Element: ${!!imgElement}, 是否有 Base Prompt: ${!!basePrompt}`); // <<< 调试点 12
+                    }
                 });
 
-                console.log("Waiting for image loading promises..."); await Promise.allSettled(imagePromises); console.log("Image promises settled.");
-                 if (!playerShouldBeVisible) { playerCharacterSprite.classList.add('hidden'); console.log("Ensuring player sprite is hidden based on visibility flag."); } else if (playerCharacterSprite.classList.contains('hidden') && playerShouldBeVisible) { playerCharacterSprite.classList.remove('hidden'); playerCharacterSprite.style.opacity = 1; console.log("Ensuring player sprite is SHOWN based on visibility flag.");}
-                 if (!aiShouldBeVisible) { aiCharacterSprite.classList.add('hidden'); console.log("Ensuring AI sprite is hidden based on visibility flag."); } else if (aiCharacterSprite.classList.contains('hidden') && aiShouldBeVisible) { aiCharacterSprite.classList.remove('hidden'); aiCharacterSprite.style.opacity = 1; console.log("Ensuring AI sprite is SHOWN based on visibility flag.");}
-            } catch (error) { console.error("Error proceeding Galgame story:", error); showGameError(`处理故事时发生错误: ${error.message}`); setLoading(false); }
+                console.log("--- Visible Characters 处理完毕 ---"); // <<< 调试点 13
+                console.log("等待图片加载..."); // <<< 调试点 14
+                await Promise.allSettled(imagePromises); // Wait for all attempts
+                console.log("图片加载完成。"); // <<< 调试点 15
+
+
+                console.log("--- 最终可见性检查 ---"); // <<< 调试点 16
+                console.log("playerShouldBeVisible:", playerShouldBeVisible); // <<< 调试点 17
+                console.log("aiShouldBeVisible:", aiShouldBeVisible); // <<< 调试点 18
+
+                // --- Simplified Visibility Logic ---
+                // Only REMOVE 'hidden' if the character should be visible.
+                if (playerShouldBeVisible) {
+                    playerCharacterSprite.classList.remove('hidden');
+                    playerCharacterSprite.style.opacity = 1; // Ensure opacity is set if unhidden
+                    console.log("Player sprite SHOULD be visible - unhiding.");
+                } else {
+                     console.log("Player sprite should NOT be visible - keeping hidden.");
+                }
+
+                if (aiShouldBeVisible) {
+                    aiCharacterSprite.classList.remove('hidden');
+                     aiCharacterSprite.style.opacity = 1; // Ensure opacity is set if unhidden
+                    console.log("AI sprite SHOULD be visible - unhiding.");
+                } else {
+                     console.log("AI sprite should NOT be visible - keeping hidden.");
+                }
+                // --- END Simplified Visibility Logic ---
+
+            } catch (error) {
+                console.error("Error proceeding Galgame story:", error);
+                showGameError(`处理故事时发生错误: ${error.message}`);
+                // Ensure sprites remain hidden on error
+                aiCharacterSprite.classList.add('hidden');
+                playerCharacterSprite.classList.add('hidden');
+                setLoading(false); // Ensure loading stops on unexpected errors
+            }
         }
 
         // --- handleNext_Galgame, handleChoice_Galgame (Unchanged) ---
