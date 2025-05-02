@@ -774,18 +774,60 @@
         }
         // --- Image Loading (Unchanged from previous version) ---
         async function loadDynamicImage(element, prompt, imageType = "background", nologo = true, seed = null) {
-             if (!prompt || !element) { console.warn(`Skipping ${imageType} image: No prompt or element.`); if (imageType === 'character') { element.classList.add('hidden'); } return Promise.resolve(); }
+             if (!prompt || !element) { console.warn(`Skipping ${imageType} image: No prompt or element.`); if (imageType === 'character') { element.classList.add('hidden'); element.style.opacity = null;} return Promise.resolve(); } // Added opacity clear
              const baseCharacterPrompt = prompt; console.log(`Attempting to load ${imageType} image with base prompt: ${baseCharacterPrompt}`); let width = 768, height = 1024, extraParams = "", finalPromptString = '';
              if (imageType === 'character') {
                  width = 768; height = 1024; extraParams = "&nofeed=true";
                  finalPromptString = `${FIXED_STYLE_PROMPT}, ${SPRITE_BACKGROUND_KEYWORDS}, ${baseCharacterPrompt}`; console.log("Final Character Prompt:", finalPromptString);
-                 if (spriteCache[finalPromptString]) { console.log(`Cache hit for character prompt: ${finalPromptString.substring(0, 100)}...`); element.src = spriteCache[finalPromptString]; element.classList.remove('hidden'); element.style.opacity = 1; return Promise.resolve(); }
+                 if (spriteCache[finalPromptString]) {
+                     console.log(`Cache hit for character prompt: ${finalPromptString.substring(0, 100)}...`);
+                     element.src = spriteCache[finalPromptString];
+                     element.classList.remove('hidden');
+                     element.style.opacity = null; // <<< FIX: Clear inline style on cache hit
+                     return Promise.resolve();
+                 }
                  element.classList.add('hidden');
+                 element.style.opacity = null; // <<< FIX: Clear inline style when adding hidden
              } else if (imageType === 'background') { finalPromptString = `${baseCharacterPrompt}, anime style, visual novel background, detailed illustration, high quality`; width = 1024; height = 1024; }
              const nologoValue = nologo ? 'true' : 'false'; let finalUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPromptString)}?width=${width}&height=${height}&model=flux&nologo=${nologoValue}${extraParams}`; finalUrl += `&seed=${Math.floor(Math.random()*1e7)}`; const url = finalUrl; console.log(`Loading ${imageType} image URL:`, url);
              return new Promise((resolve) => { const img = new Image(); img.crossOrigin = "Anonymous";
-                 img.onload = async () => { console.log(`${imageType} image preloaded/loaded successfully.`); if (imageType === 'background') { element.style.backgroundImage = `url('${url}')`; console.log(`Background image set for element:`, element); resolve(); } else { try { console.log(`Attempting white background removal for ${element.id}...`); const processedUrl = await removeEdgeWhiteBackground(img); element.src = processedUrl; spriteCache[finalPromptString] = processedUrl; element.classList.remove('hidden'); element.style.opacity = 1; console.log(`White background removal finished for ${element.id}.`); } catch (error) { console.error(`Using original URL due to background removal error for ${element.id}:`, error); element.src = url; spriteCache[finalPromptString] = url; element.classList.remove('hidden'); element.style.opacity = 1; showGameError(`处理 ${element.alt} 背景时出错。`); } finally { resolve(); } } };
-                 img.onerror = (e) => { console.error(`Error loading ${imageType} image:`, e, url); showGameError(`${imageType === 'character' ? element.alt : '背景'} 加载失败。`); if (imageType === 'character') { element.classList.add('hidden'); } resolve(); }; img.src = url;
+                 img.onload = async () => {
+                     console.log(`${imageType} image preloaded/loaded successfully.`);
+                     if (imageType === 'background') {
+                         element.style.backgroundImage = `url('${url}')`;
+                         console.log(`Background image set for element:`, element);
+                         resolve();
+                     } else { // Character sprite processing
+                         try {
+                             console.log(`Attempting white background removal for ${element.id}...`);
+                             const processedUrl = await removeEdgeWhiteBackground(img);
+                             element.src = processedUrl;
+                             spriteCache[finalPromptString] = processedUrl; // Cache processed URL
+                             element.classList.remove('hidden');
+                             element.style.opacity = null; // <<< FIX: Clear inline style on success
+                             console.log(`White background removal finished for ${element.id}.`);
+                         } catch (error) {
+                             console.error(`Using original URL due to background removal error for ${element.id}:`, error);
+                             element.src = url; // Fallback
+                             spriteCache[finalPromptString] = url; // Cache original URL on error
+                             element.classList.remove('hidden');
+                             element.style.opacity = null; // <<< FIX: Clear inline style on fallback
+                             showGameError(`处理 ${element.alt} 背景时出错。`);
+                         } finally {
+                             resolve();
+                         }
+                     }
+                 };
+                 img.onerror = (e) => {
+                     console.error(`Error loading ${imageType} image:`, e, url);
+                     showGameError(`${imageType === 'character' ? element.alt : '背景'} 加载失败。`);
+                     if (imageType === 'character') {
+                         element.classList.add('hidden');
+                         element.style.opacity = null; // <<< FIX: Clear inline style on error
+                     }
+                     resolve();
+                 };
+                 img.src = url;
              });
          }
 
@@ -810,7 +852,7 @@
             let userPromptText = isFirstCall ? promptHistory[0].parts[0].text : promptHistory[promptHistory.length - 1].parts[0].text;
 
             // --- System Instruction (Instructions against "same..." kept) ---
-             const systemInstruction = `你现在是一个 Galgame (视觉小说) 引擎。你的任务是与玩家 (${playerName || '玩家'}) 互动，并生成游戏内容。\n玩家基础外貌提示词(由你生成或完善): ${playerBaseAppearancePrompt || '(尚未生成)'}\nAI角色基础外貌提示词(由你生成或完善): ${aiBaseAppearancePrompt || '(尚未生成)'}\n${currentAiPersona ? `AI 角色设定: ${currentAiPersona}\n` : ''}请**严格**按照以下 JSON 格式生成响应，不要包含任何额外的解释或 Markdown 标记包裹 JSON 本身：\n\`\`\`json\n{\n  "scene_state": {\n    "background_prompt": "String (场景的英文描述, 这是游戏背景图, 不是角色立绘背景!)",\n    "visible_characters": [\n      {\n        "character_id": "'player' or 'ai'",\n        "emotion": "String or Null (角色【当前】的表情/动作/细微变化, e.g., 'smiling slightly', 'surprised face', 'holding a pen', 'adjusting glasses')"\n      }\n      // ... 可能包含 'player' 和/或 'ai'\n    ]\n  },\n  "dialogue_segments": [\n    {\n      "speaker": "String (AI角色名, ${playerName ? "'" + playerName + "'" : "'玩家'"}, '旁白', '内心想法')",\n      "emotion": "String or Null (说话者表情/动作, 对应此【对话】内容)",\n      "text": "String (该片段的对话/旁白文本, 支持Markdown)"\n    }\n    // ... more segments\n  ],\n  "choices": [\n    "String (选项1)", \n    "String (选项2)"\n  ],\n  "initial_setup_details": { \n     // !!! 这个字段【只在】响应第一个设置请求时出现 !!!\n     // **要求：生成【简要且连贯】、包含具体特征(发型/发色/瞳色/身材/脸型)和【具体服装】描述的基础提示词。**【禁止】**包含 'same character', 'same face', 'same style' 等无效词语。**\n     "player_base_appearance_prompt": "String (生成【简要、连贯】的玩家基础外貌英文提示词, e.g., '1girl, teenage girl, medium height, slim build, long wavy bright pink hair tied in high twin tails with red ribbons, large sparkling emerald green eyes, fair skin, wearing a standard white short-sleeve sailor school uniform with navy blue collar and cuffs, red necktie, navy blue pleated skirt, white knee-high socks, brown loafers')",\n     "ai_base_appearance_prompt": "String (生成【简要、连贯】的AI角色基础外貌英文提示词, 同上要求)"\n  }\n}\n\`\`\`\n*   **scene_state**: 描述当前场景视觉状态。\n    *   **background_prompt**: 当前场景的【游戏背景图】提示词。\n    *   **visible_characters**: 数组包含当前屏幕上可见的角色。每个对象指定 \`character_id\` ('player' 或 'ai') 和 \`emotion\`。 \`emotion\` 必须是【极其简洁地描述当前表情、动作或非常小的临时物品】，例如 'smiling', 'sad', 'surprised', 'holding a book', 'waving hand', 'blushing', 'looking down shyly'。**【绝对禁止】** 在 \`emotion\` 字段中重新描述角色的核心特征（如发型、发色、瞳色）、主要服装或整体艺术风格，也**【绝对禁止】**包含 'same character/face/style/clothing' 等词语。客户端会强制应用一致的日式二次元画风和纯白背景。\n*   **dialogue_segments**: 对话内容数组。\n*   **choices**: 玩家选项数组。\n*   **initial_setup_details**: 【只在首次响应时提供】，包含你生成的【极其详细、连贯且不含无效重复词】的基础外貌提示词。\n*   **风格和立绘背景**: 客户端会强制使用固定的【日式二次元视觉小说立绘风格】和【纯白背景】来生成角色立绘。你的任务是提供详细的基础描述和简洁的状态变化，并避免无效关键词。
+             const systemInstruction = `你现在是一个 Galgame (视觉小说) 引擎。你的任务是与玩家 (${playerName || '玩家'}) 互动，并生成游戏内容。\n玩家基础外貌提示词(由你生成或完善): ${playerBaseAppearancePrompt || '(尚未生成)'}\nAI角色基础外貌提示词(由你生成或完善): ${aiBaseAppearancePrompt || '(尚未生成)'}\n${currentAiPersona ? `AI 角色设定: ${currentAiPersona}\n` : ''}请**严格**按照以下 JSON 格式生成响应，不要包含任何额外的解释或 Markdown 标记包裹 JSON 本身：\n\`\`\`json\n{\n  "scene_state": {\n    "background_prompt": "String (场景的英文描述, 这是游戏背景图, 不是角色立绘背景!)",\n    "visible_characters": [\n      {\n        "character_id": "'player' or 'ai'",\n        "emotion": "String or Null (角色【当前】的表情/动作/细微变化, e.g., 'smiling slightly', 'surprised face', 'holding a pen', 'adjusting glasses')"\n      }\n      // ... 可能包含 'player' 和/或 'ai'\n    ]\n  },\n  "dialogue_segments": [\n    {\n      "speaker": "String (AI角色名, ${playerName ? "'" + playerName + "'" : "'玩家'"}, '旁白', '内心想法')",\n      "emotion": "String or Null (说话者表情/动作, 对应此【对话】内容)",\n      "text": "String (该片段的对话/旁白文本, 支持Markdown)"\n    }\n    // ... more segments\n  ],\n  "choices": [\n    "String (选项1)", \n    "String (选项2)"\n  ],\n  "initial_setup_details": { \n     // !!! 这个字段【只在】响应第一个设置请求时出现 !!!\n     // **要求：生成【简要且连贯】、包含具体特征(发型/发色/瞳色/身材/脸型)和【具体服装】描述的基础提示词。**【禁止】**包含 'same character', 'same face', 'same style' 等无效词语。**\n     "player_base_appearance_prompt": "String (生成【简要、连贯】的玩家基础外貌英文提示词, e.g., '1girl, medium height, slim build, long wavy bright pink hair tied in high twin tails with red ribbons, large sparkling emerald green eyes, fair skin, wearing a standard white short-sleeve sailor school uniform with navy blue collar and cuffs, red necktie, navy blue pleated skirt, white knee-high socks, brown loafers')",\n     "ai_base_appearance_prompt": "String (生成【简要、连贯】的AI角色基础外貌英文提示词, 同上要求)"\n  }\n}\n\`\`\`\n*   **scene_state**: 描述当前场景视觉状态。\n    *   **background_prompt**: 当前场景的【游戏背景图】提示词。\n    *   **visible_characters**: 数组包含当前屏幕上可见的角色。每个对象指定 \`character_id\` ('player' 或 'ai') 和 \`emotion\`。 \`emotion\` 必须是【极其简洁地描述当前表情、动作或非常小的临时物品】，例如 'smiling', 'sad', 'surprised', 'holding a book', 'waving hand', 'blushing', 'looking down shyly'。**【绝对禁止】** 在 \`emotion\` 字段中重新描述角色的核心特征（如发型、发色、瞳色）、主要服装或整体艺术风格，也**【绝对禁止】**包含 'same character/face/style/clothing' 等词语。客户端会强制应用一致的日式二次元画风和纯白背景。\n*   **dialogue_segments**: 对话内容数组。\n*   **choices**: 玩家选项数组。\n*   **initial_setup_details**: 【只在首次响应时提供】，包含你生成的【极其详细、连贯且不含无效重复词】的基础外貌提示词。\n*   **风格和立绘背景**: 客户端会强制使用固定的【日式二次元视觉小说立绘风格】和【纯白背景】来生成角色立绘。你的任务是提供详细的基础描述和简洁的状态变化，并避免无效关键词。
 
 这是之前的对话历史（最近几条）：\n${JSON.stringify(promptHistory.slice(-6, -1).map(h => `${h.role === 'user' ? (playerName || '玩家') : 'AI Response (Segments)'}: ${h.role === 'user' ? h.parts[0].text : '(...)'}`)).substring(0, 1000)}...\n\n用户的最新输入/选择是: "${userPromptText}"\n\n请生成 JSON 格式的响应。`;
 
@@ -1063,10 +1105,14 @@
             clearGameError();
             currentTurnParsedData = null;
 
-            // --- FIX: Hide both sprites unconditionally at the start ---
+            // --- FIX: Hide both sprites, clear inline opacity AND src ---
             aiCharacterSprite.classList.add('hidden');
+            aiCharacterSprite.style.opacity = null; // Clear inline style
+            aiCharacterSprite.removeAttribute('src'); // <<< FIX: Clear src
             playerCharacterSprite.classList.add('hidden');
-            console.log("Sprites hidden at start of proceedStory");
+            playerCharacterSprite.style.opacity = null; // Clear inline style
+            playerCharacterSprite.removeAttribute('src'); // <<< FIX: Clear src
+            console.log("Sprites hidden & inline styles/src cleared at start of proceedStory");
             // --- END FIX ---
 
             try {
@@ -1074,20 +1120,13 @@
                 currentTurnParsedData = parsedData;
 
                 if (parsedData.initial_setup_details) {
-                    console.log("--- 收到 Initial Setup Details ---"); // <<< 调试点 1
+                    console.log("--- 收到 Initial Setup Details ---");
                     playerBaseAppearancePrompt = parsedData.initial_setup_details.player_base_appearance_prompt || '';
                     aiBaseAppearancePrompt = parsedData.initial_setup_details.ai_base_appearance_prompt || '';
-                    console.log("存储 Player Base Prompt:", playerBaseAppearancePrompt); // <<< 调试点 2
-                    console.log("存储 AI Base Prompt:", aiBaseAppearancePrompt); // <<< 调试点 3
-                     // Clear images after using them for initial prompt generation
-                     if (playerImageBase64) {
-                         console.log("Clearing player image data after initial setup.");
-                         clearImageUpload(playerImageUpload, playerImagePreview, clearPlayerImageBtn, (val) => playerImageBase64 = val);
-                     }
-                     if (aiImageBase64) {
-                         console.log("Clearing AI image data after initial setup.");
-                         clearImageUpload(aiImageUpload, aiImagePreview, clearAiImageBtn, (val) => aiImageBase64 = val);
-                     }
+                    console.log("存储 Player Base Prompt:", playerBaseAppearancePrompt);
+                    console.log("存储 AI Base Prompt:", aiBaseAppearancePrompt);
+                     if (playerImageBase64) { console.log("Clearing player image data after initial setup."); clearImageUpload(playerImageUpload, playerImagePreview, clearPlayerImageBtn, (val) => playerImageBase64 = val); }
+                     if (aiImageBase64) { console.log("Clearing AI image data after initial setup."); clearImageUpload(aiImageUpload, aiImagePreview, clearAiImageBtn, (val) => aiImageBase64 = val); }
                 }
 
                 updateDialogueUI(parsedData); // Display dialogue
@@ -1102,78 +1141,74 @@
 
                 // Determine which characters should be visible and prepare their prompts
                 const visibleCharacters = sceneState.visible_characters || [];
-                console.log("--- 开始处理 Visible Characters ---"); // <<< 调试点 4
-                console.log("当前 Player Base Prompt:", playerBaseAppearancePrompt); // <<< 调试点 5
-                console.log("当前 AI Base Prompt:", aiBaseAppearancePrompt); // <<< 调试点 6
-                console.log("从 API 收到的 Visible Characters:", JSON.stringify(visibleCharacters)); // <<< 调试点 7
+                console.log("--- 开始处理 Visible Characters ---");
+                console.log("当前 Player Base Prompt:", playerBaseAppearancePrompt);
+                console.log("当前 AI Base Prompt:", aiBaseAppearancePrompt);
+                console.log("从 API 收到的 Visible Characters:", JSON.stringify(visibleCharacters));
 
                 visibleCharacters.forEach(charInfo => {
                     let basePrompt = ''; let imgElement = null; let altText = '';
-
-                    if (charInfo.character_id === 'player' && playerBaseAppearancePrompt) { // 检查这里
-                        console.log("匹配到 Player，准备设置可见"); // <<< 调试点 8
-                        basePrompt = playerBaseAppearancePrompt;
-                        imgElement = playerCharacterSprite;
-                        altText = playerName || "玩家角色";
-                        playerShouldBeVisible = true;
-                        console.log("playerShouldBeVisible 已设为:", playerShouldBeVisible); // <<< 调试点 9
-                    } else if (charInfo.character_id === 'ai' && aiBaseAppearancePrompt) { // 检查这里
-                        console.log("匹配到 AI，准备设置可见"); // <<< 调试点 10
-                        basePrompt = aiBaseAppearancePrompt;
-                        imgElement = aiCharacterSprite;
-                        const aiNameMatch = currentAiPersona.match(/\[([^\]]+)\]/);
-                        altText = aiNameMatch ? aiNameMatch[1] : "AI角色";
-                        aiShouldBeVisible = true;
-                         console.log("aiShouldBeVisible 已设为:", aiShouldBeVisible); // <<< 调试点 11
-                    }
+                    if (charInfo.character_id === 'player' && playerBaseAppearancePrompt) { console.log("匹配到 Player，准备设置可见"); basePrompt = playerBaseAppearancePrompt; imgElement = playerCharacterSprite; altText = playerName || "玩家角色"; playerShouldBeVisible = true; console.log("playerShouldBeVisible 已设为:", playerShouldBeVisible); }
+                    else if (charInfo.character_id === 'ai' && aiBaseAppearancePrompt) { console.log("匹配到 AI，准备设置可见"); basePrompt = aiBaseAppearancePrompt; imgElement = aiCharacterSprite; const aiNameMatch = currentAiPersona.match(/\[([^\]]+)\]/); altText = aiNameMatch ? aiNameMatch[1] : "AI角色"; aiShouldBeVisible = true; console.log("aiShouldBeVisible 已设为:", aiShouldBeVisible); }
 
                     if (imgElement && basePrompt) {
-                        let characterDetails = basePrompt;
-                        if (charInfo.emotion && typeof charInfo.emotion === 'string' && charInfo.emotion.trim() !== "") {
-                            characterDetails += `, ${charInfo.emotion.trim()}`;
-                        }
+                        let characterDetails = basePrompt; if (charInfo.emotion && typeof charInfo.emotion === 'string' && charInfo.emotion.trim() !== "") { characterDetails += `, ${charInfo.emotion.trim()}`; }
                         imgElement.alt = altText;
-                        imagePromises.push(loadDynamicImage(imgElement, characterDetails, 'character'));
-                    } else {
-                         console.warn(`无法加载角色 '${charInfo.character_id}' 的图片。是否有 Element: ${!!imgElement}, 是否有 Base Prompt: ${!!basePrompt}`); // <<< 调试点 12
-                    }
+                        // Only push load request if it should be visible, otherwise src is already cleared
+                        if ((charInfo.character_id === 'player' && playerShouldBeVisible) || (charInfo.character_id === 'ai' && aiShouldBeVisible)) {
+                           imagePromises.push(loadDynamicImage(imgElement, characterDetails, 'character'));
+                        }
+                    } else { console.warn(`无法加载角色 '${charInfo.character_id}' 的图片。是否有 Element: ${!!imgElement}, 是否有 Base Prompt: ${!!basePrompt}`); }
                 });
 
-                console.log("--- Visible Characters 处理完毕 ---"); // <<< 调试点 13
-                console.log("等待图片加载..."); // <<< 调试点 14
+                console.log("--- Visible Characters 处理完毕 ---");
+                console.log("等待图片加载...");
                 await Promise.allSettled(imagePromises); // Wait for all attempts
-                console.log("图片加载完成。"); // <<< 调试点 15
+                console.log("图片加载完成。");
 
 
-                console.log("--- 最终可见性检查 ---"); // <<< 调试点 16
-                console.log("playerShouldBeVisible:", playerShouldBeVisible); // <<< 调试点 17
-                console.log("aiShouldBeVisible:", aiShouldBeVisible); // <<< 调试点 18
+                console.log("--- 最终可见性检查 ---");
+                console.log("playerShouldBeVisible:", playerShouldBeVisible);
+                console.log("aiShouldBeVisible:", aiShouldBeVisible);
 
-                // --- Simplified Visibility Logic ---
-                // Only REMOVE 'hidden' if the character should be visible.
+                // --- FINAL Visibility Logic ---
                 if (playerShouldBeVisible) {
+                    // If visible, ensure .hidden is removed and src *might* be set by loadDynamicImage
                     playerCharacterSprite.classList.remove('hidden');
-                    playerCharacterSprite.style.opacity = 1; // Ensure opacity is set if unhidden
-                    console.log("Player sprite SHOULD be visible - unhiding.");
+                    playerCharacterSprite.style.opacity = null; // Ensure no conflicting inline style
+                    console.log("Player sprite SHOULD be visible - ensuring unhidden.");
                 } else {
-                     console.log("Player sprite should NOT be visible - keeping hidden.");
+                     // If not visible, ensure .hidden is added and src is definitely cleared
+                     playerCharacterSprite.classList.add('hidden'); // Ensure hidden
+                     playerCharacterSprite.style.opacity = null; // Ensure no conflicting inline style
+                     playerCharacterSprite.removeAttribute('src'); // <<< Ensure src is cleared
+                     console.log("Player sprite should NOT be visible - ensuring hidden and src cleared.");
                 }
 
                 if (aiShouldBeVisible) {
-                    aiCharacterSprite.classList.remove('hidden');
-                     aiCharacterSprite.style.opacity = 1; // Ensure opacity is set if unhidden
-                    console.log("AI sprite SHOULD be visible - unhiding.");
-                } else {
-                     console.log("AI sprite should NOT be visible - keeping hidden.");
-                }
-                // --- END Simplified Visibility Logic ---
+            aiCharacterSprite.classList.remove('hidden');
+            // Clear inline style to let CSS handle default visibility and transitions
+            aiCharacterSprite.style.opacity = ''; // Use empty string instead of null for clarity/robustness
+            console.log("AI sprite SHOULD be visible - ensuring unhidden.");
+        } else {
+             aiCharacterSprite.classList.add('hidden'); // Ensure hidden class is present
+             // FORCE the inline opacity to 0 to override any conflicts or transitions
+             aiCharacterSprite.style.opacity = '0';
+             aiCharacterSprite.removeAttribute('src'); // <<< Ensure src is cleared
+             console.log("AI sprite should NOT be visible - FORCING hidden (opacity 0) and src cleared."); // Updated log
+        }
+                // --- END FINAL Visibility Logic ---
 
             } catch (error) {
                 console.error("Error proceeding Galgame story:", error);
                 showGameError(`处理故事时发生错误: ${error.message}`);
-                // Ensure sprites remain hidden on error
+                // Ensure sprites remain hidden and styles/src cleared on error
                 aiCharacterSprite.classList.add('hidden');
                 playerCharacterSprite.classList.add('hidden');
+                aiCharacterSprite.style.opacity = null; // Clear inline style
+                playerCharacterSprite.style.opacity = null; // Clear inline style
+                aiCharacterSprite.removeAttribute('src'); // Clear src
+                playerCharacterSprite.removeAttribute('src'); // Clear src
                 setLoading(false); // Ensure loading stops on unexpected errors
             }
         }
