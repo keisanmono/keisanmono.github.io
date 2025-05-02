@@ -555,8 +555,8 @@
 
 
         // --- Constants ---
-        const FIXED_STYLE_PROMPT = "masterpiece, best quality, highres, japanese anime art style, visual novel character sprite, full body sprite, detailed face, proportional body, clean lines, vibrant colors, flat colors";
-        const SPRITE_BACKGROUND_KEYWORDS = "plain white background, solid white background, simple white, isolated on white, no background elements, no shadows on background, pure white background";
+        const FIXED_STYLE_PROMPT = "masterpiece, best quality, ultra-detailed, extremely detailed illustration, high resolution, sharp focus, dramatic lighting, strong highlights, deep contrasting shadows, emphasized light interaction, professional game art style, Japanese anime art style, normal anime proportions, standard body ratio, NOT chibi, NO SD";
+        const SPRITE_BACKGROUND_KEYWORDS = "plain white background, isolated on white";
         const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
         // --- State Variables ---
@@ -691,31 +691,94 @@
 
         // --- Character Sprite Background Removal (Unchanged) ---
         async function removeEdgeWhiteBackground(img) {
-             return new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 const width = img.naturalWidth; const height = img.naturalHeight;
-                 if (width === 0 || height === 0) { console.warn("Image has zero dimensions, cannot process."); resolve(img.src); return; }
+                if (width === 0 || height === 0) { console.warn("Image has zero dimensions, cannot process."); resolve(img.src); return; }
                 canvas.width = width; canvas.height = height;
                 try {
-                    ctx.drawImage(img, 0, 0); const imageData = ctx.getImageData(0, 0, width, height); const data = imageData.data; const visited = new Uint8Array(width * height); const whiteThreshold = 248; const tolerance = 7; const effectiveThreshold = whiteThreshold - tolerance;
-                    function isNearWhite(index) { if (index < 0 || index >= data.length || data[index+3] < 128) return false; const r = data[index]; const g = data[index + 1]; const b = data[index + 2]; return r >= effectiveThreshold && g >= effectiveThreshold && b >= effectiveThreshold; }
-                    function getIndex(x, y) { return (y * width + x) * 4; } function getVisitedIndex(x, y) { return y * width + x; } const queue = [];
-                    for (let y = 0; y < height; y++) { for (let x = 0; x < width; x++) { if (y === 0 || y === height - 1 || x === 0 || x === width - 1) { const index = getIndex(x, y); const visitedIndex = getVisitedIndex(x,y); if (isNearWhite(index) && !visited[visitedIndex]) { queue.push({ x, y }); visited[visitedIndex] = 1; } } } }
-                    console.log("Starting flood fill. Queue:", queue.length, "Threshold:", whiteThreshold, "Tolerance:", tolerance); let processedPixelCount = 0;
-                    while (queue.length > 0) { const { x, y } = queue.shift(); const index = getIndex(x, y); if (data[index + 3] > 0) { data[index + 3] = 0; processedPixelCount++; } const neighbors = [ { nx: x + 1, ny: y }, { nx: x - 1, ny: y }, { nx: x, ny: y + 1 }, { nx: x, ny: y - 1 } ]; for (const {nx, ny} of neighbors) { if (nx >= 0 && nx < width && ny >= 0 && ny < height) { const neighborIndex = getIndex(nx, ny); const visitedIndex = getVisitedIndex(nx, ny); if (isNearWhite(neighborIndex) && !visited[visitedIndex]) { visited[visitedIndex] = 1; queue.push({ x: nx, y: ny }); } } } }
-                    console.log(`Flood fill finished. ${processedPixelCount} pixels made transparent.`); ctx.putImageData(imageData, 0, 0); resolve(canvas.toDataURL('image/png'));
-                } catch (error) { if (error.name === 'SecurityError') { console.error("Canvas processing error (likely CORS): Cannot process image from different origin without CORS headers.", error); resolve(img.src); } else { console.error("Canvas processing error in removeEdgeWhiteBackground:", error); resolve(img.src); } }
+                    ctx.drawImage(img, 0, 0);
+                    const imageData = ctx.getImageData(0, 0, width, height);
+                    const data = imageData.data;
+                    const visited = new Uint8Array(width * height);
+
+                    // --- Pass 1: Edge Flood Fill (Use a moderate tolerance, e.g., 4 or 5) ---
+                    const whiteThreshold = 255;
+                    const floodFillTolerance = 7; // <<<<<<<<<< TRY ADJUSTING THIS (e.g., 4, 5, or 6)
+                    const effectiveFloodThreshold = whiteThreshold - floodFillTolerance;
+
+                    function isNearWhiteForFlood(index) {
+                         if (index < 0 || index >= data.length || data[index+3] < 128) return false;
+                         const r = data[index]; const g = data[index + 1]; const b = data[index + 2];
+                         return r >= effectiveFloodThreshold && g >= effectiveFloodThreshold && b >= effectiveFloodThreshold;
+                    }
+                    function getIndex(x, y) { return (y * width + x) * 4; }
+                    function getVisitedIndex(x, y) { return y * width + x; }
+                    const queue = [];
+                    for (let y = 0; y < height; y++) { for (let x = 0; x < width; x++) { if (y === 0 || y === height - 1 || x === 0 || x === width - 1) { const index = getIndex(x, y); const visitedIndex = getVisitedIndex(x,y); if (isNearWhiteForFlood(index) && !visited[visitedIndex]) { queue.push({ x, y }); visited[visitedIndex] = 1; } } } }
+                    console.log(`Starting Flood Fill Pass. Tolerance: ${floodFillTolerance}. Initial Queue:`, queue.length);
+                    let processedFloodFillCount = 0;
+                    while (queue.length > 0) {
+                        const { x, y } = queue.shift(); const index = getIndex(x, y);
+                        if (data[index + 3] > 0) { data[index + 3] = 0; processedFloodFillCount++; } // Make transparent
+                        const neighbors = [ { nx: x + 1, ny: y }, { nx: x - 1, ny: y }, { nx: x, ny: y + 1 }, { nx: x, ny: y - 1 } ];
+                        for (const {nx, ny} of neighbors) { if (nx >= 0 && nx < width && ny >= 0 && ny < height) { const neighborIndex = getIndex(nx, ny); const visitedIndex = getVisitedIndex(nx, ny); if (isNearWhiteForFlood(neighborIndex) && !visited[visitedIndex]) { visited[visitedIndex] = 1; queue.push({ x: nx, y: ny }); } } }
+                    }
+                    console.log(`Flood fill finished. ${processedFloodFillCount} pixels made transparent.`);
+
+                    // --- Pass 2: Cleanup Isolated Near-White Pixels ---
+                    const cleanupTolerance = 4; // <<<<<<<<<< Use a VERY STRICT tolerance here (e.g., 0, 1, or 2)
+                    const effectiveCleanupThreshold = whiteThreshold - cleanupTolerance;
+                    let cleanedPixelCount = 0;
+
+                    console.log(`Starting Cleanup Pass. Strict Tolerance: ${cleanupTolerance}`);
+                    for (let y = 1; y < height - 1; y++) { // Iterate excluding borders
+                         for (let x = 1; x < width - 1; x++) {
+                             const index = getIndex(x, y);
+                             // Check if pixel is NOT already transparent from Pass 1
+                             if (data[index + 3] > 0) {
+                                 const r = data[index]; const g = data[index + 1]; const b = data[index + 2];
+                                 // Check if it's VERY close to white
+                                 if (r >= effectiveCleanupThreshold && g >= effectiveCleanupThreshold && b >= effectiveCleanupThreshold) {
+                                     // Check its 4 direct neighbors
+                                     let transparentNeighbors = 0;
+                                     const neighborsIndices = [ getIndex(x+1, y), getIndex(x-1, y), getIndex(x, y+1), getIndex(x, y-1) ];
+                                     for (const nIndex of neighborsIndices) {
+                                         // Check if neighbor is within bounds and is transparent (alpha == 0)
+                                         if (nIndex >= 0 && nIndex < data.length && data[nIndex + 3] === 0) {
+                                             transparentNeighbors++;
+                                         }
+                                     }
+                                     // If at least 3 out of 4 neighbors are transparent, consider it an isolated speck
+                                     if (transparentNeighbors >= 3) {
+                                         data[index + 3] = 0; // Make the speck transparent
+                                         cleanedPixelCount++;
+                                     }
+                                 }
+                             }
+                         }
+                    }
+                    console.log(`Cleanup pass finished. ${cleanedPixelCount} isolated pixels made transparent.`);
+                    // --- End Pass 2 ---
+
+                    ctx.putImageData(imageData, 0, 0);
+                    resolve(canvas.toDataURL('image/png'));
+                } catch (error) {
+                     // Error handling remains the same
+                     if (error.name === 'SecurityError') { console.error("Canvas processing error (likely CORS)...", error); resolve(img.src);
+                     } else { console.error("Canvas processing error in removeEdgeWhiteBackground:", error); resolve(img.src);
+                     }
+                }
             });
         }
-
         // --- Image Loading (Unchanged from previous version) ---
         async function loadDynamicImage(element, prompt, imageType = "background", nologo = true, seed = null) {
              if (!prompt || !element) { console.warn(`Skipping ${imageType} image: No prompt or element.`); if (imageType === 'character') { element.classList.add('hidden'); } return Promise.resolve(); }
-             const baseCharacterPrompt = prompt; console.log(`Attempting to load ${imageType} image with base prompt: ${baseCharacterPrompt}`); let width = 1024, height = 1024, extraParams = "", finalPromptString = '';
+             const baseCharacterPrompt = prompt; console.log(`Attempting to load ${imageType} image with base prompt: ${baseCharacterPrompt}`); let width = 768, height = 1024, extraParams = "", finalPromptString = '';
              if (imageType === 'character') {
-                 width = 1024; height = 1024; extraParams = "&nofeed=true";
-                 finalPromptString = `${FIXED_STYLE_PROMPT}, ${baseCharacterPrompt}, ${SPRITE_BACKGROUND_KEYWORDS}`; console.log("Final Character Prompt:", finalPromptString);
+                 width = 768; height = 1024; extraParams = "&nofeed=true";
+                 finalPromptString = `${FIXED_STYLE_PROMPT}, ${SPRITE_BACKGROUND_KEYWORDS}, ${baseCharacterPrompt}`; console.log("Final Character Prompt:", finalPromptString);
                  if (spriteCache[finalPromptString]) { console.log(`Cache hit for character prompt: ${finalPromptString.substring(0, 100)}...`); element.src = spriteCache[finalPromptString]; element.classList.remove('hidden'); element.style.opacity = 1; return Promise.resolve(); }
                  element.classList.add('hidden');
              } else if (imageType === 'background') { finalPromptString = `${baseCharacterPrompt}, anime style, visual novel background, detailed illustration, high quality`; width = 1024; height = 1024; }
@@ -732,9 +795,12 @@
             console.log("callLLMApi_Galgame initiated.");
             if (!currentApiKey || !currentModel || !currentApiUrl) {
                 showGameError("API 配置不完整！请检查设置。");
-                // Return fallback on config error
-                 const fallbackData = { scene_state: { background_prompt: "error config", visible_characters: [] }, dialogue_segments: [{ speaker: "系统", text: "API 配置不完整！请检查设置。", emotion: null }], choices: ["[关闭]"] };
-                 return fallbackData;
+                const fallbackData = { scene_state: { background_prompt: "error config", visible_characters: [] }, dialogue_segments: [{ speaker: "系统", text: "API 配置不完整！请检查设置。", emotion: null }], choices: ["[关闭]"] };
+                // Ensure error is added to history if game started
+                 if (isGameStarted && (!conversationHistory.length || !conversationHistory[conversationHistory.length - 1].isErrorFallback)) {
+                    conversationHistory.push({ role: "model", parts: [{ text: JSON.stringify(fallbackData) }], isErrorFallback: true });
+                 }
+                return fallbackData;
             }
             clearGameError();
             let finalApiUrl = currentApiUrl.trim();
@@ -744,10 +810,9 @@
             let userPromptText = isFirstCall ? promptHistory[0].parts[0].text : promptHistory[promptHistory.length - 1].parts[0].text;
 
             // --- System Instruction (Instructions against "same..." kept) ---
-             const systemInstruction = `你现在是一个 Galgame (视觉小说) 引擎。你的任务是与玩家 (${playerName || '玩家'}) 互动，并生成游戏内容。\n玩家基础外貌提示词(由你生成或完善): ${playerBaseAppearancePrompt || '(尚未生成)'}\nAI角色基础外貌提示词(由你生成或完善): ${aiBaseAppearancePrompt || '(尚未生成)'}\n${currentAiPersona ? `AI 角色设定: ${currentAiPersona}\n` : ''}请**严格**按照以下 JSON 格式生成响应，不要包含任何额外的解释或 Markdown 标记包裹 JSON 本身：\n\`\`\`json\n{\n  "scene_state": {\n    "background_prompt": "String (场景的英文描述, 这是游戏背景图, 不是角色立绘背景!)",\n    "visible_characters": [\n      {\n        "character_id": "'player' or 'ai'",\n        "emotion": "String or Null (角色【当前】的表情/动作/细微变化, e.g., 'smiling slightly', 'surprised face', 'holding a pen', 'adjusting glasses')"\n      }\n      // ... 可能包含 'player' 和/或 'ai'\n    ]\n  },\n  "dialogue_segments": [\n    {\n      "speaker": "String (AI角色名, ${playerName ? "'" + playerName + "'" : "'玩家'"}, '旁白', '内心想法')",\n      "emotion": "String or Null (说话者表情/动作, 对应此【对话】内容)",\n      "text": "String (该片段的对话/旁白文本, 支持Markdown)"\n    }\n    // ... more segments\n  ],\n  "choices": [\n    "String (选项1)", \n    "String (选项2)"\n  ],\n  "initial_setup_details": { \n     // !!! 这个字段【只在】响应第一个设置请求时出现 !!!\n     // **要求：生成【极其详细且连贯】、包含具体特征(发型/发色/瞳色/身材/脸型)和【具体服装】描述的基础提示词。**【禁止】**包含 'same character', 'same face', 'same style' 等无效词语。**\n     "player_base_appearance_prompt": "String (生成【极其详细、连贯】的玩家基础外貌英文提示词, e.g., '1girl, teenage girl, medium height, slim build, long wavy bright pink hair tied in high twin tails with red ribbons, large sparkling emerald green eyes, fair skin, wearing a standard white short-sleeve sailor school uniform with navy blue collar and cuffs, red necktie, navy blue pleated skirt, white knee-high socks, brown loafers')",\n     "ai_base_appearance_prompt": "String (生成【极其详细、连贯】的AI角色基础外貌英文提示词, 同上要求)"\n  }\n}\n\`\`\`\n*   **scene_state**: 描述当前场景视觉状态。\n    *   **background_prompt**: 当前场景的【游戏背景图】提示词。\n    *   **visible_characters**: 数组包含当前屏幕上可见的角色。每个对象指定 \`character_id\` ('player' 或 'ai') 和 \`emotion\`。 \`emotion\` 必须是【极其简洁地描述当前表情、动作或非常小的临时物品】，例如 'smiling', 'sad', 'surprised', 'holding a book', 'waving hand', 'blushing', 'looking down shyly'。**【绝对禁止】** 在 \`emotion\` 字段中重新描述角色的核心特征（如发型、发色、瞳色）、主要服装或整体艺术风格，也**【绝对禁止】**包含 'same character/face/style/clothing' 等词语。客户端会强制应用一致的日式二次元画风和纯白背景。\n*   **dialogue_segments**: 对话内容数组。\n*   **choices**: 玩家选项数组。\n*   **initial_setup_details**: 【只在首次响应时提供】，包含你生成的【极其详细、连贯且不含无效重复词】的基础外貌提示词。\n*   **风格和立绘背景**: 客户端会强制使用固定的【日式二次元视觉小说立绘风格】和【纯白背景】来生成角色立绘。你的任务是提供详细的基础描述和简洁的状态变化，并避免无效关键词。
+             const systemInstruction = `你现在是一个 Galgame (视觉小说) 引擎。你的任务是与玩家 (${playerName || '玩家'}) 互动，并生成游戏内容。\n玩家基础外貌提示词(由你生成或完善): ${playerBaseAppearancePrompt || '(尚未生成)'}\nAI角色基础外貌提示词(由你生成或完善): ${aiBaseAppearancePrompt || '(尚未生成)'}\n${currentAiPersona ? `AI 角色设定: ${currentAiPersona}\n` : ''}请**严格**按照以下 JSON 格式生成响应，不要包含任何额外的解释或 Markdown 标记包裹 JSON 本身：\n\`\`\`json\n{\n  "scene_state": {\n    "background_prompt": "String (场景的英文描述, 这是游戏背景图, 不是角色立绘背景!)",\n    "visible_characters": [\n      {\n        "character_id": "'player' or 'ai'",\n        "emotion": "String or Null (角色【当前】的表情/动作/细微变化, e.g., 'smiling slightly', 'surprised face', 'holding a pen', 'adjusting glasses')"\n      }\n      // ... 可能包含 'player' 和/或 'ai'\n    ]\n  },\n  "dialogue_segments": [\n    {\n      "speaker": "String (AI角色名, ${playerName ? "'" + playerName + "'" : "'玩家'"}, '旁白', '内心想法')",\n      "emotion": "String or Null (说话者表情/动作, 对应此【对话】内容)",\n      "text": "String (该片段的对话/旁白文本, 支持Markdown)"\n    }\n    // ... more segments\n  ],\n  "choices": [\n    "String (选项1)", \n    "String (选项2)"\n  ],\n  "initial_setup_details": { \n     // !!! 这个字段【只在】响应第一个设置请求时出现 !!!\n     // **要求：生成【简要且连贯】、包含具体特征(发型/发色/瞳色/身材/脸型)和【具体服装】描述的基础提示词。**【禁止】**包含 'same character', 'same face', 'same style' 等无效词语。**\n     "player_base_appearance_prompt": "String (生成【简要、连贯】的玩家基础外貌英文提示词, e.g., '1girl, teenage girl, medium height, slim build, long wavy bright pink hair tied in high twin tails with red ribbons, large sparkling emerald green eyes, fair skin, wearing a standard white short-sleeve sailor school uniform with navy blue collar and cuffs, red necktie, navy blue pleated skirt, white knee-high socks, brown loafers')",\n     "ai_base_appearance_prompt": "String (生成【简要、连贯】的AI角色基础外貌英文提示词, 同上要求)"\n  }\n}\n\`\`\`\n*   **scene_state**: 描述当前场景视觉状态。\n    *   **background_prompt**: 当前场景的【游戏背景图】提示词。\n    *   **visible_characters**: 数组包含当前屏幕上可见的角色。每个对象指定 \`character_id\` ('player' 或 'ai') 和 \`emotion\`。 \`emotion\` 必须是【极其简洁地描述当前表情、动作或非常小的临时物品】，例如 'smiling', 'sad', 'surprised', 'holding a book', 'waving hand', 'blushing', 'looking down shyly'。**【绝对禁止】** 在 \`emotion\` 字段中重新描述角色的核心特征（如发型、发色、瞳色）、主要服装或整体艺术风格，也**【绝对禁止】**包含 'same character/face/style/clothing' 等词语。客户端会强制应用一致的日式二次元画风和纯白背景。\n*   **dialogue_segments**: 对话内容数组。\n*   **choices**: 玩家选项数组。\n*   **initial_setup_details**: 【只在首次响应时提供】，包含你生成的【极其详细、连贯且不含无效重复词】的基础外貌提示词。\n*   **风格和立绘背景**: 客户端会强制使用固定的【日式二次元视觉小说立绘风格】和【纯白背景】来生成角色立绘。你的任务是提供详细的基础描述和简洁的状态变化，并避免无效关键词。
 
 这是之前的对话历史（最近几条）：\n${JSON.stringify(promptHistory.slice(-6, -1).map(h => `${h.role === 'user' ? (playerName || '玩家') : 'AI Response (Segments)'}: ${h.role === 'user' ? h.parts[0].text : '(...)'}`)).substring(0, 1000)}...\n\n用户的最新输入/选择是: "${userPromptText}"\n\n请生成 JSON 格式的响应。`;
-
 
             try {
                  // --- API Request Body Construction (Conditional based on Image & API type) ---
@@ -757,49 +822,31 @@
                      else { finalApiUrl += `?key=${currentApiKey}`; } // Assumes URL already points to model
 
                      let geminiContents = [];
-                     // Add previous history (excluding the current setup prompt if it exists)
-                      promptHistory.slice(0, isFirstCall ? -1 : undefined) // Exclude the setup prompt itself from history
-                          .slice(-7) // Limit history length
-                          .forEach(h => {
+                      promptHistory.slice(0, isFirstCall ? -1 : undefined)
+                          .slice(-7).forEach(h => {
                           const role = (h.role === 'model' ? 'model' : 'user');
-                          // Basic alternating role check for Gemini
                            if (geminiContents.length > 0 && geminiContents[geminiContents.length - 1].role === role) {
-                               if (role === 'model') geminiContents.push({ role: 'user', parts: [{ text: "(Continue...)" }] }); // Add dummy user turn if needed
-                               else geminiContents.push({ role: 'model', parts: [{ text: "{}" }] }); // Add dummy model turn if needed
+                               if (role === 'model') geminiContents.push({ role: 'user', parts: [{ text: "(Continue...)" }] });
+                               else geminiContents.push({ role: 'model', parts: [{ text: "{}" }] });
                            }
                            geminiContents.push({ role: role, parts: [{ text: h.parts[0].text }] });
                        });
 
-                     // Construct current user turn (potentially with images)
                      let currentUserParts = [];
                      if (isFirstCall) {
-                         // Add Player Image if exists
                          const playerData = getImageDataFromBase64(playerImageBase64);
-                         if (playerData) {
-                             currentUserParts.push({ inline_data: { mime_type: playerData.mimeType, data: playerData.data } });
-                             console.log("Adding player image to Gemini request");
-                         }
-                         // Add AI Image if exists
+                         if (playerData) { currentUserParts.push({ inline_data: { mime_type: playerData.mimeType, data: playerData.data } }); console.log("Adding player image to Gemini request"); }
                          const aiData = getImageDataFromBase64(aiImageBase64);
-                         if (aiData) {
-                             currentUserParts.push({ inline_data: { mime_type: aiData.mimeType, data: aiData.data } });
-                              console.log("Adding AI image to Gemini request");
-                         }
+                         if (aiData) { currentUserParts.push({ inline_data: { mime_type: aiData.mimeType, data: aiData.data } }); console.log("Adding AI image to Gemini request"); }
                      }
-                     // Add the text prompt last
-                     currentUserParts.push({ text: userPromptText });
+                     currentUserParts.push({ text: userPromptText }); // Text prompt last for Gemini
 
-                     // Ensure the last turn added is 'user' if history was empty or ended on 'user'
                      if(geminiContents.length === 0 || geminiContents[geminiContents.length - 1].role === 'model') {
                         geminiContents.push({ role: 'user', parts: currentUserParts });
                      } else {
-                        // If last history entry was user, merge? Or replace? Let's append as new user turn for simplicity.
-                        // This might violate strict alternation if the *actual* last turn was user.
-                        // A more robust history management might be needed for complex scenarios.
                         console.warn("Potentially non-alternating turn structure for Gemini.");
                         geminiContents.push({ role: 'user', parts: currentUserParts });
                      }
-
 
                      requestBody = JSON.stringify({ contents: geminiContents, generationConfig: { responseMimeType: "application/json" } });
 
@@ -809,36 +856,21 @@
                      if (!finalApiUrl.includes('/chat/completions')) { finalApiUrl = finalApiUrl.replace(/\/v1\/?$/, '') + '/v1/chat/completions'; }
 
                      let openAiMessages = [];
-                     // Add system message
                      openAiMessages.push({ "role": "system", "content": systemInstruction });
-
-                     // Add history (excluding current setup prompt)
                      promptHistory.slice(0, isFirstCall ? -1 : undefined)
-                        .slice(-7) // Limit history
-                        .forEach(h => {
+                        .slice(-7).forEach(h => {
                             openAiMessages.push({ role: h.role === 'model' ? 'assistant' : 'user', content: h.parts[0].text });
                      });
 
-                     // Construct current user message (potentially with images)
                      let currentUserContent = [];
-                      // Text part first for OpenAI vision
-                     currentUserContent.push({ type: "text", text: userPromptText });
-
+                     currentUserContent.push({ type: "text", text: userPromptText }); // Text first for OpenAI
                      if (isFirstCall) {
-                         // Add Player Image if exists
-                         if (playerImageBase64) {
-                             currentUserContent.push({ type: "image_url", image_url: { url: playerImageBase64 } });
-                              console.log("Adding player image to OpenAI request");
-                         }
-                         // Add AI Image if exists
-                         if (aiImageBase64) {
-                             currentUserContent.push({ type: "image_url", image_url: { url: aiImageBase64 } });
-                              console.log("Adding AI image to OpenAI request");
-                         }
+                         if (playerImageBase64) { currentUserContent.push({ type: "image_url", image_url: { url: playerImageBase64 } }); console.log("Adding player image to OpenAI request"); }
+                         if (aiImageBase64) { currentUserContent.push({ type: "image_url", image_url: { url: aiImageBase64 } }); console.log("Adding AI image to OpenAI request"); }
                      }
                      openAiMessages.push({ role: "user", content: currentUserContent });
 
-                     requestBody = JSON.stringify({ model: currentModel, messages: openAiMessages, max_tokens: 2048, response_format: { type: "json_object" } });
+                     requestBody = JSON.stringify({ model: currentModel, messages: openAiMessages, max_tokens: 65536, response_format: { type: "json_object" } });
 
                  } else {
                      throw new Error("无法识别的 API 基础地址格式。");
@@ -846,17 +878,88 @@
 
 
                  console.log("Calling Galgame LLM API:", finalApiUrl);
-                 // console.log("Request Body:", requestBody); // Careful logging Base64
+                 // Be cautious logging the request body if it contains large base64 images
+                 // console.log("Request Body (structure):", JSON.stringify(JSON.parse(requestBody), (key, value) => key === 'data' || (key === 'image_url' && typeof value === 'object' && value.url?.startsWith('data:')) ? '<base64 data>' : value, 2));
+
                  const response = await fetch(finalApiUrl, { method: 'POST', headers, body: requestBody });
                  console.log("LLM API Response Status:", response.status);
-                 if (!response.ok) { let errorText = `API 请求失败: ${response.status} ${response.statusText}`; try { const errorBody = await response.json(); errorText += `\nDetails: ${errorBody?.error?.message || JSON.stringify(errorBody)}`; } catch (_) { try { errorText += `\nDetails: ${await response.text()}`; } catch (e) {} } throw new Error(errorText); }
-                 const data = await response.json();
-                 let responseContent; if (data.candidates?.[0]?.content?.parts?.[0]?.text) { responseContent = data.candidates[0].content.parts[0].text; } else if (data.choices?.[0]?.message?.content) { responseContent = data.choices[0].message.content; } else { throw new Error("无法从 API 响应中提取有效内容。"); }
+
+                 // --- Enhanced Response Handling & Debugging ---
+                 let data;
+                 try {
+                     data = await response.json();
+                     // <<< Log the raw response immediately after parsing >>>
+                     console.log("LLM API Raw Response Data:", JSON.stringify(data, null, 2));
+                 } catch (jsonError) {
+                      console.error("Failed to parse API response as JSON:", jsonError);
+                      try {
+                          const textResponse = await response.text();
+                          console.error("API Raw Response Text:", textResponse);
+                          throw new Error(`API响应不是有效的JSON格式: ${textResponse.substring(0, 100)}...`);
+                      } catch (textError) {
+                           console.error("Failed to get text response either.");
+                           throw new Error("API响应不是有效的JSON格式，且无法读取文本内容。");
+                      }
+                 }
+                 // --- End Enhanced Response Handling ---
+
+                 // Check response.ok AFTER trying to parse JSON, as some APIs send errors in JSON with 200 OK
+                 if (!response.ok) {
+                     let errorMsg = `API 请求失败: ${response.status} ${response.statusText}`;
+                     if (data && data.error && data.error.message) { errorMsg += `\nDetails: ${data.error.message}`; }
+                     else { errorMsg += `\nDetails: ${JSON.stringify(data)}`; } // Use already parsed data
+                     throw new Error(errorMsg);
+                 }
+
+                 // --- Improved Content Extraction & Error Checking ---
+                 let responseContent = null;
+                 if (data && data.error && (data.error.message || data.error.code)) {
+                     console.error("API returned an error object:", data.error);
+                     throw new Error(`API错误: ${data.error.message || `Code ${data.error.code}`}`);
+                 }
+                 else if (data.candidates?.[0]?.finishReason && data.candidates[0].finishReason !== "STOP") {
+                     // Gemini: Check finishReason for safety blocks etc.
+                     console.error("Gemini request finished with non-STOP reason:", data.candidates[0].finishReason, data.promptFeedback);
+                      let reason = data.candidates[0].finishReason;
+                      if (data.promptFeedback?.blockReason) {
+                          reason += ` (Block Reason: ${data.promptFeedback.blockReason})`;
+                      }
+                      throw new Error(`请求被终止: ${reason}`);
+                 }
+                 else if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                     responseContent = data.candidates[0].content.parts[0].text;
+                 }
+                 else if (data.choices?.[0]?.finish_reason && data.choices[0].finish_reason !== "stop") {
+                     // OpenAI: Check finish_reason
+                     console.error("OpenAI request finished with non-stop reason:", data.choices[0].finish_reason);
+                      throw new Error(`请求被终止: ${data.choices[0].finish_reason}`);
+                 }
+                 else if (data.choices?.[0]?.message?.content) {
+                     responseContent = data.choices[0].message.content;
+                 }
+                 else if (data.choices?.[0]?.error) {
+                      console.error("API returned an error object within choices:", data.choices[0].error);
+                      throw new Error(`API错误: ${data.choices[0].error.message || JSON.stringify(data.choices[0].error)}`);
+                 }
+                 // No specific promptFeedback check here as Gemini's is covered by finishReason
+                 else {
+                     console.error("Could not find expected content path in API response.", data);
+                     throw new Error("无法从 API 响应中提取有效内容。"); // Keep original error message
+                 }
+                 // --- End Improved Content Extraction ---
+
                  console.log("Extracted Response Content (before parsing):", responseContent);
 
+                 // --- JSON Parsing and Validation (Includes Fallback Return) ---
                  let parsedData;
-                 try { // Validation and Parsing (Unchanged from previous version)
-                     const cleanedText = responseContent.replace(/^```json\s*|```$/gs, '').trim(); parsedData = JSON.parse(cleanedText);
+                 try {
+                     const cleanedText = responseContent.replace(/^```json\s*|```$/gs, '').trim();
+                     if (!cleanedText) {
+                         throw new Error("提取到的内容为空字符串。");
+                     }
+                     parsedData = JSON.parse(cleanedText);
+
+                     // Validation Logic (Keep as before)
                      if (!parsedData || typeof parsedData !== 'object') throw new Error("Parsed data is not an object.");
                      if (!parsedData.scene_state || typeof parsedData.scene_state !== 'object') throw new Error("Missing or invalid scene_state.");
                      if (typeof parsedData.scene_state.background_prompt !== 'string') throw new Error("Invalid background_prompt type.");
@@ -868,23 +971,29 @@
                       if (parsedData.choices.length === 0) { console.warn("AI provided zero choices. Adding default."); parsedData.choices = ["[继续...]"]; } else { for(let i = 0; i < parsedData.choices.length; i++) { if (typeof parsedData.choices[i] !== 'string') throw new Error(`Invalid choice type at index ${i}.`); } }
                      if (isFirstCall) { if (!parsedData.initial_setup_details || typeof parsedData.initial_setup_details !== 'object') throw new Error("Initial setup response missing valid initial_setup_details object."); if (typeof parsedData.initial_setup_details.player_base_appearance_prompt !== 'string' || !parsedData.initial_setup_details.player_base_appearance_prompt.trim()) throw new Error("Initial setup missing valid player_base_appearance_prompt."); if (typeof parsedData.initial_setup_details.ai_base_appearance_prompt !== 'string' || !parsedData.initial_setup_details.ai_base_appearance_prompt.trim()) throw new Error("Initial setup missing valid ai_base_appearance_prompt."); console.log("Initial setup details received and validated."); }
                      else if (parsedData.initial_setup_details) { console.warn("AI incorrectly included initial_setup_details on a non-first turn. Ignoring it."); delete parsedData.initial_setup_details; }
-                 } catch (parseError) {
-                     console.error("Failed to parse or validate LLM JSON response:", parseError); console.error("Received content:", responseContent);
-                     const fallbackData = { scene_state: { background_prompt: "error background", visible_characters: [] }, dialogue_segments: [{ speaker: "系统", text: `抱歉，解析AI响应时出错：${parseError.message}`, emotion: null }], choices: ["[尝试继续]"] };
-                     conversationHistory.push({ role: "model", parts: [{ text: JSON.stringify(fallbackData) }], isErrorFallback: true }); return fallbackData;
-                 }
 
+                 } catch (parseError) {
+                     console.error("Failed to parse or validate LLM JSON response:", parseError);
+                     console.error("Received content that failed parsing:", responseContent); // Log the content that failed
+                     const fallbackData = { scene_state: { background_prompt: "error background", visible_characters: [] }, dialogue_segments: [{ speaker: "系统", text: `抱歉，解析AI响应时出错：${parseError.message}`, emotion: null }], choices: ["[尝试继续]"] };
+                     if (!conversationHistory.length || !conversationHistory[conversationHistory.length - 1].isErrorFallback) { conversationHistory.push({ role: "model", parts: [{ text: JSON.stringify(fallbackData) }], isErrorFallback: true }); }
+                     return fallbackData; // Return fallback data on parse error
+                 }
+                 // --- End JSON Parsing and Validation ---
+
+                 // Only add to history if it wasn't an error handled above
                  conversationHistory.push({ role: "model", parts: [{ text: JSON.stringify(parsedData) }] });
                  return parsedData;
 
-             } catch (error) {
-                 console.error("调用 Galgame LLM API 时出错:", error); showGameError(error.message || "与 AI 的连接中断。");
-                 const fallbackData = { scene_state: { background_prompt: "error background", visible_characters: [] }, dialogue_segments: [{ speaker: "系统", text: `抱歉，连接AI时出错：${error.message}`, emotion: null }], choices: ["[尝试继续]"] };
-                 // Avoid adding duplicate error messages if already added in parse try/catch
+             } catch (error) { // Catch errors from fetch, response checks, or content extraction
+                 console.error("调用 Galgame LLM API 过程出错:", error); // More specific location
+                 showGameError(error.message || "与 AI 的连接中断或处理响应出错。"); // More specific message
+                 const fallbackData = { scene_state: { background_prompt: "error background", visible_characters: [] }, dialogue_segments: [{ speaker: "系统", text: `抱歉，连接或处理AI响应时出错：${error.message}`, emotion: null }], choices: ["[尝试继续]"] };
+                 // Avoid adding duplicate error messages if already added
                  if (!conversationHistory.length || !conversationHistory[conversationHistory.length - 1].isErrorFallback) {
                     conversationHistory.push({ role: "model", parts: [{ text: JSON.stringify(fallbackData) }], isErrorFallback: true });
                  }
-                 return fallbackData;
+                 return fallbackData; // Return fallback on general API errors
              }
         }
 
